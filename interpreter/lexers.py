@@ -36,7 +36,7 @@ class Lexer:
         """
         Read in input until we hit a readable string of characters
         """
-        value = self._next(False)
+        value = self._next(True)
         parsed = ""
         while value and value.isalpha():
             parsed += value
