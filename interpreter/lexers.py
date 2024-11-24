@@ -26,6 +26,21 @@ class Lexer:
         self.position = self.read_position
         self.read_position += 1
 
+    def read_token(self) -> str | None:
+        """
+        Read in input until we hit a readable string of characters
+        """
+        value = self.char.decode("ascii") if self.char else None
+        parsed = ""
+        while value and value.isalpha():
+            parsed += value
+            self.read_char()
+            value = self.char.decode("ascii") if self.char else None
+
+        if parsed:
+            return parsed
+        return value
+
     def next_token(self) -> tk.Token:
         token_type: tk.TokenType
         value = self.char.decode("ascii") if self.char else None
