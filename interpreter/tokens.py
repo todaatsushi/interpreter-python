@@ -33,3 +33,9 @@ class TokenType(enum.StrEnum):
 class Token:
     type: TokenType
     value: bytes | None
+
+# Distnguish between identifiers and keywords
+TOKEN_TYPE_MAP = {
+    "let": TokenType.LET,
+    "fn": TokenType.FUNCTION
+}

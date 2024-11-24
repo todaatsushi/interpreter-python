@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import dataclasses as dc
+from re import I
 
 from interpreter import tokens as tk
 
@@ -31,8 +32,36 @@ class Lexer:
             return self.literal.decode("ascii")
         return self.literal
 
+    def skip_whitespace(self) -> None:
+        is_whitespace = lambda c: c is not None and not c.strip()
+        while is_whitespace(self.get_current()):
+            self.read_char()
+
+    def _read_multi(self) -> str:
+        """
+        For multi character tokens (e.g. identifiers), stream until ending character given.
+
+        At this point, the current char is asserted to be a number or letter.
+        """
+        value = self.get_current()
+        should = lambda c: c and c.isalnum()
+        while should(value):
+            self.read_char()
+            _next = self.get_current()
+            if not should(_next):
+                break
+
+            assert _next and value
+            value += _next
+        assert value
+        return value
+
     def next_token(self) -> tk.Token:
         token_type: tk.TokenType
+
+        self.skip_whitespace()
+
+        multi = False  # any calls to _read_multi have already gone to the next char
         value = self.get_current()
         match value:
             case "+":
@@ -56,7 +85,15 @@ class Lexer:
             case None | "":
                 token_type = tk.TokenType.EOF
             case _:
-                raise NotImplementedError
-
-        self.read_char()
+                if value.isalnum():
+                    value = self._read_multi()
+                    if value.isalpha():
+                        token_type = tk.TOKEN_TYPE_MAP.get(value, tk.TokenType.IDENTIFIER)
+                    else:
+                        token_type = tk.TokenType.INT
+                    multi = True
+                else:
+                    token_type = tk.TokenType.ILLEGAL
+        if not multi:
+            self.read_char()
         return tk.Token(type=token_type, value=value.encode("ascii") if value else None)
