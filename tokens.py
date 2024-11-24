@@ -4,7 +4,29 @@ import enum
 import dataclasses as dc
 
 class TokenType(enum.StrEnum):
-    pass
+    ILLEGAL = "ILLEGAL"
+    EOF = "EOF"
+
+    # Identifiers + literals
+    IDENT = "IDENT" # add, x, y
+    INT = "INT"
+
+    # Operators
+    ASSIGN = "="
+    PLUS = "+"
+
+    # Delimiters
+    COMMA = ","
+    SEMICOLON = ";"
+
+    LEFT_PARENTHESES = "("
+    RIGHT_PARENTHESES = ")"
+    LEFT_BRACE = "{"
+    RIGHT_BRACE = "}"
+
+    # Keywords
+    FUNCTION = "FUNCTION"
+    LET = "LET"
 
 
 @dc.dataclass(frozen=True)
