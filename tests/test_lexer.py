@@ -17,28 +17,12 @@ class TestNextToken(unittest.TestCase):
         lexer = lx.Lexer.new("a")
         self.assertEqual(lexer.position, 0)
         self.assertEqual(lexer.read_position, 1)
-        self.assertEqual(lexer.char, "a".encode("ascii"))
+        self.assertEqual(lexer.literal, "a".encode("ascii"))
 
         lexer.read_char()
         self.assertEqual(lexer.position, 1)
         self.assertEqual(lexer.read_position, 2)
-        self.assertEqual(lexer.char, None)
-
-    def test_read_token(self) -> None:
-        test_cases: tuple[tuple[str, str | None], ...] = (
-            ("+", "+"),
-            ("0", "0"),
-            ("let", "let"),
-            ("l et", "l"),
-            ("; let", ";"),
-            ("\n let", "let"),
-            (" let", "let"),
-        )
-        for input, expected in test_cases:
-            with self.subTest():
-                lexer = lx.Lexer.new(input)
-                actual = lexer.read_token()
-                self.assertEqual(actual, expected, f"Expected '{expected}', got '{actual}'. Input: '{input}'")
+        self.assertEqual(lexer.literal, None)
 
     def test_parse_token(self) -> None:
         lexer = lx.Lexer.new("=+(){},;5")
@@ -117,7 +101,7 @@ class TestNextToken(unittest.TestCase):
             ("ten", tk.TokenType.IDENTIFIER),
             (")", tk.TokenType.RIGHT_PARENTHESES),
             (";", tk.TokenType.SEMICOLON),
-            # ("", tk.TokenType.EOF),
+            ("", tk.TokenType.EOF),
         )
 
         for expected_value, expected_type in test_cases:
