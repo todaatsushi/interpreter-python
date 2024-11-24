@@ -32,4 +32,4 @@ class TokenType(enum.StrEnum):
 @dc.dataclass(frozen=True)
 class Token:
     type: TokenType
-    value: str
+    value: bytes | None
