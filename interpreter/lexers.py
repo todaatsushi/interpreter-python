@@ -26,29 +26,30 @@ class Lexer:
         self.position = self.read_position
         self.read_position += 1
 
-    def _next(self, fwd: bool) -> str | None:
-        value = self.char.decode("ascii") if self.char else None
-        if fwd:
-            self.read_char()
-        return value
+    def get_current(self) -> str | None:
+        return self.char.decode("ascii").strip() if self.char else None
 
     def read_token(self) -> str | None:
         """
         Read in input until we hit a readable string of characters
         """
-        value = self._next(True)
-        parsed = ""
-        while value and value.isalpha():
-            parsed += value
-            value = self._next(True)
+        total = ""
+        value = self.get_current()
+        while value and value.isalnum():
+            self.read_char()
+            total += value
+            value = self.get_current()
 
-        if parsed:
-            return parsed
-        return value
+        # Value must be a terminiating character if entered the loop.
+        # If not looped, it's the first non alphanumeric char, and return'
+        # and validate that it's not whitespace.'
+        if value and (v := value.strip()):
+            return v
+        return total or None
 
     def next_token(self) -> tk.Token:
         token_type: tk.TokenType
-        value = self.char.decode("ascii") if self.char else None
+        value = self.read_token()
         match value:
             case "+":
                 token_type = tk.TokenType.PLUS

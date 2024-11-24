@@ -16,17 +16,20 @@ class TestNextToken(unittest.TestCase):
         self.assertEqual(lexer.char, None)
 
     def test_read_token(self) -> None:
-        test_cases: tuple[tuple[str, str], ...] = (
+        test_cases: tuple[tuple[str, str | None], ...] = (
             ("+", "+"),
             ("0", "0"),
             ("let", "let"),
             ("l et", "l"),
+            ("; let", ";"),
+            ("\n let", None),
+            (" let", None),
         )
         for input, expected in test_cases:
             with self.subTest():
                 lexer = lx.Lexer.new(input)
                 actual = lexer.read_token()
-                self.assertEqual(actual, expected)
+                self.assertEqual(actual, expected, f"Expected '{expected}', got '{actual}'. Input: '{input}'")
 
     def test_parse_token(self) -> None:
         lexer = lx.Lexer.new("=+(){},;")
