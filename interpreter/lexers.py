@@ -27,7 +27,7 @@ class Lexer:
         self.read_position += 1
 
     def get_current(self) -> str | None:
-        return self.char.decode("ascii").strip() if self.char else None
+        return self.char.decode("ascii") if self.char else None
 
     def read_token(self) -> str | None:
         """
@@ -35,6 +35,10 @@ class Lexer:
         """
         total = ""
         value = self.get_current()
+        while value and not value.strip():
+            self.read_char()
+            value = self.get_current()
+
         while value and value.isalnum():
             self.read_char()
             total += value
@@ -67,11 +71,18 @@ class Lexer:
                 token_type = tk.TokenType.RIGHT_BRACE
             case ",":
                 token_type = tk.TokenType.COMMA
-            case None:
+            case "let":
+                token_type = tk.TokenType.LET
+            case None | "":
                 token_type = tk.TokenType.EOF
             case _:
-                token_type = tk.TokenType.ILLEGAL
+                try:
+                    int(value)
+                except ValueError:
+                    token_type = tk.TokenType.IDENTIFIER
+                else:
+                    token_type = tk.TokenType.INT
 
-        token = tk.Token(type=token_type, value=self.char)
+        token = tk.Token(type=token_type, value=value.encode("ascii") if value else None)
         self.read_char()
         return token
