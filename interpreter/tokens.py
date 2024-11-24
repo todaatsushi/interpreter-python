@@ -8,7 +8,7 @@ class TokenType(enum.StrEnum):
     EOF = "EOF"
 
     # Identifiers + literals
-    IDENT = "IDENT" # add, x, y
+    IDENTIFIER = "IDENTIFIER" # add, x, y
     INT = "INT"
 
     # Operators
