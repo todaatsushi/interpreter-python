@@ -51,10 +51,10 @@ class TestNextToken(unittest.TestCase):
                 self.assertEqual(
                     actual_value,
                     expected_value,
-                    f"Expected '{expected_value}, got {actual_value}",
+                    f"Expected '{expected_value}, got '{actual_value}'",
                 )
                 self.assertEqual(
                     actual_type,
                     expected_type,
-                    f"Expected '{expected_type}, got {actual_type}",
+                    f"Expected '{expected_type}, got '{actual_type}'",
                 )
