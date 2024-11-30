@@ -32,8 +32,10 @@ class Lexer:
         return self.literal
 
     def skip_whitespace(self) -> None:
-        is_whitespace = lambda c: c is not None and not c.strip()
-        while is_whitespace(self.get_current()):
+        def _is_whitespace(c: str | None) -> bool:
+            return c is not None and not c.strip()
+
+        while _is_whitespace(self.get_current()):
             self.read_char()
 
     def _read_multi(self) -> str:
@@ -42,8 +44,11 @@ class Lexer:
 
         At this point, the current char is asserted to be a number or letter.
         """
+
+        def should(c: str | None) -> bool:
+            return bool(c) and c.isalnum()
+
         value = self.get_current()
-        should = lambda c: c and c.isalnum()
         while should(value):
             self.read_char()
             _next = self.get_current()
@@ -87,7 +92,9 @@ class Lexer:
                 if value.isalnum():
                     value = self._read_multi()
                     if value.isalpha():
-                        token_type = tk.TOKEN_TYPE_MAP.get(value, tk.TokenType.IDENTIFIER)
+                        token_type = tk.TOKEN_TYPE_MAP.get(
+                            value, tk.TokenType.IDENTIFIER
+                        )
                     else:
                         token_type = tk.TokenType.INT
                     multi = True
