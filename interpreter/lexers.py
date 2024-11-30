@@ -86,6 +86,18 @@ class Lexer:
                 token_type = tk.TokenType.COMMA
             case "let":
                 token_type = tk.TokenType.LET
+            case "-":
+                token_type = tk.TokenType.MINUS
+            case "/":
+                token_type = tk.TokenType.DIVIDE
+            case "*":
+                token_type = tk.TokenType.MULTIPLY
+            case "<":
+                token_type = tk.TokenType.LESS_THAN
+            case ">":
+                token_type = tk.TokenType.MORE_THAN
+            case "!":
+                token_type = tk.TokenType.EXCLAIMATION_MARK
             case None | "":
                 token_type = tk.TokenType.EOF
             case _:

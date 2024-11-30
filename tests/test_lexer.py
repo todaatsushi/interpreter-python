@@ -25,7 +25,7 @@ class TestNextToken(unittest.TestCase):
         self.assertEqual(lexer.literal, None)
 
     def test_parse_token(self) -> None:
-        lexer = lx.Lexer.new("=+(){},;5")
+        lexer = lx.Lexer.new("=+(){},;5-/*<>!")
 
         test_cases: tuple[tuple[str | None, tk.TokenType], ...] = (
             ("=", tk.TokenType.ASSIGN),
@@ -37,6 +37,12 @@ class TestNextToken(unittest.TestCase):
             (",", tk.TokenType.COMMA),
             (";", tk.TokenType.SEMICOLON),
             ("5", tk.TokenType.INT),
+            ("-", tk.TokenType.MINUS),
+            ("/", tk.TokenType.DIVIDE),
+            ("*", tk.TokenType.MULTIPLY),
+            ("<", tk.TokenType.LESS_THAN),
+            (">", tk.TokenType.MORE_THAN),
+            ("!", tk.TokenType.EXCLAIMATION_MARK),
             (None, tk.TokenType.EOF),
         )
 

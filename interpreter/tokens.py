@@ -15,6 +15,9 @@ class TokenType(enum.StrEnum):
     # Operators
     ASSIGN = "="
     PLUS = "+"
+    MULTIPLY = "*"
+    DIVIDE = "/"
+    MINUS = "-"
 
     # Delimiters
     COMMA = ","
@@ -24,6 +27,11 @@ class TokenType(enum.StrEnum):
     RIGHT_PARENTHESES = ")"
     LEFT_BRACE = "{"
     RIGHT_BRACE = "}"
+    LESS_THAN = "<"
+    MORE_THAN = ">"
+
+    # Other
+    EXCLAIMATION_MARK = "!"
 
     # Keywords
     FUNCTION = "FUNCTION"
