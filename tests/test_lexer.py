@@ -24,6 +24,26 @@ class TestNextToken(unittest.TestCase):
         self.assertEqual(lexer.read_position, 2)
         self.assertEqual(lexer.literal, None)
 
+    def test_parse_keywords(self) -> None:
+        test_cases: tuple[tuple[str, tk.TokenType], ...] = (
+            ("let", tk.TokenType.LET),
+            ("if", tk.TokenType.IF),
+            ("else", tk.TokenType.ELSE),
+            ("true", tk.TokenType.TRUE),
+            ("false", tk.TokenType.FALSE),
+            ("return", tk.TokenType.RETURN),
+            ("variable", tk.TokenType.IDENTIFIER),
+            ("fn", tk.TokenType.FUNCTION),
+            ("10", tk.TokenType.INT),
+        )
+
+        for value, expected in test_cases:
+            lexer = lx.Lexer.new(value)
+            actual: tk.TokenType = lexer.next_token().type
+
+            with self.subTest():
+                self.assertEqual(actual, expected)
+
     def test_parse_token(self) -> None:
         lexer = lx.Lexer.new("=+(){},;5-/*<>!")
 
@@ -54,12 +74,12 @@ class TestNextToken(unittest.TestCase):
                 self.assertEqual(
                     actual_value,
                     expected_value,
-                    f"Expected '{expected_value}, got '{actual_value}'",
+                    f"Expected '{expected_value}', got '{actual_value}'",
                 )
                 self.assertEqual(
                     actual_type,
                     expected_type,
-                    f"Expected '{expected_type}, got '{actual_type}'",
+                    f"Expected '{expected_type}', got '{actual_type}'",
                 )
 
     def test_parses_script(self) -> None:
