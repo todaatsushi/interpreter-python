@@ -11,6 +11,13 @@ class TokenType(enum.StrEnum):
     # Identifiers + literals
     IDENTIFIER = "IDENTIFIER"  # add, x, y
     INT = "INT"
+    TRUE = "TRUE"
+    FALSE = "FALSE"
+
+    # Control flow
+    IF = "IF"
+    ELSE = "ELSE"
+    RETURN = "RETURN"
 
     # Operators
     ASSIGN = "="
@@ -45,4 +52,27 @@ class Token:
 
 
 # Distnguish between identifiers and keywords
-TOKEN_TYPE_MAP = {"let": TokenType.LET, "fn": TokenType.FUNCTION}
+TOKEN_TYPE_MAP = {
+    "let": TokenType.LET,
+    "fn": TokenType.FUNCTION,
+    "true": TokenType.TRUE,
+    "false": TokenType.FALSE,
+    "if": TokenType.IF,
+    "else": TokenType.ELSE,
+    "return": TokenType.RETURN,
+    # chars
+    "+": TokenType.PLUS,
+    "=": TokenType.ASSIGN,
+    ";": TokenType.SEMICOLON,
+    "(": TokenType.LEFT_PARENTHESES,
+    ")": TokenType.RIGHT_PARENTHESES,
+    "{": TokenType.LEFT_BRACE,
+    "}": TokenType.RIGHT_BRACE,
+    ",": TokenType.COMMA,
+    "-": TokenType.MINUS,
+    "/": TokenType.DIVIDE,
+    "*": TokenType.MULTIPLY,
+    "<": TokenType.LESS_THAN,
+    ">": TokenType.MORE_THAN,
+    "!": TokenType.EXCLAIMATION_MARK,
+}
