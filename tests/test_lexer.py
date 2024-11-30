@@ -141,7 +141,28 @@ class TestNextToken(unittest.TestCase):
             (">", tk.TokenType.MORE_THAN),
             ("5", tk.TokenType.INT),
             (";", tk.TokenType.SEMICOLON),
-            # Line 11
+            # Line 12
+            ("if", tk.TokenType.IF),
+            ("(", tk.TokenType.LEFT_PARENTHESES),
+            ("5", tk.TokenType.INT),
+            ("<", tk.TokenType.LESS_THAN),
+            ("10", tk.TokenType.INT),
+            (")", tk.TokenType.RIGHT_PARENTHESES),
+            ("{", tk.TokenType.LEFT_BRACE),
+            # Line 13
+            ("return", tk.TokenType.RETURN),
+            ("true", tk.TokenType.TRUE),
+            (";", tk.TokenType.SEMICOLON),
+            # Line 14
+            ("}", tk.TokenType.RIGHT_BRACE),
+            ("else", tk.TokenType.ELSE),
+            ("{", tk.TokenType.LEFT_BRACE),
+            # Line 15
+            ("return", tk.TokenType.RETURN),
+            ("false", tk.TokenType.FALSE),
+            (";", tk.TokenType.SEMICOLON),
+            # Line 16
+            ("}", tk.TokenType.RIGHT_BRACE),
             ("`", tk.TokenType.ILLEGAL),
             (None, tk.TokenType.EOF),
         )

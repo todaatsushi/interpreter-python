@@ -60,58 +60,39 @@ class Lexer:
         assert value
         return value
 
-    def next_token(self) -> tk.Token:
-        token_type: tk.TokenType
+    def _match_token_type(
+        self, value: str, variable: bool
+    ) -> tuple[tk.TokenType, str | None]:
+        """
+        variable: ie. non single id char token (e.g. =). Could be int, identifier etc.
+        """
+        if variable:
+            token_type = None
+            if value.isalnum():
+                value = self._read_multi()
+                if value.isalpha():
+                    token_type = tk.TOKEN_TYPE_MAP.get(value, tk.TokenType.IDENTIFIER)
+                else:
+                    token_type = tk.TokenType.INT
+            else:
+                self.read_char()
+                token_type = tk.TokenType.ILLEGAL
+            return token_type, value
+        else:
+            if value in (None, ""):
+                return tk.TokenType.EOF, value
+            if token_type := tk.TOKEN_TYPE_MAP.get(value):
+                self.read_char()
+                return token_type, value
+            return self._match_token_type(value, True)
 
+    def next_token(self) -> tk.Token:
         self.skip_whitespace()
 
-        multi = False  # any calls to _read_multi have already gone to the next char
         value = self.get_current()
-        match value:
-            case "+":
-                token_type = tk.TokenType.PLUS
-            case "=":
-                token_type = tk.TokenType.ASSIGN
-            case ";":
-                token_type = tk.TokenType.SEMICOLON
-            case "(":
-                token_type = tk.TokenType.LEFT_PARENTHESES
-            case ")":
-                token_type = tk.TokenType.RIGHT_PARENTHESES
-            case "{":
-                token_type = tk.TokenType.LEFT_BRACE
-            case "}":
-                token_type = tk.TokenType.RIGHT_BRACE
-            case ",":
-                token_type = tk.TokenType.COMMA
-            case "let":
-                token_type = tk.TokenType.LET
-            case "-":
-                token_type = tk.TokenType.MINUS
-            case "/":
-                token_type = tk.TokenType.DIVIDE
-            case "*":
-                token_type = tk.TokenType.MULTIPLY
-            case "<":
-                token_type = tk.TokenType.LESS_THAN
-            case ">":
-                token_type = tk.TokenType.MORE_THAN
-            case "!":
-                token_type = tk.TokenType.EXCLAIMATION_MARK
-            case None | "":
-                token_type = tk.TokenType.EOF
-            case _:
-                if value.isalnum():
-                    value = self._read_multi()
-                    if value.isalpha():
-                        token_type = tk.TOKEN_TYPE_MAP.get(
-                            value, tk.TokenType.IDENTIFIER
-                        )
-                    else:
-                        token_type = tk.TokenType.INT
-                    multi = True
-                else:
-                    token_type = tk.TokenType.ILLEGAL
-        if not multi:
-            self.read_char()
+        if value in (None, ""):
+            return tk.Token(type=tk.TokenType.EOF, value=None)
+
+        # Any calls to _read_multi have already gone to the next char
+        token_type, value = self._match_token_type(value, False)
         return tk.Token(type=token_type, value=value.encode("ascii") if value else None)
