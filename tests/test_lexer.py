@@ -163,6 +163,15 @@ class TestNextToken(unittest.TestCase):
             (";", tk.TokenType.SEMICOLON),
             # Line 16
             ("}", tk.TokenType.RIGHT_BRACE),
+            # Line 18
+            ("10", tk.TokenType.INT),
+            ("==", tk.TokenType.INT),  # TODO
+            ("10", tk.TokenType.INT),
+            # Line 18
+            ("10", tk.TokenType.INT),
+            ("!=", tk.TokenType.INT),  # TODO
+            ("9", tk.TokenType.INT),
+            # Line 20
             ("`", tk.TokenType.ILLEGAL),
             (None, tk.TokenType.EOF),
         )
