@@ -107,6 +107,22 @@ class TestNextToken(unittest.TestCase):
             ("ten", tk.TokenType.IDENTIFIER),
             (")", tk.TokenType.RIGHT_PARENTHESES),
             (";", tk.TokenType.SEMICOLON),
+            # Line 9
+            ("!", tk.TokenType.EXCLAIMATION_MARK),
+            ("-", tk.TokenType.MINUS),
+            ("/", tk.TokenType.DIVIDE),
+            ("*", tk.TokenType.MULTIPLY),
+            ("5", tk.TokenType.INT),
+            (";", tk.TokenType.SEMICOLON),
+            # Line 10
+            ("5", tk.TokenType.INT),
+            ("<", tk.TokenType.LESS_THAN),
+            ("10", tk.TokenType.INT),
+            (">", tk.TokenType.MORE_THAN),
+            ("5", tk.TokenType.INT),
+            (";", tk.TokenType.SEMICOLON),
+            # Line 11
+            ("`", tk.TokenType.ILLEGAL),
             (None, tk.TokenType.EOF),
         )
 
