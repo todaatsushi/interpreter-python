@@ -1,5 +1,5 @@
 venv:
     source ./.venv/bin/activate
 
-test: venv
-    uv run test.py
+test path: venv
+    uv run -m unittest {{ path }}
