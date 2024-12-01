@@ -18,7 +18,7 @@ class Lexer:
         instance.read_char()
         return instance
 
-    def read_char(self):
+    def read_char(self) -> None:
         if self.read_position >= len(self.input):
             self.literal = None
         else:
