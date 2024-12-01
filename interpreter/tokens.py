@@ -40,6 +40,10 @@ class TokenType(enum.StrEnum):
     # Other
     EXCLAIMATION_MARK = "!"
 
+    # Evaluators
+    EQUALS = "=="
+    NOT_EQUALS = "!="
+
     # Keywords
     FUNCTION = "FUNCTION"
     LET = "LET"
@@ -76,3 +80,5 @@ TOKEN_TYPE_MAP = {
     ">": TokenType.MORE_THAN,
     "!": TokenType.EXCLAIMATION_MARK,
 }
+
+COULD_BE_DOUBLE = {TokenType.EXCLAIMATION_MARK, TokenType.ASSIGN}

@@ -87,8 +87,26 @@ class Lexer:
             if value in (None, ""):
                 return tk.TokenType.EOF, value
             if token_type := tk.TOKEN_TYPE_MAP.get(value):
-                self.read_char()
-                return token_type, value
+                if token_type not in (
+                    tk.TokenType.ASSIGN,
+                    tk.TokenType.EXCLAIMATION_MARK,
+                ):
+                    self.read_char()
+                    return token_type, value
+                else:
+                    next_char = self.peek_char()
+                    if value == "=" and next_char == "=":
+                        token_type = tk.TokenType.EQUALS
+                    elif value == "!" and next_char == "=":
+                        token_type = tk.TokenType.NOT_EQUALS
+                    else:
+                        self.read_char()
+                        return token_type, value
+
+                    self.read_char()
+                    self.read_char()
+                    assert value and next_char
+                    return token_type, value + next_char
             return self._match_token_type(value, True)
 
     def next_token(self) -> tk.Token:

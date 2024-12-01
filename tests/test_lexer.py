@@ -24,6 +24,19 @@ class TestNextToken(unittest.TestCase):
         self.assertEqual(lexer.read_position, 2)
         self.assertEqual(lexer.literal, None)
 
+    def test_parse_multi_tokens(self) -> None:
+        test_cases: tuple[tuple[str, tk.TokenType], ...] = (
+            ("==", tk.TokenType.EQUALS),
+            ("!=", tk.TokenType.NOT_EQUALS),
+        )
+
+        for value, expected in test_cases:
+            lexer = lx.Lexer.new(value)
+            actual: tk.TokenType = lexer.next_token().type
+
+            with self.subTest():
+                self.assertEqual(actual, expected)
+
     def test_parse_keywords(self) -> None:
         test_cases: tuple[tuple[str, tk.TokenType], ...] = (
             ("let", tk.TokenType.LET),
@@ -165,12 +178,14 @@ class TestNextToken(unittest.TestCase):
             ("}", tk.TokenType.RIGHT_BRACE),
             # Line 18
             ("10", tk.TokenType.INT),
-            ("==", tk.TokenType.INT),  # TODO
+            ("==", tk.TokenType.EQUALS),
             ("10", tk.TokenType.INT),
+            (";", tk.TokenType.SEMICOLON),
             # Line 18
             ("10", tk.TokenType.INT),
-            ("!=", tk.TokenType.INT),  # TODO
+            ("!=", tk.TokenType.NOT_EQUALS),
             ("9", tk.TokenType.INT),
+            (";", tk.TokenType.SEMICOLON),
             # Line 20
             ("`", tk.TokenType.ILLEGAL),
             (None, tk.TokenType.EOF),
@@ -180,7 +195,7 @@ class TestNextToken(unittest.TestCase):
             token: tk.Token = lexer.next_token()
             actual_value = token.value.decode("ascii") if token.value else token.value
             actual_type = token.type
-            with self.subTest():
+            with self.subTest(f"Position: {lexer.position}"):
                 self.assertEqual(
                     actual_value,
                     expected_value,
