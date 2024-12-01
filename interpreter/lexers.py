@@ -98,6 +98,5 @@ class Lexer:
         if value in (None, ""):
             return tk.Token(type=tk.TokenType.EOF, value=None)
 
-        # Any calls to _read_multi have already gone to the next char
         token_type, value = self._match_token_type(value, False)
         return tk.Token(type=token_type, value=value.encode("ascii") if value else None)
