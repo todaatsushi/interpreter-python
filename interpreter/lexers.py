@@ -26,6 +26,11 @@ class Lexer:
         self.position = self.read_position
         self.read_position += 1
 
+    def peek_char(self) -> str | None:
+        if self.read_position >= len(self.input):
+            return None
+        return self.input[self.read_position]
+
     def get_current(self) -> str | None:
         if self.literal is not None:
             return self.literal.decode("ascii")
