@@ -35,7 +35,16 @@ class Parser:
         return False
 
     def parse_program(self) -> ast.Program:
-        raise NotImplementedError
+        program = ast.Program()
+
+        while self.current_token.type != tokens.TokenType.EOF:
+            try:
+                statement = parse_statement(self)
+                program.statements.append(statement)
+            except NotImplementedError:
+                logger.warning("TODO")
+
+        return program
 
 
 def parse_statement(parser: Parser) -> ast.Statement:
