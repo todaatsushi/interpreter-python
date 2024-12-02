@@ -61,3 +61,19 @@ class TestParseProgram(unittest.TestCase):
 
                 self.assertEqual(statement.name.value, tc)
                 self.assertEqual(statement.name.token_literal(), tc)
+
+    def test_parse_error(self) -> None:
+        test_cases: tuple[tuple[str, list[str]], ...] = (
+            ("let 5;", ["Expected IDENTIFIER, got INT at position 5."]),
+            ("let variable 5;", ["Expected =, got INT at position 14."]),
+        )
+
+        for code, expected in test_cases:
+            lexer = lexers.Lexer.new(code)
+            parser = parsers.Parser.new(lexer)
+
+            parser.parse_program()
+
+            self.assertEqual(len(parser.errors), len(expected))
+            for i, err in enumerate(parser.errors):
+                self.assertEqual(err, expected[i])

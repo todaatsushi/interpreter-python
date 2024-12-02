@@ -9,12 +9,18 @@ from interpreter import ast, lexers, tokens
 logger = logging.getLogger(__name__)
 
 
+class ParseError(Exception):
+    pass
+
+
 @dc.dataclass
 class Parser:
     lexer: lexers.Lexer
 
     current_token: tokens.Token
     peek_token: tokens.Token
+
+    errors: list[str] = dc.field(default_factory=list)
 
     @classmethod
     def new(cls, lexer: lexers.Lexer) -> Parser:
@@ -43,6 +49,12 @@ class Parser:
                 program.statements.append(statement)
             except NotImplementedError:
                 logger.warning("TODO")
+                self.next_token()
+            except ParseError:
+                self.next_token()
+
+        if self.errors:
+            logger.error(f"Errors when parsing program: \n{'\n'.join(self.errors)}")
 
         return program
 
@@ -57,13 +69,19 @@ def parse_statement(parser: Parser) -> ast.Statement:
 
 def parse_let_statement(parser: Parser) -> ast.Let:
     let_token = parser.current_token
-    assert parser.expect_token_type(parser.peek_token, tokens.TokenType.IDENTIFIER)
+    if not parser.expect_token_type(parser.peek_token, tokens.TokenType.IDENTIFIER):
+        msg = f"Expected {tokens.TokenType.IDENTIFIER}, got {parser.peek_token.type} at position {parser.lexer.position}."
+        parser.errors.append(msg)
+        raise ParseError(msg)
 
     assert parser.current_token.value
     name = ast.Identifier(
         token=parser.current_token, value=parser.current_token.value.decode("ascii")
     )
-    assert parser.expect_token_type(parser.peek_token, tokens.TokenType.ASSIGN)
+    if not parser.expect_token_type(parser.peek_token, tokens.TokenType.ASSIGN):
+        msg = f"Expected {tokens.TokenType.ASSIGN}, got {parser.peek_token.type} at position {parser.lexer.position}."
+        parser.errors.append(msg)
+        raise ParseError(msg)
 
     while not parser.expect_token_type(
         parser.current_token, tokens.TokenType.SEMICOLON
