@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import logging
 
 import dataclasses as dc
 
 from interpreter import ast, lexers, tokens
+
+logger = logging.getLogger(__name__)
 
 
 @dc.dataclass
