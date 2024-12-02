@@ -26,6 +26,14 @@ class Parser:
         self.current_token = self.peek_token
         self.peek_token = self.lexer.next_token()
 
+    def expect_token_type(
+        self, token: tokens.Token, token_type: tokens.TokenType
+    ) -> bool:
+        if token.type == token_type:
+            self.next_token()
+            return True
+        return False
+
     def parse_program(self) -> ast.Program:
         raise NotImplementedError
 
