@@ -1,6 +1,5 @@
 import abc
 import dataclasses as dc
-from collections.abc import Sequence
 
 from interpreter import tokens
 
@@ -25,7 +24,7 @@ class Expression(Node):
 
 @dc.dataclass
 class Program(Node):
-    statements: Sequence[Statement] = dc.field(default_factory=list)
+    statements: list[Statement] = dc.field(default_factory=list)
 
     def token_literal(self) -> str:
         if len(self.statements) > 0:
