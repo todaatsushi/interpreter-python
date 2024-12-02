@@ -25,3 +25,15 @@ class Parser:
 
     def parse_program(self) -> ast.Program:
         raise NotImplementedError
+
+
+def parse_statement(parser: Parser) -> ast.Statement:
+    match parser.current_token.type:
+        case tokens.TokenType.LET:
+            return parse_let_statement(parser)
+        case _:
+            raise NotImplementedError
+
+
+def parse_let_statement(parser: Parser) -> ast.Let:
+    raise NotImplementedError
