@@ -2,14 +2,7 @@ import unittest
 
 from interpreter import tokens as tk, lexers as lx
 
-
-def read_script() -> str:
-    script = ""
-    with open("tests/fixtures/01.mky") as file:
-        for line in file.readlines():
-            script = f"{script}\n{line.strip('\n')}"
-    script = script.strip()
-    return script
+from tests import utils
 
 
 class TestNextToken(unittest.TestCase):
@@ -96,7 +89,7 @@ class TestNextToken(unittest.TestCase):
                 )
 
     def test_parses_script(self) -> None:
-        input = read_script()
+        input = utils.read_script("tests/fixtures/01.mky")
         lexer = lx.Lexer.new(input)
 
         test_cases: tuple[tuple[str | None, tk.TokenType], ...] = (
