@@ -47,4 +47,19 @@ def parse_statement(parser: Parser) -> ast.Statement:
 
 
 def parse_let_statement(parser: Parser) -> ast.Let:
-    raise NotImplementedError
+    let_token = parser.current_token
+    assert parser.expect_token_type(parser.peek_token, tokens.TokenType.IDENTIFIER)
+
+    assert parser.current_token.value
+    name = ast.Identifier(
+        token=parser.current_token, value=parser.current_token.value.decode("ascii")
+    )
+    assert parser.expect_token_type(parser.peek_token, tokens.TokenType.ASSIGN)
+
+    while not parser.expect_token_type(
+        parser.current_token, tokens.TokenType.SEMICOLON
+    ):
+        logger.info("TODO: fetch value expression")
+        parser.next_token()
+
+    return ast.Let(token=let_token, name=name)
