@@ -1,6 +1,8 @@
 import unittest
 
 from interpreter import lexers, parsers, tokens
+from interpreter import ast
+from tests import utils
 
 
 class TestParser(unittest.TestCase):
@@ -34,3 +36,28 @@ class TestParser(unittest.TestCase):
             parser.peek_token,
             tokens.Token(type=tokens.TokenType.ASSIGN, value="=".encode("ascii")),
         )
+
+
+class TestParseProgram(unittest.TestCase):
+    def test_parses_let(self) -> None:
+        script = utils.read_script("tests/fixtures/02.mky")
+        lexer = lexers.Lexer.new(script)
+        parser = parsers.Parser.new(lexer)
+
+        program = parser.parse_program()
+
+        self.assertEqual(len(program.statements), 3)
+
+        test_cases: tuple[str, ...] = ("x", "y", "foobar")
+
+        for i, tc in enumerate(test_cases):
+            with self.subTest(f"Identifier: {tc}"):
+                statement = program.statements[i]
+
+                self.assertEqual(statement.token_literal(), "let")
+
+                self.assertIsInstance(statement, ast.Let)
+                assert isinstance(statement, ast.Let)
+
+                self.assertEqual(statement.name.value, tc)
+                self.assertEqual(statement.name.token_literal(), tc)

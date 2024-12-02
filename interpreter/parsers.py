@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import dataclasses as dc
 
-from interpreter import lexers, tokens
+from interpreter import ast, lexers, tokens
 
 
 @dc.dataclass
@@ -22,3 +22,6 @@ class Parser:
     def next_token(self) -> None:
         self.current_token = self.peek_token
         self.peek_token = self.lexer.next_token()
+
+    def parse_program(self) -> ast.Program:
+        raise NotImplementedError
