@@ -49,7 +49,7 @@ class Identifier(Expression):
 class Let(Statement):
     token: tokens.Token
     name: Identifier
-    value: Expression
+    value: Expression | None = None
 
     def statement_node(self) -> None:
         pass
