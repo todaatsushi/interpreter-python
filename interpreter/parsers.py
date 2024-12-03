@@ -40,12 +40,14 @@ class Parser:
             return True
         return False
 
+    ## Parsing
+
     def parse_program(self) -> ast.Program:
         program = ast.Program()
 
         while self.current_token.type != tokens.TokenType.EOF:
             try:
-                statement = parse_statement(self)
+                statement = self.parse_statement()
                 program.statements.append(statement)
             except NotImplementedError:
                 logger.warning("TODO")
@@ -58,35 +60,33 @@ class Parser:
 
         return program
 
+    def parse_statement(self) -> ast.Statement:
+        match self.current_token.type:
+            case tokens.TokenType.LET:
+                return self.parse_let_statement()
+            case _:
+                raise NotImplementedError
 
-def parse_statement(parser: Parser) -> ast.Statement:
-    match parser.current_token.type:
-        case tokens.TokenType.LET:
-            return parse_let_statement(parser)
-        case _:
-            raise NotImplementedError
+    def parse_let_statement(self) -> ast.Let:
+        let_token = self.current_token
+        if not self.expect_token_type(self.peek_token, tokens.TokenType.IDENTIFIER):
+            msg = f"Expected {tokens.TokenType.IDENTIFIER}, got {self.peek_token.type} at position {self.lexer.position}."
+            self.errors.append(msg)
+            raise ParseError(msg)
 
+        assert self.current_token.value
+        name = ast.Identifier(
+            token=self.current_token, value=self.current_token.value.decode("ascii")
+        )
+        if not self.expect_token_type(self.peek_token, tokens.TokenType.ASSIGN):
+            msg = f"Expected {tokens.TokenType.ASSIGN}, got {self.peek_token.type} at position {self.lexer.position}."
+            self.errors.append(msg)
+            raise ParseError(msg)
 
-def parse_let_statement(parser: Parser) -> ast.Let:
-    let_token = parser.current_token
-    if not parser.expect_token_type(parser.peek_token, tokens.TokenType.IDENTIFIER):
-        msg = f"Expected {tokens.TokenType.IDENTIFIER}, got {parser.peek_token.type} at position {parser.lexer.position}."
-        parser.errors.append(msg)
-        raise ParseError(msg)
+        while not self.expect_token_type(
+            self.current_token, tokens.TokenType.SEMICOLON
+        ):
+            logger.info("TODO: fetch value expression")
+            self.next_token()
 
-    assert parser.current_token.value
-    name = ast.Identifier(
-        token=parser.current_token, value=parser.current_token.value.decode("ascii")
-    )
-    if not parser.expect_token_type(parser.peek_token, tokens.TokenType.ASSIGN):
-        msg = f"Expected {tokens.TokenType.ASSIGN}, got {parser.peek_token.type} at position {parser.lexer.position}."
-        parser.errors.append(msg)
-        raise ParseError(msg)
-
-    while not parser.expect_token_type(
-        parser.current_token, tokens.TokenType.SEMICOLON
-    ):
-        logger.info("TODO: fetch value expression")
-        parser.next_token()
-
-    return ast.Let(token=let_token, name=name)
+        return ast.Let(token=let_token, name=name)
