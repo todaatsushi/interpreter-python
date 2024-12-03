@@ -1,11 +1,11 @@
 venv:
     source ./.venv/bin/activate
 
-test path: venv
-    uv run -m unittest {{ path }} -v
+test match: venv
+    uv run -m unittest discover -vk {{ match }}
 
 tests: venv
-    uv run -m unittest discover -v
+    LOGLEVEL=CRITICAL uv run -m unittest discover -v
 
 shell:
     uv run main.py repl
