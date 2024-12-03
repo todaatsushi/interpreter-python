@@ -1,12 +1,23 @@
 from __future__ import annotations
+from collections.abc import Callable
 
 import logging
 
 import dataclasses as dc
+from typing import TypeAlias, TypedDict
 
 from interpreter import ast, lexers, tokens
 
 logger = logging.getLogger(__name__)
+
+
+PrefixParseFunction: TypeAlias = Callable[[], ast.Expression]
+InfixParseFunction: TypeAlias = Callable[[ast.Expression], ast.Expression]
+
+
+class ParseFunctionMap(TypedDict):
+    PREFIX: dict[tokens.TokenType, PrefixParseFunction]
+    INFIX: dict[tokens.TokenType, InfixParseFunction]
 
 
 class ParseError(Exception):
@@ -20,7 +31,16 @@ class Parser:
     current_token: tokens.Token
     peek_token: tokens.Token
 
-    errors: list[str] = dc.field(default_factory=list)
+    errors: list[str] = dc.field(default_factory=list, init=False)
+    parse_functions: ParseFunctionMap = dc.field(init=False)
+
+    def __post_init__(self) -> None:
+        prefix_map: dict[tokens.TokenType, PrefixParseFunction] = {}
+        infix_map: dict[tokens.TokenType, InfixParseFunction] = {}
+        self.parse_functions: ParseFunctionMap = {
+            "PREFIX": prefix_map,
+            "INFIX": infix_map,
+        }
 
     @classmethod
     def new(cls, lexer: lexers.Lexer) -> Parser:
@@ -39,6 +59,19 @@ class Parser:
             self.next_token()
             return True
         return False
+
+    def register_prefix(
+        self,
+        token_type: tokens.TokenType,
+        *,
+        func: PrefixParseFunction,
+    ) -> None:
+        self.parse_functions["PREFIX"][token_type] = func
+
+    def register_infix(
+        self, token_type: tokens.TokenType, *, func: InfixParseFunction
+    ) -> None:
+        self.parse_functions["INFIX"][token_type] = func
 
     ## Parsing
 

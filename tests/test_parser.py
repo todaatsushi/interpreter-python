@@ -127,3 +127,28 @@ class TestParseProgram(unittest.TestCase):
         actual = str(program)
 
         self.assertEqual(expected, actual)
+
+    def test_register(self) -> None:
+        parser = parsers.Parser.new(lexers.Lexer.new("let x = 5;"))
+        _let_expr = ast.Identifier(
+            token=tokens.Token(type=tokens.TokenType.LET, value="let".encode("ascii")),
+            value="let",
+        )
+
+        def valid_infix(expr: ast.Expression) -> ast.Expression:
+            return _let_expr
+
+        def valid_prefix() -> ast.Expression:
+            return _let_expr
+
+        with self.subTest("Register valid infix"):
+            parser.register_infix(tokens.TokenType.LET, func=valid_infix)
+            self.assertEqual(
+                parser.parse_functions["INFIX"][tokens.TokenType.LET], valid_infix
+            )
+
+        with self.subTest("Register valid prefix"):
+            parser.register_prefix(tokens.TokenType.LET, func=valid_prefix)
+            self.assertEqual(
+                parser.parse_functions["PREFIX"][tokens.TokenType.LET], valid_prefix
+            )
