@@ -4,7 +4,7 @@ from collections.abc import Callable
 import logging
 
 import dataclasses as dc
-from typing import TypeAlias, TypedDict
+from typing import Any, TypeAlias, TypedDict
 
 from interpreter import ast, lexers, tokens
 
@@ -139,8 +139,16 @@ class Parser:
 
         return ast.Return(token=return_token)
 
+    def parse_expression(self, arg: Any) -> ast.Expression:
+        raise NotImplementedError
+
     def parse_expression_statement(self) -> ast.ExpressionStatement:
         expression_statement = ast.ExpressionStatement(
             token=self.current_token,
+            expression=self.parse_expression("LOWEST"),  # TODO: define lowest
         )
+
+        if self.expect_token_type(self.peek_token, tokens.TokenType.SEMICOLON):
+            self.next_token()
+
         return expression_statement
