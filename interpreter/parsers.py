@@ -59,6 +59,8 @@ class Parser:
             "INFIX": infix_map,
         }
 
+        self.register_prefix(tokens.TokenType.IDENTIFIER, func=self.parse_identifer)
+
     @classmethod
     def new(cls, lexer: lexers.Lexer) -> Parser:
         current = lexer.next_token()
@@ -155,6 +157,13 @@ class Parser:
             self.next_token()
 
         return ast.Return(token=return_token)
+
+    def parse_identifer(self) -> ast.Identifier:
+        assert self.current_token.value
+        return ast.Identifier(
+            token=self.current_token,
+            value=self.current_token.value.decode("ascii"),
+        )
 
     def parse_expression(self, precendence: Precedences) -> ast.Expression | None:
         prefix_func = self.parse_functions["PREFIX"].get(self.current_token.type)
