@@ -77,3 +77,22 @@ class TestParseProgram(unittest.TestCase):
             self.assertEqual(len(parser.errors), len(expected))
             for i, err in enumerate(parser.errors):
                 self.assertEqual(err, expected[i])
+
+    def test_parses_return(self) -> None:
+        script = utils.read_script("tests/fixtures/03.mky")
+        lexer = lexers.Lexer.new(script)
+        parser = parsers.Parser.new(lexer)
+
+        program = parser.parse_program()
+
+        self.assertEqual(len(program.statements), 3)
+
+        test_cases: tuple[str, ...] = ("5", "10", "993322")
+
+        for i, tc in enumerate(test_cases):
+            with self.subTest(f"Identifier: {tc}"):
+                statement = program.statements[i]
+
+                self.assertEqual(statement.token_literal(), "return")
+                self.assertIsInstance(statement, ast.Return)
+                assert isinstance(statement, ast.Return)
