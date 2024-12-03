@@ -74,3 +74,16 @@ class Return(Statement):
     def token_literal(self) -> str:
         assert self.token.value
         return self.token.value.decode("ascii")
+
+
+@dc.dataclass
+class ExpressionStatement(Statement):
+    token: tokens.Token
+    expression: Expression | None = None
+
+    def statement_node(self) -> None:
+        pass
+
+    def token_literal(self) -> str:
+        assert self.token.value
+        return self.token.value.decode("ascii")
