@@ -94,4 +94,14 @@ class Parser:
         return ast.Let(token=let_token, name=name)
 
     def parse_return_statement(self) -> ast.Return:
-        raise NotImplementedError
+        return_token = self.current_token
+
+        self.next_token()
+
+        while not self.expect_token_type(
+            self.current_token, tokens.TokenType.SEMICOLON
+        ):
+            logger.info("TODO: fetch value expression")
+            self.next_token()
+
+        return ast.Return(token=return_token)
