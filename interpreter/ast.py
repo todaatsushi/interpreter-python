@@ -115,7 +115,7 @@ class Return(Statement):
 @dc.dataclass
 class ExpressionStatement(Statement):
     token: tokens.Token
-    expression: Expression | None = None
+    expression: Expression | None
 
     def statement_node(self) -> None:
         pass
