@@ -121,6 +121,17 @@ class Parser:
             case _:
                 return self.parse_expression_statement()
 
+    def parse_expression_statement(self) -> ast.ExpressionStatement:
+        expression_statement = ast.ExpressionStatement(
+            token=self.current_token,
+            expression=self.parse_expression(Precedences.LOWEST),
+        )
+
+        if self.expect_token_type(self.peek_token, tokens.TokenType.SEMICOLON):
+            self.next_token()
+
+        return expression_statement
+
     def parse_let_statement(self) -> ast.Let:
         let_token = self.current_token
         if not self.expect_token_type(self.peek_token, tokens.TokenType.IDENTIFIER):
@@ -170,14 +181,3 @@ class Parser:
         if prefix_func is None:
             return None
         return prefix_func()
-
-    def parse_expression_statement(self) -> ast.ExpressionStatement:
-        expression_statement = ast.ExpressionStatement(
-            token=self.current_token,
-            expression=self.parse_expression(Precedences.LOWEST),
-        )
-
-        if self.expect_token_type(self.peek_token, tokens.TokenType.SEMICOLON):
-            self.next_token()
-
-        return expression_statement
