@@ -1,5 +1,6 @@
 from __future__ import annotations
 from collections.abc import Callable
+import enum
 
 import logging
 
@@ -18,6 +19,22 @@ InfixParseFunction: TypeAlias = Callable[[ast.Expression], ast.Expression]
 class ParseFunctionMap(TypedDict):
     PREFIX: dict[tokens.TokenType, PrefixParseFunction]
     INFIX: dict[tokens.TokenType, InfixParseFunction]
+
+
+class Precedences(enum.IntEnum):
+    """
+    aka. Order of operations.
+
+    Lowest to highest.
+    """
+
+    LOWEST = 1
+    EQUALS = 2
+    LESSGREATER = 3
+    SUM = 4
+    PRODUCT = 5
+    PREFIX = 6
+    CALL = 7
 
 
 class ParseError(Exception):
