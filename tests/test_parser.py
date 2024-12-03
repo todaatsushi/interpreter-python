@@ -177,3 +177,28 @@ class TestParseProgram(unittest.TestCase):
         with self.subTest("Identifier is foobar"):
             self.assertEqual(identifier.value, "foobar")
             self.assertEqual(identifier.token_literal(), "foobar")
+
+    def test_parse_integer_expression(self) -> None:
+        code = "5;"
+        lexer = lexers.Lexer.new(code)
+        parser = parsers.Parser.new(lexer)
+
+        program = parser.parse_program()
+
+        with self.subTest("Program has 1 statement"):
+            self.assertEqual(len(program.statements), 1)
+            self.assertEqual(len(parser.errors), 0)
+
+        with self.subTest("Statement is expression statement"):
+            statement = program.statements[0]
+            self.assertIsInstance(statement, ast.ExpressionStatement)
+            assert isinstance(statement, ast.ExpressionStatement)
+
+        with self.subTest("Statement expression is identifier"):
+            identifier = statement.expression
+            self.assertIsInstance(identifier, ast.IntegerLiteral)
+            assert isinstance(identifier, ast.IntegerLiteral)
+
+        with self.subTest("Identifier is foobar"):
+            self.assertEqual(identifier.value, "5")
+            self.assertEqual(identifier.token_literal(), "5")

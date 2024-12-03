@@ -60,6 +60,7 @@ class Parser:
         }
 
         self.register_prefix(tokens.TokenType.IDENTIFIER, func=self.parse_identifer)
+        self.register_prefix(tokens.TokenType.INT, func=self.parse_integer_literal)
 
     @classmethod
     def new(cls, lexer: lexers.Lexer) -> Parser:
@@ -172,6 +173,13 @@ class Parser:
     def parse_identifer(self) -> ast.Identifier:
         assert self.current_token.value
         return ast.Identifier(
+            token=self.current_token,
+            value=self.current_token.value.decode("ascii"),
+        )
+
+    def parse_integer_literal(self) -> ast.IntegerLiteral:
+        assert self.current_token.value
+        return ast.IntegerLiteral(
             token=self.current_token,
             value=self.current_token.value.decode("ascii"),
         )

@@ -70,6 +70,22 @@ class Identifier(Expression):
 
 
 @dc.dataclass
+class IntegerLiteral(Expression):
+    token: tokens.Token
+    value: str
+
+    def expression_node(self) -> None:
+        pass
+
+    def token_literal(self) -> str:
+        assert self.token.value
+        return self.token.value.decode("ascii")
+
+    def __str__(self) -> str:
+        return self.value
+
+
+@dc.dataclass
 class Let(Statement):
     token: tokens.Token
     name: Identifier
