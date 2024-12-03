@@ -96,3 +96,34 @@ class TestParseProgram(unittest.TestCase):
                 self.assertEqual(statement.token_literal(), "return")
                 self.assertIsInstance(statement, ast.Return)
                 assert isinstance(statement, ast.Return)
+
+    def test_string(self) -> None:
+        program = ast.Program(
+            statements=[
+                ast.Let(
+                    token=tokens.Token(
+                        type=tokens.TokenType.LET,
+                        value="let".encode("ascii"),
+                    ),
+                    name=ast.Identifier(
+                        token=tokens.Token(
+                            type=tokens.TokenType.IDENTIFIER,
+                            value="myVar".encode("ascii"),
+                        ),
+                        value="myVar",
+                    ),
+                    value=ast.Identifier(
+                        token=tokens.Token(
+                            type=tokens.TokenType.IDENTIFIER,
+                            value="anotherVar".encode("ascii"),
+                        ),
+                        value="anotherVar",
+                    ),
+                )
+            ]
+        )
+
+        expected = "let myVar = anotherVar;\n"
+        actual = str(program)
+
+        self.assertEqual(expected, actual)

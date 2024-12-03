@@ -1,12 +1,19 @@
 import abc
 import dataclasses as dc
+import logging
 
 from interpreter import tokens
+
+logger = logging.getLogger(__name__)
 
 
 class Node(abc.ABC):
     @abc.abstractmethod
     def token_literal(self) -> str:
+        pass
+
+    @abc.abstractmethod
+    def __str__(self) -> str:
         pass
 
 
@@ -15,11 +22,19 @@ class Statement(Node):
     def statement_node(self) -> None:
         pass
 
+    def __str__(self) -> str:
+        logger.warning("TODO - str for statement")
+        return ""
+
 
 class Expression(Node):
     @abc.abstractmethod
     def expression_node(self) -> None:
         pass
+
+    def __str__(self) -> str:
+        logger.warning("TODO - str for expression")
+        return ""
 
 
 @dc.dataclass
@@ -30,6 +45,12 @@ class Program(Node):
         if len(self.statements) > 0:
             return self.statements[0].token_literal()
         return ""
+
+    def __str__(self) -> str:
+        s = ""
+        for statement in self.statements:
+            s = f"{s}{str(statement)}\n"
+        return s
 
 
 @dc.dataclass
@@ -43,6 +64,9 @@ class Identifier(Expression):
     def token_literal(self) -> str:
         assert self.token.value
         return self.token.value.decode("ascii")
+
+    def __str__(self) -> str:
+        return self.value
 
 
 @dc.dataclass
@@ -60,6 +84,12 @@ class Let(Statement):
         assert self.token.value
         return self.token.value.decode("ascii")
 
+    def __str__(self) -> str:
+        s = f"{self.token_literal()} {str(self.name)} ="
+        if self.value:
+            s = f"{s} {str(self.value)}"
+        return f"{s};"
+
 
 @dc.dataclass
 class Return(Statement):
@@ -75,6 +105,12 @@ class Return(Statement):
         assert self.token.value
         return self.token.value.decode("ascii")
 
+    def __str__(self) -> str:
+        s = self.token_literal()
+        if self.value:
+            s = f"{s} {str(self.value)}"
+        return f"{s};"
+
 
 @dc.dataclass
 class ExpressionStatement(Statement):
@@ -87,3 +123,8 @@ class ExpressionStatement(Statement):
     def token_literal(self) -> str:
         assert self.token.value
         return self.token.value.decode("ascii")
+
+    def __str__(self) -> str:
+        if self.expression:
+            return str(self.expression)
+        return ""
