@@ -100,7 +100,7 @@ class Parser:
             case tokens.TokenType.RETURN:
                 return self.parse_return_statement()
             case _:
-                raise NotImplementedError
+                return self.parse_expression_statement()
 
     def parse_let_statement(self) -> ast.Let:
         let_token = self.current_token
@@ -138,3 +138,9 @@ class Parser:
             self.next_token()
 
         return ast.Return(token=return_token)
+
+    def parse_expression_statement(self) -> ast.ExpressionStatement:
+        expression_statement = ast.ExpressionStatement(
+            token=self.current_token,
+        )
+        return expression_statement
