@@ -64,7 +64,9 @@ class Let(Statement):
 @dc.dataclass
 class Return(Statement):
     token: tokens.Token
-    value: Expression
+
+    # TODO - needs not nullable expression later
+    value: Expression | None = None
 
     def statement_node(self) -> None:
         pass

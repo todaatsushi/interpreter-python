@@ -64,6 +64,8 @@ class Parser:
         match self.current_token.type:
             case tokens.TokenType.LET:
                 return self.parse_let_statement()
+            case tokens.TokenType.RETURN:
+                return self.parse_return_statement()
             case _:
                 raise NotImplementedError
 
@@ -90,3 +92,6 @@ class Parser:
             self.next_token()
 
         return ast.Let(token=let_token, name=name)
+
+    def parse_return_statement(self) -> ast.Return:
+        raise NotImplementedError
