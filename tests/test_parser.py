@@ -245,4 +245,6 @@ class TestParseProgram(unittest.TestCase):
                 ):
                     self.assertIsInstance(prefix_expression.right, ast.IntegerLiteral)
                     assert isinstance(prefix_expression.right, ast.IntegerLiteral)
-                    self.assertEqual(prefix_expression.right.value, operated_value)
+                    self.assertEqual(
+                        prefix_expression.right.token_literal(), operated_value
+                    )

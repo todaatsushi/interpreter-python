@@ -62,6 +62,10 @@ class Parser:
 
         self.register_prefix(tokens.TokenType.IDENTIFIER, func=self.parse_identifer)
         self.register_prefix(tokens.TokenType.INT, func=self.parse_integer_literal)
+        self.register_prefix(
+            tokens.TokenType.EXCLAIMATION_MARK, func=self.parse_prefix_expression
+        )
+        self.register_prefix(tokens.TokenType.MINUS, func=self.parse_prefix_expression)
 
     @classmethod
     def new(cls, lexer: lexers.Lexer) -> Parser:
@@ -191,6 +195,19 @@ class Parser:
             raise ParseError(msg) from exc
 
         return ast.IntegerLiteral(token=self.current_token, value=str(value))
+
+    def parse_prefix_expression(self) -> ast.PrefixExpression:
+        assert self.current_token.value
+        token = self.current_token
+        operator = self.current_token.value.decode("ascii")
+
+        self.next_token()
+
+        return ast.PrefixExpression(
+            token=token,
+            operator=operator,
+            right=self.parse_expression(Precedences.PREFIX),
+        )
 
     def parse_expression(self, precendence: Precedences) -> ast.Expression:
         prefix_func = self.parse_functions["PREFIX"].get(self.current_token.type)
