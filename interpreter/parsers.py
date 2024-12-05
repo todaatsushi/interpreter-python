@@ -77,6 +77,8 @@ class Parser:
             tokens.TokenType.EXCLAIMATION_MARK, func=self.parse_prefix_expression
         )
         self.register_prefix(tokens.TokenType.MINUS, func=self.parse_prefix_expression)
+        self.register_prefix(tokens.TokenType.TRUE, func=self.parse_boolean_literal)
+        self.register_prefix(tokens.TokenType.FALSE, func=self.parse_boolean_literal)
 
         # Register infix
         for token_type in (
@@ -229,6 +231,11 @@ class Parser:
             return None
 
         return ast.IntegerLiteral(token=self.current_token, value=str(value))
+
+    def parse_boolean_literal(self) -> ast.Boolean:
+        assert self.current_token.value
+        value = self.current_token.value.decode("ascii") == "true"
+        return ast.Boolean(token=self.current_token, value=value)
 
     def parse_prefix_expression(self) -> ast.Prefix:
         assert self.current_token.value
