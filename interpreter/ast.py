@@ -147,7 +147,7 @@ class ExpressionStatement(Statement):
 
 
 @dc.dataclass
-class PrefixExpression(Expression):
+class Prefix(Expression):
     token: tokens.Token
     operator: str
     right: Expression
@@ -163,7 +163,7 @@ class PrefixExpression(Expression):
 
 
 @dc.dataclass
-class InfixExpression(Expression):
+class Infix(Expression):
     token: tokens.Token  # ie. the operator
 
     left: Expression

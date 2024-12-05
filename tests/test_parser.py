@@ -232,8 +232,8 @@ class TestParseProgram(unittest.TestCase):
 
                 prefix_expression = statement.expression
                 with self.subTest(f"Is prefix expression: {code}"):
-                    self.assertIsInstance(prefix_expression, ast.PrefixExpression)
-                    assert isinstance(prefix_expression, ast.PrefixExpression)
+                    self.assertIsInstance(prefix_expression, ast.Prefix)
+                    assert isinstance(prefix_expression, ast.Prefix)
 
                 with self.subTest(
                     f"Prefix expression operator: {code} - {prefix_operator}"
@@ -269,8 +269,8 @@ class TestParseProgram(unittest.TestCase):
 
                 infix_expression = statement.expression
                 with self.subTest(f"Is infix expression: {code}"):
-                    self.assertIsInstance(infix_expression, ast.InfixExpression)
-                    assert isinstance(infix_expression, ast.InfixExpression)
+                    self.assertIsInstance(infix_expression, ast.Infix)
+                    assert isinstance(infix_expression, ast.Infix)
 
                 with self.subTest(f"Operator is {expected_operator}"):
                     self.assertEqual(infix_expression.operator, expected_operator)

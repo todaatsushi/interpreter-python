@@ -196,14 +196,14 @@ class Parser:
 
         return ast.IntegerLiteral(token=self.current_token, value=str(value))
 
-    def parse_prefix_expression(self) -> ast.PrefixExpression:
+    def parse_prefix_expression(self) -> ast.Prefix:
         assert self.current_token.value
         token = self.current_token
         operator = self.current_token.value.decode("ascii")
 
         self.next_token()
 
-        return ast.PrefixExpression(
+        return ast.Prefix(
             token=token,
             operator=operator,
             right=self.parse_expression(Precedences.PREFIX),
