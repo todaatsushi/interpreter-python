@@ -82,6 +82,7 @@ class Parser:
         self.register_prefix(
             tokens.TokenType.LEFT_PARENTHESES, func=self.parse_grouped_expression
         )
+        self.register_prefix(tokens.TokenType.IF, func=self.parse_if_expression)
 
         # Register infix
         for token_type in (
@@ -248,6 +249,72 @@ class Parser:
         assert self.current_token.value
         value = self.current_token.value.decode("ascii") == "true"
         return ast.BooleanLiteral(token=self.current_token, value=value)
+
+    def parse_if_expression(self) -> ast.If | None:
+        token = self.current_token
+
+        if not self.expect_token_type(
+            self.peek_token, tokens.TokenType.LEFT_PARENTHESES, True
+        ):
+            return None
+
+        self.next_token()
+
+        condition = self.parse_expression(Precedences.LOWEST)
+        assert condition
+
+        if not self.expect_token_type(
+            self.peek_token, tokens.TokenType.RIGHT_PARENTHESES, True
+        ):
+            return None
+
+        if not self.expect_token_type(
+            self.peek_token, tokens.TokenType.LEFT_BRACE, True
+        ):
+            return None
+
+        consequence = self.parse_block_statement()
+        assert consequence
+
+        alternative = None
+        if self.expect_token_type(self.peek_token, tokens.TokenType.ELSE, False):
+            self.next_token()
+
+            if not self.expect_token_type(
+                self.peek_token, tokens.TokenType.LEFT_BRACE, True
+            ):
+                return None
+            alternative = self.parse_block_statement()
+
+        return ast.If(
+            token=token,
+            condition=condition,
+            consequence=consequence,
+            alternative=alternative,
+        )
+
+    def parse_block_statement(self) -> ast.BlockStatement:
+        token = self.current_token
+        statements: list[ast.Statement] = []
+
+        self.next_token()
+
+        while not self.expect_token_type(
+            self.current_token, tokens.TokenType.RIGHT_BRACE, False
+        ) and not self.expect_token_type(
+            self.current_token, tokens.TokenType.EOF, False
+        ):
+            try:
+                statement = next(self.parse_statement())
+            except StopIteration:
+                break
+
+            if statement is None:
+                continue
+            statements.append(statement)
+            self.next_token()
+
+        return ast.BlockStatement(token=token, statements=statements)
 
     def parse_prefix_expression(self) -> ast.Prefix:
         assert self.current_token.value

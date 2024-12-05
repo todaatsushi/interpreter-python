@@ -432,6 +432,102 @@ class TestParseProgram(unittest.TestCase):
 
                     self.assertEqual(expected_right, actual_right.value)
 
+    def test_parses_if_expression(self) -> None:
+        test_cases: tuple[tuple[str, bool], ...] = (
+            ("if (x < y) { x } else { y }", True),
+            # ("if (x < y) { x }", False),
+        )
+
+        for code, has_alt in test_cases:
+            lexer = lexers.Lexer.new(code)
+            parser = parsers.Parser.new(lexer)
+
+            program = parser.parse_program()
+
+            with self.subTest(f"No errors for {code}"):
+                self.assertEqual(
+                    len(parser.errors), 0, f"Errors found: {parser.errors}"
+                )
+
+            with self.subTest(f"Number of statements for {code}"):
+                self.assertEqual(len(program.statements), 1)
+
+            statement = program.statements[0]
+            with self.subTest(f"Is expression statement: {code}"):
+                self.assertIsInstance(statement, ast.ExpressionStatement)
+                assert isinstance(statement, ast.ExpressionStatement)
+
+            if_expression = statement.expression
+            with self.subTest(f"Is infix expression: {code}"):
+                self.assertIsInstance(if_expression, ast.If)
+                assert isinstance(if_expression, ast.If)
+
+            infix = if_expression.condition
+            with self.subTest(f"Condition is infix: {code}"):
+                self.assertIsInstance(infix, ast.Infix)
+                assert isinstance(infix, ast.Infix)
+
+                self.assertEqual(
+                    infix.left,
+                    ast.Identifier(
+                        token=tokens.Token(
+                            value=b"x", type=tokens.TokenType.IDENTIFIER
+                        ),
+                        value="x",
+                    ),
+                )
+
+                self.assertEqual(
+                    infix.right,
+                    ast.Identifier(
+                        token=tokens.Token(
+                            value=b"y", type=tokens.TokenType.IDENTIFIER
+                        ),
+                        value="y",
+                    ),
+                )
+
+                self.assertEqual(infix.operator, "<")
+                self.assertEqual(
+                    infix.token,
+                    tokens.Token(value=b"<", type=tokens.TokenType.LESS_THAN),
+                )
+
+            consequence = if_expression.consequence
+            with self.subTest(f"Consequence for {code}"):
+                self.assertIsInstance(consequence, ast.BlockStatement)
+                assert isinstance(consequence, ast.BlockStatement)
+
+                self.assertEqual(len(consequence.statements), 1)
+
+                expression = consequence.statements[0]
+                self.assertIsInstance(expression, ast.ExpressionStatement)
+                assert isinstance(expression, ast.ExpressionStatement)
+
+                self.assertEqual(
+                    expression.token,
+                    tokens.Token(value=b"x", type=tokens.TokenType.IDENTIFIER),
+                )
+                self.assertIsNotNone(expression.expression)
+
+            alternative = if_expression.alternative
+            if has_alt:
+                with self.subTest(f"Alternative for {code}"):
+                    self.assertIsInstance(alternative, ast.BlockStatement)
+                    assert isinstance(alternative, ast.BlockStatement)
+
+                    self.assertEqual(len(alternative.statements), 1)
+
+                    expression = alternative.statements[0]
+                    self.assertIsInstance(expression, ast.ExpressionStatement)
+                    assert isinstance(expression, ast.ExpressionStatement)
+
+                    self.assertEqual(
+                        expression.token,
+                        tokens.Token(value=b"y", type=tokens.TokenType.IDENTIFIER),
+                    )
+                    self.assertIsNotNone(expression.expression)
+
 
 class TestOperatorPrecendenceParsing(unittest.TestCase):
     def test_operator_precedence_parsing(self) -> None:
