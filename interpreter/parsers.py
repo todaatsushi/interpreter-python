@@ -79,6 +79,9 @@ class Parser:
         self.register_prefix(tokens.TokenType.MINUS, func=self.parse_prefix_expression)
         self.register_prefix(tokens.TokenType.TRUE, func=self.parse_boolean_literal)
         self.register_prefix(tokens.TokenType.FALSE, func=self.parse_boolean_literal)
+        self.register_prefix(
+            tokens.TokenType.LEFT_PARENTHESES, func=self.parse_grouped_expression
+        )
 
         # Register infix
         for token_type in (
@@ -211,6 +214,17 @@ class Parser:
             self.next_token()
 
         return ast.Return(token=return_token)
+
+    def parse_grouped_expression(self) -> ast.Expression | None:
+        self.next_token()
+
+        expression = self.parse_expression(Precedences.LOWEST)
+
+        if not self.expect_token_type(
+            self.peek_token, tokens.TokenType.RIGHT_PARENTHESES, True
+        ):
+            return None
+        return expression
 
     def parse_identifer(self) -> ast.Identifier:
         assert self.current_token.value
