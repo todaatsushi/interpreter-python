@@ -247,13 +247,15 @@ class Parser:
         current = self.current_token
         assert current.value
 
+        precendence = self.get_precendence("CURRENT")
         self.next_token()
 
+        right = self.parse_expression(precendence)
         return ast.Infix(
             token=current,
             operator=current.value.decode("ascii"),
             left=left,
-            right=self.parse_expression(self.get_precendence("CURRENT")),
+            right=right,
         )
 
     def parse_expression(self, precendence: Precedences) -> ast.Expression | None:

@@ -9,7 +9,6 @@ class TestParser(unittest.TestCase):
     def test_new_parser_sets_tokens(self) -> None:
         program_input = "let x = 5;"
         lexer = lexers.Lexer.new(program_input)
-
         parser = parsers.Parser.new(lexer)
 
         self.assertEqual(
@@ -303,3 +302,34 @@ class TestParseProgram(unittest.TestCase):
                     assert isinstance(actual_right, ast.IntegerLiteral)
 
                     self.assertEqual(expected_right, actual_right.token_literal())
+
+
+class TestOperatorPrecendenceParsing(unittest.TestCase):
+    def test_operator_precedence_parsing(self) -> None:
+        test_cases: tuple[tuple[str, str], ...] = (
+            ("-a * b", "((-a) * b)"),
+            ("!-a", "(!(-a))"),
+            ("a + b + c", "((a + b) + c)"),
+            ("a + b - c", "((a + b) - c)"),
+            ("a * b * c", "((a * b) * c)"),
+            ("a * b / c", "((a * b) / c)"),
+            ("a + b / c", "(a + (b / c))"),
+            ("a + b * c + d / e - f", "(((a + (b * c)) + (d / e)) - f)"),
+            ("3 + 4; -5 * 5", "(3 + 4)((-5) * 5)"),
+            ("5 > 4 == 3 < 4", "((5 > 4) == (3 < 4))"),
+            ("5 < 4 != 3 > 4", "((5 < 4) != (3 > 4))"),
+            ("3 + 4 * 5 == 3 * 1 + 4 * 5", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"),
+        )
+
+        for code, expected in test_cases:
+            lexer = lexers.Lexer.new(code)
+            parser = parsers.Parser.new(lexer)
+
+            program = parser.parse_program()
+            with self.subTest(f"Check no errors for: {code}"):
+                self.assertEqual(
+                    len(parser.errors), 0, f"{len(parser.errors)} found for {code}"
+                )
+
+            with self.subTest(f"Parsed properly: {code}"):
+                self.assertEqual(str(program), expected)
