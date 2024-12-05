@@ -6,7 +6,7 @@ import enum
 import logging
 
 import dataclasses as dc
-from typing import TypeAlias, TypedDict
+from typing import Literal, TypeAlias, TypedDict
 
 from interpreter import ast, lexers, tokens
 
@@ -36,6 +36,20 @@ class Precedences(enum.IntEnum):
     PRODUCT = 5
     PREFIX = 6
     CALL = 7
+
+    @classmethod
+    def from_token_type(cls, token_type: tokens.TokenType) -> Precedences:
+        match token_type:
+            case tokens.TokenType.EQUALS | tokens.TokenType.NOT_EQUALS:
+                return Precedences.EQUALS
+            case tokens.TokenType.LESS_THAN | tokens.TokenType.MORE_THAN:
+                return Precedences.LESSGREATER
+            case tokens.TokenType.PLUS | tokens.TokenType.MINUS:
+                return Precedences.SUM
+            case tokens.TokenType.DIVIDE | tokens.TokenType.MULTIPLY:
+                return Precedences.PRODUCT
+            case _:
+                return Precedences.LOWEST
 
 
 class ParseError(Exception):
@@ -97,6 +111,12 @@ class Parser:
         self, token_type: tokens.TokenType, *, func: InfixParseFunction
     ) -> None:
         self.parse_functions["INFIX"][token_type] = func
+
+    ## Precendence
+
+    def get_precendence(self, token: Literal["CURRENT", "PEEK"]) -> Precedences:
+        token_to_check = self.current_token if token == "CURRENT" else self.peek_token
+        return Precedences.from_token_type(token_to_check.type)
 
     ## Parsing
 
