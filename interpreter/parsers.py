@@ -74,12 +74,26 @@ class Parser:
             "INFIX": infix_map,
         }
 
+        # Register prefix
         self.register_prefix(tokens.TokenType.IDENTIFIER, func=self.parse_identifer)
         self.register_prefix(tokens.TokenType.INT, func=self.parse_integer_literal)
         self.register_prefix(
             tokens.TokenType.EXCLAIMATION_MARK, func=self.parse_prefix_expression
         )
         self.register_prefix(tokens.TokenType.MINUS, func=self.parse_prefix_expression)
+
+        # Register infix
+        for token_type in (
+            tokens.TokenType.EQUALS,
+            tokens.TokenType.NOT_EQUALS,
+            tokens.TokenType.PLUS,
+            tokens.TokenType.MINUS,
+            tokens.TokenType.LESS_THAN,
+            tokens.TokenType.MORE_THAN,
+            tokens.TokenType.MULTIPLY,
+            tokens.TokenType.DIVIDE,
+        ):
+            self.register_infix(token_type, func=self.parse_infix_expression)
 
     @classmethod
     def new(cls, lexer: lexers.Lexer) -> Parser:
@@ -228,6 +242,9 @@ class Parser:
             operator=operator,
             right=self.parse_expression(Precedences.PREFIX),
         )
+
+    def parse_infix_expression(self, left: ast.Expression) -> ast.Infix:
+        raise NotImplementedError
 
     def parse_expression(self, precendence: Precedences) -> ast.Expression:
         prefix_func = self.parse_functions["PREFIX"].get(self.current_token.type)
