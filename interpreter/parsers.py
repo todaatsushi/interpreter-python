@@ -179,6 +179,15 @@ class Parser:
 
     def parse_integer_literal(self) -> ast.IntegerLiteral:
         assert self.current_token.value
+        value = self.current_token.value.decode("ascii")
+
+        try:
+            value = int(value)
+        except ValueError:
+            self.errors.append(
+                f"Couldn't parse '{value}' as int at line {self.lexer.position}."
+            )
+
         return ast.IntegerLiteral(
             token=self.current_token,
             value=self.current_token.value.decode("ascii"),
