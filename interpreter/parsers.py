@@ -244,7 +244,17 @@ class Parser:
         )
 
     def parse_infix_expression(self, left: ast.Expression) -> ast.Infix:
-        raise NotImplementedError
+        current = self.current_token
+        assert current.value
+
+        self.next_token()
+
+        return ast.Infix(
+            token=current,
+            operator=current.value.decode("ascii"),
+            left=left,
+            right=self.parse_expression(self.get_precendence("CURRENT")),
+        )
 
     def parse_expression(self, precendence: Precedences) -> ast.Expression:
         prefix_func = self.parse_functions["PREFIX"].get(self.current_token.type)
@@ -252,4 +262,16 @@ class Parser:
             msg = f"No prefix parse function for {self.current_token.type} found."
             self.errors.append(msg)
             raise ParseError(msg)
-        return prefix_func()
+
+        left = prefix_func()
+        while not self.expect_token_type(
+            self.peek_token, tokens.TokenType.SEMICOLON
+        ) and precendence < self.get_precendence("PEEK"):
+            infix_func = self.parse_functions["INFIX"].get(self.peek_token.type)
+            if infix_func is None:
+                return left
+
+            self.next_token()
+
+            left = infix_func(left)
+        return left
