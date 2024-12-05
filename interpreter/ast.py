@@ -77,9 +77,9 @@ class IntegerLiteral(Expression):
     def expression_node(self) -> None:
         pass
 
-    def token_literal(self) -> str:
+    def token_literal(self) -> int:
         assert self.token.value
-        return self.token.value.decode("ascii")
+        return int(self.token.value.decode("ascii"))
 
     def __str__(self) -> str:
         return self.value

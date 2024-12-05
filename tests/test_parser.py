@@ -199,9 +199,9 @@ class TestParseProgram(unittest.TestCase):
             self.assertIsInstance(identifier, ast.IntegerLiteral)
             assert isinstance(identifier, ast.IntegerLiteral)
 
-        with self.subTest("Identifier is foobar"):
+        with self.subTest("Identifier is 5"):
             self.assertEqual(identifier.value, "5")
-            self.assertEqual(identifier.token_literal(), "5")
+            self.assertEqual(identifier.token_literal(), 5)
 
     def test_parses_prefix_expressions(self) -> None:
         test_cases: tuple[tuple[str, str, int], ...] = (

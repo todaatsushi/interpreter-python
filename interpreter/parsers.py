@@ -185,15 +185,12 @@ class Parser:
 
         try:
             value = int(value)
-        except ValueError:
-            self.errors.append(
-                f"Couldn't parse '{value}' as int at line {self.lexer.position}."
-            )
+        except ValueError as exc:
+            msg = f"Couldn't parse '{value}' as int at line {self.lexer.position}."
+            self.errors.append(msg)
+            raise ParseError(msg) from exc
 
-        return ast.IntegerLiteral(
-            token=self.current_token,
-            value=self.current_token.value.decode("ascii"),
-        )
+        return ast.IntegerLiteral(token=self.current_token, value=str(value))
 
     def parse_expression(self, precendence: Precedences) -> ast.Expression:
         prefix_func = self.parse_functions["PREFIX"].get(self.current_token.type)
