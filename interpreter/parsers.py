@@ -1,5 +1,6 @@
 from __future__ import annotations
-from collections.abc import Callable
+
+from collections.abc import Callable, Iterator
 import enum
 
 import logging
@@ -100,27 +101,28 @@ class Parser:
 
         while self.current_token.type != tokens.TokenType.EOF:
             try:
-                statement = self.parse_statement()
-                program.statements.append(statement)
+                program.statements.append(next(self.parse_statement()))
             except NotImplementedError:
                 logger.warning("TODO")
                 self.next_token()
             except ParseError:
                 self.next_token()
+            except StopIteration:
+                break
 
         if self.errors:
             logger.error(f"Errors when parsing program: \n{'\n'.join(self.errors)}")
 
         return program
 
-    def parse_statement(self) -> ast.Statement:
+    def parse_statement(self) -> Iterator[ast.Statement]:
         match self.current_token.type:
             case tokens.TokenType.LET:
-                return self.parse_let_statement()
+                yield self.parse_let_statement()
             case tokens.TokenType.RETURN:
-                return self.parse_return_statement()
+                yield self.parse_return_statement()
             case _:
-                return self.parse_expression_statement()
+                yield self.parse_expression_statement()
 
     def parse_expression_statement(self) -> ast.ExpressionStatement:
         expression_statement = ast.ExpressionStatement(
