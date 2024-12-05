@@ -178,11 +178,12 @@ class TestParseProgram(unittest.TestCase):
 
             with self.subTest("Statement expression is identifier"):
                 identifier = statement.expression
-                self.assertIsInstance(identifier, ast.Boolean)
-                assert isinstance(identifier, ast.Boolean)
+                self.assertIsInstance(identifier, ast.BooleanLiteral)
+                assert isinstance(identifier, ast.BooleanLiteral)
 
             with self.subTest("Identifier is true"):
                 self.assertEqual(identifier.value, expected)
+                self.assertEqual(identifier.token_literal(), str(expected).lower())
 
     def test_parse_identifier_expression(self) -> None:
         code = "foobar;"
@@ -231,8 +232,8 @@ class TestParseProgram(unittest.TestCase):
             assert isinstance(identifier, ast.IntegerLiteral)
 
         with self.subTest("Identifier is 5"):
-            self.assertEqual(identifier.value, "5")
-            self.assertEqual(identifier.token_literal(), 5)
+            self.assertEqual(identifier.value, 5)
+            self.assertEqual(identifier.token_literal(), "5")
 
     def test_parses_prefix_expressions(self) -> None:
         test_cases: tuple[tuple[str, str, int], ...] = (
@@ -276,12 +277,30 @@ class TestParseProgram(unittest.TestCase):
                 ):
                     self.assertIsInstance(prefix_expression.right, ast.IntegerLiteral)
                     assert isinstance(prefix_expression.right, ast.IntegerLiteral)
-                    self.assertEqual(
-                        prefix_expression.right.token_literal(), operated_value
-                    )
+                    self.assertEqual(prefix_expression.right.value, operated_value)
 
     def test_parses_infix_expressions(self) -> None:
-        test_cases: tuple[tuple[str, int, str, int], ...] = (("5 + 5;", 5, "+", 5),)
+        test_cases: tuple[tuple[str, object, str, object], ...] = (
+            ("5 + 5;", 5, "+", 5),
+            ("5 - 5;", 5, "-", 5),
+            ("5 * 5;", 5, "*", 5),
+            ("5 / 5;", 5, "/", 5),
+            ("5 > 5;", 5, ">", 5),
+            ("5 < 5;", 5, "<", 5),
+            ("5 == 5;", 5, "==", 5),
+            ("5 != 5;", 5, "!=", 5),
+            ("foobar + barfoo;", "foobar", "+", "barfoo"),
+            ("foobar - barfoo;", "foobar", "-", "barfoo"),
+            ("foobar * barfoo;", "foobar", "*", "barfoo"),
+            ("foobar / barfoo;", "foobar", "/", "barfoo"),
+            ("foobar > barfoo;", "foobar", ">", "barfoo"),
+            ("foobar < barfoo;", "foobar", "<", "barfoo"),
+            ("foobar == barfoo;", "foobar", "==", "barfoo"),
+            ("foobar != barfoo;", "foobar", "!=", "barfoo"),
+            ("true == true", True, "==", True),
+            ("true != false", True, "!=", False),
+            ("false == false", False, "==", False),
+        )
 
         for code, expected_left, expected_operator, expected_right in test_cases:
             lexer = lexers.Lexer.new(code)
@@ -313,19 +332,40 @@ class TestParseProgram(unittest.TestCase):
                         ),
                     )
 
-                actual_left = infix_expression.left
-                with self.subTest(f"Test left is integer literal: {code}"):
-                    self.assertIsInstance(actual_left, ast.IntegerLiteral)
-                    assert isinstance(actual_left, ast.IntegerLiteral)
+                type_left = type(expected_left)
+                type_right = type(expected_right)
 
-                    self.assertEqual(expected_left, actual_left.token_literal())
+                if type_left is int:
+                    expected_class_left = ast.IntegerLiteral
+                elif type_left is bool:
+                    expected_class_left = ast.BooleanLiteral
+                elif type_left is str:
+                    expected_class_left = ast.Identifier
+                else:
+                    self.fail(f"Not implemented: {type(expected_left)}")
+
+                if type_right is int:
+                    expected_class_right = ast.IntegerLiteral
+                elif type_right is bool:
+                    expected_class_right = ast.BooleanLiteral
+                elif type_right is str:
+                    expected_class_right = ast.Identifier
+                else:
+                    self.fail(f"Not implemented: {type(expected_right)}")
+
+                actual_left = infix_expression.left
+                with self.subTest(f"Test left is correct literal: {code}"):
+                    self.assertIsInstance(actual_left, expected_class_left)
+                    assert isinstance(actual_left, expected_class_left)
+
+                    self.assertEqual(expected_left, actual_left.value)
 
                 actual_right = infix_expression.right
-                with self.subTest(f"Test right is integer literal: {code}"):
-                    self.assertIsInstance(actual_right, ast.IntegerLiteral)
-                    assert isinstance(actual_right, ast.IntegerLiteral)
+                with self.subTest(f"Test right is correct literal: {code}"):
+                    self.assertIsInstance(actual_right, expected_class_right)
+                    assert isinstance(actual_right, expected_class_right)
 
-                    self.assertEqual(expected_right, actual_right.token_literal())
+                    self.assertEqual(expected_right, actual_right.value)
 
 
 class TestOperatorPrecendenceParsing(unittest.TestCase):

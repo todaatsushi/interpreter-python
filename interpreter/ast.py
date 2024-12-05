@@ -72,21 +72,21 @@ class Identifier(Expression):
 @dc.dataclass
 class IntegerLiteral(Expression):
     token: tokens.Token
-    value: str
+    value: int
 
     def expression_node(self) -> None:
         pass
 
-    def token_literal(self) -> int:
+    def token_literal(self) -> str:
         assert self.token.value
-        return int(self.token.value.decode("ascii"))
+        return self.token.value.decode("ascii")
 
     def __str__(self) -> str:
-        return self.value
+        return str(self.value)
 
 
 @dc.dataclass
-class Boolean(Expression):
+class BooleanLiteral(Expression):
     token: tokens.Token
     value: bool
 

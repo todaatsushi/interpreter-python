@@ -230,12 +230,12 @@ class Parser:
             self.errors.append(msg)
             return None
 
-        return ast.IntegerLiteral(token=self.current_token, value=str(value))
+        return ast.IntegerLiteral(token=self.current_token, value=value)
 
-    def parse_boolean_literal(self) -> ast.Boolean:
+    def parse_boolean_literal(self) -> ast.BooleanLiteral:
         assert self.current_token.value
         value = self.current_token.value.decode("ascii") == "true"
-        return ast.Boolean(token=self.current_token, value=value)
+        return ast.BooleanLiteral(token=self.current_token, value=value)
 
     def parse_prefix_expression(self) -> ast.Prefix:
         assert self.current_token.value
