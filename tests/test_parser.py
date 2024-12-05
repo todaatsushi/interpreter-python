@@ -160,6 +160,30 @@ class TestParseProgram(unittest.TestCase):
                 parser.parse_functions["PREFIX"][tokens.TokenType.LET], valid_prefix
             )
 
+    def test_parse_boolean_expression(self) -> None:
+        test_cases: tuple[tuple[str, bool], ...] = (("true;", True), ("false;", False))
+        for code, expected in test_cases:
+            lexer = lexers.Lexer.new(code)
+            parser = parsers.Parser.new(lexer)
+            program = parser.parse_program()
+
+            with self.subTest("Program has 1 statement"):
+                self.assertEqual(len(program.statements), 1)
+                self.assertEqual(len(parser.errors), 0, f"Errors: {parser.errors}")
+
+            with self.subTest("Statement is expression statement"):
+                statement = program.statements[0]
+                self.assertIsInstance(statement, ast.ExpressionStatement)
+                assert isinstance(statement, ast.ExpressionStatement)
+
+            with self.subTest("Statement expression is identifier"):
+                identifier = statement.expression
+                self.assertIsInstance(identifier, ast.Boolean)
+                assert isinstance(identifier, ast.Boolean)
+
+            with self.subTest("Identifier is true"):
+                self.assertEqual(identifier.value, expected)
+
     def test_parse_identifier_expression(self) -> None:
         code = "foobar;"
         lexer = lexers.Lexer.new(code)

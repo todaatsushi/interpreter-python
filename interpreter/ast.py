@@ -86,6 +86,21 @@ class IntegerLiteral(Expression):
 
 
 @dc.dataclass
+class Boolean(Expression):
+    token: tokens.Token
+    value: bool
+
+    def expression_node(self) -> None:
+        pass
+
+    def token_literal(self) -> str:
+        return str(self.value).lower()
+
+    def __str__(self) -> str:
+        return self.token_literal()
+
+
+@dc.dataclass
 class Let(Statement):
     token: tokens.Token
     name: Identifier
