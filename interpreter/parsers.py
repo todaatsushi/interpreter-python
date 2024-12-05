@@ -144,8 +144,6 @@ class Parser:
                 statement = next(self.parse_statement())
                 if statement:
                     program.statements.append(statement)
-            except NotImplementedError:
-                logger.warning("TODO")
             except StopIteration:
                 break
             finally:
