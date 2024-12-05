@@ -49,7 +49,7 @@ class Program(Node):
     def __str__(self) -> str:
         s = ""
         for statement in self.statements:
-            s = f"{s}{str(statement)}\n"
+            s = f"{s}{str(statement)}"
         return s
 
 

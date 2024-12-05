@@ -131,7 +131,7 @@ class TestParseProgram(unittest.TestCase):
             ]
         )
 
-        expected = "let myVar = anotherVar;\n"
+        expected = "let myVar = anotherVar;"
         actual = str(program)
 
         self.assertEqual(expected, actual)
