@@ -144,3 +144,19 @@ class ExpressionStatement(Statement):
         if self.expression:
             return str(self.expression)
         return ""
+
+
+@dc.dataclass
+class PrefixExpression(Expression):
+    token: tokens.Token
+    operator: str
+    right: Expression
+
+    def expression_node(self) -> None:
+        pass
+
+    def token_literal(self) -> str:
+        return f"{self.operator}{self.right}"
+
+    def __str__(self) -> str:
+        return f"({self.operator}{str(self.right)})"

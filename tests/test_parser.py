@@ -202,3 +202,47 @@ class TestParseProgram(unittest.TestCase):
         with self.subTest("Identifier is foobar"):
             self.assertEqual(identifier.value, "5")
             self.assertEqual(identifier.token_literal(), "5")
+
+    def test_parses_prefix_expressions(self) -> None:
+        test_cases: tuple[tuple[str, str, int], ...] = (
+            ("!5;", "!", 5),
+            ("-15;", "-", 15),
+        )
+
+        for code, prefix_operator, operated_value in test_cases:
+            lexer = lexers.Lexer.new(code)
+            parser = parsers.Parser.new(lexer)
+
+            program = parser.parse_program()
+
+            with self.subTest(f"Prefix for code: {code}"):
+                with self.subTest(f"Number of statements for {code}"):
+                    self.assertEqual(len(program.statements), 1)
+
+                self.assertEqual(
+                    len(parser.errors),
+                    0,
+                    msg=f"Errors found when parsing '{code}': {parser.errors}",
+                )
+
+                statement = program.statements[0]
+                with self.subTest(f"Is expression statement: {code}"):
+                    self.assertIsInstance(statement, ast.ExpressionStatement)
+                    assert isinstance(statement, ast.ExpressionStatement)
+
+                prefix_expression = statement.expression
+                with self.subTest(f"Is prefix expression: {code}"):
+                    self.assertIsInstance(prefix_expression, ast.PrefixExpression)
+                    assert isinstance(prefix_expression, ast.PrefixExpression)
+
+                with self.subTest(
+                    f"Prefix expression operator: {code} - {prefix_operator}"
+                ):
+                    self.assertEqual(prefix_expression.operator, prefix_operator)
+
+                with self.subTest(
+                    f"Prefix expression value: {code} - {operated_value}"
+                ):
+                    self.assertIsInstance(prefix_expression.right, ast.IntegerLiteral)
+                    assert isinstance(prefix_expression.right, ast.IntegerLiteral)
+                    self.assertEqual(prefix_expression.right.value, operated_value)
