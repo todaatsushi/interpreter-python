@@ -54,6 +54,25 @@ class Program(Node):
 
 
 @dc.dataclass
+class BlockStatement(Node):
+    token: tokens.Token  # ie. {
+    statements: list[Statement] = dc.field(default_factory=list)
+
+    def statement_node(self) -> None:
+        pass
+
+    def token_literal(self) -> str:
+        assert self.token.value
+        return self.token.value.decode("ascii")
+
+    def __str__(self) -> str:
+        s = ""
+        for statement in self.statements:
+            s = f"{s}{str(statement)}"
+        return s
+
+
+@dc.dataclass
 class Identifier(Expression):
     token: tokens.Token
     value: str
