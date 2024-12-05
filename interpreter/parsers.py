@@ -196,5 +196,8 @@ class Parser:
     def parse_expression(self, precendence: Precedences) -> ast.Expression | None:
         prefix_func = self.parse_functions["PREFIX"].get(self.current_token.type)
         if prefix_func is None:
+            self.errors.append(
+                f"No prefix parse function for {self.current_token.type} found."
+            )
             return None
         return prefix_func()
