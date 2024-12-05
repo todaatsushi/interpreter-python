@@ -248,3 +248,50 @@ class TestParseProgram(unittest.TestCase):
                     self.assertEqual(
                         prefix_expression.right.token_literal(), operated_value
                     )
+
+    def test_parses_infix_expressions(self) -> None:
+        test_cases: tuple[tuple[str, int, str, int], ...] = (("5 + 5;", 5, "+", 5),)
+
+        for code, expected_left, expected_operator, expected_right in test_cases:
+            lexer = lexers.Lexer.new(code)
+            parser = parsers.Parser.new(lexer)
+
+            program = parser.parse_program()
+
+            with self.subTest(f"Infix for code: {code}"):
+                with self.subTest(f"Number of statements for {code}"):
+                    self.assertEqual(len(program.statements), 1)
+
+                statement = program.statements[0]
+                with self.subTest(f"Is expression statement: {code}"):
+                    self.assertIsInstance(statement, ast.ExpressionStatement)
+                    assert isinstance(statement, ast.ExpressionStatement)
+
+                infix_expression = statement.expression
+                with self.subTest(f"Is infix expression: {code}"):
+                    self.assertIsInstance(infix_expression, ast.InfixExpression)
+                    assert isinstance(infix_expression, ast.InfixExpression)
+
+                with self.subTest(f"Operator is {expected_operator}"):
+                    self.assertEqual(infix_expression.operator, expected_operator)
+                    self.assertEqual(
+                        infix_expression.token,
+                        tokens.Token(
+                            type=tokens.TokenType(expected_operator),
+                            value=expected_operator.encode("ascii"),
+                        ),
+                    )
+
+                actual_left = infix_expression.left
+                with self.subTest(f"Test left is integer literal: {code}"):
+                    self.assertIsInstance(actual_left, ast.IntegerLiteral)
+                    assert isinstance(actual_left, ast.IntegerLiteral)
+
+                    self.assertEqual(expected_left, actual_left.token_literal())
+
+                actual_right = infix_expression.right
+                with self.subTest(f"Test right is integer literal: {code}"):
+                    self.assertIsInstance(actual_right, ast.IntegerLiteral)
+                    assert isinstance(actual_right, ast.IntegerLiteral)
+
+                    self.assertEqual(expected_right, actual_right.token_literal())
