@@ -236,12 +236,14 @@ class TestParseProgram(unittest.TestCase):
             self.assertEqual(identifier.token_literal(), "5")
 
     def test_parses_prefix_expressions(self) -> None:
-        test_cases: tuple[tuple[str, str, int], ...] = (
-            ("!5;", "!", 5),
-            ("-15;", "-", 15),
+        test_cases: tuple[tuple[str, str, int, type[ast.Expression]], ...] = (
+            ("!5;", "!", 5, ast.IntegerLiteral),
+            ("-15;", "-", 15, ast.IntegerLiteral),
+            ("!true", "!", True, ast.BooleanLiteral),
+            ("!false", "!", False, ast.BooleanLiteral),
         )
 
-        for code, prefix_operator, operated_value in test_cases:
+        for code, prefix_operator, operated_value, expected_class in test_cases:
             lexer = lexers.Lexer.new(code)
             parser = parsers.Parser.new(lexer)
 
@@ -275,34 +277,118 @@ class TestParseProgram(unittest.TestCase):
                 with self.subTest(
                     f"Prefix expression value: {code} - {operated_value}"
                 ):
-                    self.assertIsInstance(prefix_expression.right, ast.IntegerLiteral)
-                    assert isinstance(prefix_expression.right, ast.IntegerLiteral)
+                    self.assertIsInstance(prefix_expression.right, expected_class)
+                    assert isinstance(prefix_expression.right, expected_class)
                     self.assertEqual(prefix_expression.right.value, operated_value)
+                    self.assertEqual(
+                        prefix_expression.right.token_literal(),
+                        str(operated_value).lower(),
+                    )
 
     def test_parses_infix_expressions(self) -> None:
-        test_cases: tuple[tuple[str, object, str, object], ...] = (
-            ("5 + 5;", 5, "+", 5),
-            ("5 - 5;", 5, "-", 5),
-            ("5 * 5;", 5, "*", 5),
-            ("5 / 5;", 5, "/", 5),
-            ("5 > 5;", 5, ">", 5),
-            ("5 < 5;", 5, "<", 5),
-            ("5 == 5;", 5, "==", 5),
-            ("5 != 5;", 5, "!=", 5),
-            ("foobar + barfoo;", "foobar", "+", "barfoo"),
-            ("foobar - barfoo;", "foobar", "-", "barfoo"),
-            ("foobar * barfoo;", "foobar", "*", "barfoo"),
-            ("foobar / barfoo;", "foobar", "/", "barfoo"),
-            ("foobar > barfoo;", "foobar", ">", "barfoo"),
-            ("foobar < barfoo;", "foobar", "<", "barfoo"),
-            ("foobar == barfoo;", "foobar", "==", "barfoo"),
-            ("foobar != barfoo;", "foobar", "!=", "barfoo"),
-            ("true == true", True, "==", True),
-            ("true != false", True, "!=", False),
-            ("false == false", False, "==", False),
+        test_cases: tuple[
+            tuple[str, object, str, object, type[ast.Expression], type[ast.Expression]],
+            ...,
+        ] = (
+            ("5 + 5;", 5, "+", 5, ast.IntegerLiteral, ast.IntegerLiteral),
+            ("5 - 5;", 5, "-", 5, ast.IntegerLiteral, ast.IntegerLiteral),
+            ("5 * 5;", 5, "*", 5, ast.IntegerLiteral, ast.IntegerLiteral),
+            ("5 / 5;", 5, "/", 5, ast.IntegerLiteral, ast.IntegerLiteral),
+            ("5 > 5;", 5, ">", 5, ast.IntegerLiteral, ast.IntegerLiteral),
+            ("5 < 5;", 5, "<", 5, ast.IntegerLiteral, ast.IntegerLiteral),
+            ("5 == 5;", 5, "==", 5, ast.IntegerLiteral, ast.IntegerLiteral),
+            ("5 != 5;", 5, "!=", 5, ast.IntegerLiteral, ast.IntegerLiteral),
+            (
+                "foobar + barfoo;",
+                "foobar",
+                "+",
+                "barfoo",
+                ast.Identifier,
+                ast.Identifier,
+            ),
+            (
+                "foobar - barfoo;",
+                "foobar",
+                "-",
+                "barfoo",
+                ast.Identifier,
+                ast.Identifier,
+            ),
+            (
+                "foobar * barfoo;",
+                "foobar",
+                "*",
+                "barfoo",
+                ast.Identifier,
+                ast.Identifier,
+            ),
+            (
+                "foobar / barfoo;",
+                "foobar",
+                "/",
+                "barfoo",
+                ast.Identifier,
+                ast.Identifier,
+            ),
+            (
+                "foobar > barfoo;",
+                "foobar",
+                ">",
+                "barfoo",
+                ast.Identifier,
+                ast.Identifier,
+            ),
+            (
+                "foobar < barfoo;",
+                "foobar",
+                "<",
+                "barfoo",
+                ast.Identifier,
+                ast.Identifier,
+            ),
+            (
+                "foobar == barfoo;",
+                "foobar",
+                "==",
+                "barfoo",
+                ast.Identifier,
+                ast.Identifier,
+            ),
+            (
+                "foobar != barfoo;",
+                "foobar",
+                "!=",
+                "barfoo",
+                ast.Identifier,
+                ast.Identifier,
+            ),
+            ("true == true", True, "==", True, ast.BooleanLiteral, ast.BooleanLiteral),
+            (
+                "true != false",
+                True,
+                "!=",
+                False,
+                ast.BooleanLiteral,
+                ast.BooleanLiteral,
+            ),
+            (
+                "false == false",
+                False,
+                "==",
+                False,
+                ast.BooleanLiteral,
+                ast.BooleanLiteral,
+            ),
         )
 
-        for code, expected_left, expected_operator, expected_right in test_cases:
+        for (
+            code,
+            expected_left,
+            expected_operator,
+            expected_right,
+            expected_class_left,
+            expected_class_right,
+        ) in test_cases:
             lexer = lexers.Lexer.new(code)
             parser = parsers.Parser.new(lexer)
 
@@ -331,27 +417,6 @@ class TestParseProgram(unittest.TestCase):
                             value=expected_operator.encode("ascii"),
                         ),
                     )
-
-                type_left = type(expected_left)
-                type_right = type(expected_right)
-
-                if type_left is int:
-                    expected_class_left = ast.IntegerLiteral
-                elif type_left is bool:
-                    expected_class_left = ast.BooleanLiteral
-                elif type_left is str:
-                    expected_class_left = ast.Identifier
-                else:
-                    self.fail(f"Not implemented: {type(expected_left)}")
-
-                if type_right is int:
-                    expected_class_right = ast.IntegerLiteral
-                elif type_right is bool:
-                    expected_class_right = ast.BooleanLiteral
-                elif type_right is str:
-                    expected_class_right = ast.Identifier
-                else:
-                    self.fail(f"Not implemented: {type(expected_right)}")
 
                 actual_left = infix_expression.left
                 with self.subTest(f"Test left is correct literal: {code}"):
