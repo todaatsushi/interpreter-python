@@ -213,3 +213,28 @@ class Infix(Expression):
 
     def __str__(self) -> str:
         return f"({self.left} {self.operator} {self.right})"
+
+
+@dc.dataclass
+class If(Expression):
+    token: tokens.Token  # ie. if
+
+    condition: Expression
+
+    consequence: BlockStatement | None
+    alternative: BlockStatement | None
+
+    def expression_node(self) -> None:
+        pass
+
+    def token_literal(self) -> str:
+        assert self.token.value
+        return self.token.value.decode("ascii")
+
+    def __str__(self) -> str:
+        s = f"if {str(self.condition)}"
+        if self.consequence:
+            s = f"{s} {self.consequence}"
+        if self.alternative:
+            s = f"{s} else {self.alternative}"
+        return s
