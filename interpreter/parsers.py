@@ -13,8 +13,8 @@ from interpreter import ast, lexers, tokens
 logger = logging.getLogger(__name__)
 
 
-PrefixParseFunction: TypeAlias = Callable[[], ast.Expression]
-InfixParseFunction: TypeAlias = Callable[[ast.Expression], ast.Expression]
+PrefixParseFunction: TypeAlias = Callable[[], ast.Expression | None]
+InfixParseFunction: TypeAlias = Callable[[ast.Expression], ast.Expression | None]
 
 
 class ParseFunctionMap(TypedDict):
@@ -50,10 +50,6 @@ class Precedences(enum.IntEnum):
                 return Precedences.PRODUCT
             case _:
                 return Precedences.LOWEST
-
-
-class ParseError(Exception):
-    pass
 
 
 @dc.dataclass
@@ -106,10 +102,11 @@ class Parser:
         self.peek_token = self.lexer.next_token()
 
     def expect_token_type(
-        self, token: tokens.Token, token_type: tokens.TokenType
+        self, token: tokens.Token, token_type: tokens.TokenType, fwd: bool
     ) -> bool:
         if token.type == token_type:
-            self.next_token()
+            if fwd:
+                self.next_token()
             return True
         return False
 
@@ -139,21 +136,22 @@ class Parser:
 
         while self.current_token.type != tokens.TokenType.EOF:
             try:
-                program.statements.append(next(self.parse_statement()))
+                statement = next(self.parse_statement())
+                if statement:
+                    program.statements.append(statement)
             except NotImplementedError:
                 logger.warning("TODO")
-                self.next_token()
-            except ParseError:
-                self.next_token()
             except StopIteration:
                 break
+            finally:
+                self.next_token()
 
         if self.errors:
             logger.error(f"Errors when parsing program: \n{'\n'.join(self.errors)}")
 
         return program
 
-    def parse_statement(self) -> Iterator[ast.Statement]:
+    def parse_statement(self) -> Iterator[ast.Statement | None]:
         match self.current_token.type:
             case tokens.TokenType.LET:
                 yield self.parse_let_statement()
@@ -168,29 +166,31 @@ class Parser:
             expression=self.parse_expression(Precedences.LOWEST),
         )
 
-        if self.expect_token_type(self.peek_token, tokens.TokenType.SEMICOLON):
+        if self.expect_token_type(self.peek_token, tokens.TokenType.SEMICOLON, False):
             self.next_token()
 
         return expression_statement
 
-    def parse_let_statement(self) -> ast.Let:
+    def parse_let_statement(self) -> ast.Let | None:
         let_token = self.current_token
-        if not self.expect_token_type(self.peek_token, tokens.TokenType.IDENTIFIER):
+        if not self.expect_token_type(
+            self.peek_token, tokens.TokenType.IDENTIFIER, True
+        ):
             msg = f"Expected {tokens.TokenType.IDENTIFIER}, got {self.peek_token.type} at position {self.lexer.position}."
             self.errors.append(msg)
-            raise ParseError(msg)
+            return None
 
         assert self.current_token.value
         name = ast.Identifier(
             token=self.current_token, value=self.current_token.value.decode("ascii")
         )
-        if not self.expect_token_type(self.peek_token, tokens.TokenType.ASSIGN):
+        if not self.expect_token_type(self.peek_token, tokens.TokenType.ASSIGN, True):
             msg = f"Expected {tokens.TokenType.ASSIGN}, got {self.peek_token.type} at position {self.lexer.position}."
             self.errors.append(msg)
-            raise ParseError(msg)
+            return None
 
         while not self.expect_token_type(
-            self.current_token, tokens.TokenType.SEMICOLON
+            self.current_token, tokens.TokenType.SEMICOLON, False
         ):
             logger.info("TODO: fetch value expression")
             self.next_token()
@@ -203,7 +203,7 @@ class Parser:
         self.next_token()
 
         while not self.expect_token_type(
-            self.current_token, tokens.TokenType.SEMICOLON
+            self.current_token, tokens.TokenType.SEMICOLON, False
         ):
             logger.info("TODO: fetch value expression")
             self.next_token()
@@ -217,16 +217,16 @@ class Parser:
             value=self.current_token.value.decode("ascii"),
         )
 
-    def parse_integer_literal(self) -> ast.IntegerLiteral:
+    def parse_integer_literal(self) -> ast.IntegerLiteral | None:
         assert self.current_token.value
         value = self.current_token.value.decode("ascii")
 
         try:
             value = int(value)
-        except ValueError as exc:
+        except ValueError:
             msg = f"Couldn't parse '{value}' as int at line {self.lexer.position}."
             self.errors.append(msg)
-            raise ParseError(msg) from exc
+            return None
 
         return ast.IntegerLiteral(token=self.current_token, value=str(value))
 
@@ -256,16 +256,16 @@ class Parser:
             right=self.parse_expression(self.get_precendence("CURRENT")),
         )
 
-    def parse_expression(self, precendence: Precedences) -> ast.Expression:
+    def parse_expression(self, precendence: Precedences) -> ast.Expression | None:
         prefix_func = self.parse_functions["PREFIX"].get(self.current_token.type)
         if prefix_func is None:
             msg = f"No prefix parse function for {self.current_token.type} found."
             self.errors.append(msg)
-            raise ParseError(msg)
+            return None
 
         left = prefix_func()
         while not self.expect_token_type(
-            self.peek_token, tokens.TokenType.SEMICOLON
+            self.peek_token, tokens.TokenType.SEMICOLON, False
         ) and precendence < self.get_precendence("PEEK"):
             infix_func = self.parse_functions["INFIX"].get(self.peek_token.type)
             if infix_func is None:
@@ -273,5 +273,6 @@ class Parser:
 
             self.next_token()
 
+            assert left
             left = infix_func(left)
         return left

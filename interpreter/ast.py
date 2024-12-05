@@ -150,7 +150,7 @@ class ExpressionStatement(Statement):
 class Prefix(Expression):
     token: tokens.Token
     operator: str
-    right: Expression
+    right: Expression | None
 
     def expression_node(self) -> None:
         pass
@@ -168,7 +168,7 @@ class Infix(Expression):
 
     left: Expression
     operator: str
-    right: Expression
+    right: Expression | None
 
     def expression_node(self) -> None:
         pass

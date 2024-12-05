@@ -64,8 +64,14 @@ class TestParseProgram(unittest.TestCase):
 
     def test_parse_error(self) -> None:
         test_cases: tuple[tuple[str, list[str]], ...] = (
-            ("let 5;", ["Expected IDENTIFIER, got INT at position 5."]),
-            ("let variable 5;", ["Expected =, got INT at position 14."]),
+            (
+                "let 5;",
+                ["Expected IDENTIFIER, got INT at position 5."],
+            ),
+            (
+                "let variable 5;",
+                ["Expected =, got INT at position 14."],
+            ),
         )
 
         for code, expected in test_cases:
@@ -74,7 +80,9 @@ class TestParseProgram(unittest.TestCase):
 
             parser.parse_program()
 
-            self.assertEqual(len(parser.errors), len(expected))
+            self.assertEqual(
+                len(parser.errors), len(expected), f"{parser.errors} vs {expected}"
+            )
             for i, err in enumerate(parser.errors):
                 self.assertEqual(err, expected[i])
 
