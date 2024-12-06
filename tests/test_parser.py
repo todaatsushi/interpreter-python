@@ -47,10 +47,14 @@ class TestParseProgram(unittest.TestCase):
 
         self.assertEqual(len(program.statements), 3)
 
-        test_cases: tuple[str, ...] = ("x", "y", "foobar")
+        test_cases: tuple[tuple[str, int], ...] = (
+            ("x", 5),
+            ("y", 10),
+            ("foobar", 838383),
+        )
 
-        for i, tc in enumerate(test_cases):
-            with self.subTest(f"Identifier: {tc}"):
+        for i, (expected_value, expected_literal) in enumerate(test_cases):
+            with self.subTest(f"Identifier: {expected_value}"):
                 statement = program.statements[i]
 
                 self.assertEqual(statement.token_literal(), "let")
@@ -58,8 +62,20 @@ class TestParseProgram(unittest.TestCase):
                 self.assertIsInstance(statement, ast.Let)
                 assert isinstance(statement, ast.Let)
 
-                self.assertEqual(statement.name.value, tc)
-                self.assertEqual(statement.name.token_literal(), tc)
+                self.assertEqual(statement.name.value, expected_value)
+                self.assertEqual(statement.name.token_literal(), expected_value)
+
+                value = statement.value
+                self.assertEqual(
+                    value,
+                    ast.IntegerLiteral(
+                        token=tokens.Token(
+                            value=str(expected_literal).encode("ascii"),
+                            type=tokens.TokenType.INT,
+                        ),
+                        value=expected_literal,
+                    ),
+                )
 
     def test_parse_error(self) -> None:
         test_cases: tuple[tuple[str, list[str]], ...] = (
@@ -103,6 +119,17 @@ class TestParseProgram(unittest.TestCase):
                 self.assertEqual(statement.token_literal(), "return")
                 self.assertIsInstance(statement, ast.Return)
                 assert isinstance(statement, ast.Return)
+
+                value = statement.value
+                self.assertEqual(
+                    value,
+                    ast.IntegerLiteral(
+                        token=tokens.Token(
+                            value=tc.encode("ascii"), type=tokens.TokenType.INT
+                        ),
+                        value=int(tc),
+                    ),
+                )
 
     def test_string(self) -> None:
         program = ast.Program(
