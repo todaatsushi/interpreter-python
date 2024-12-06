@@ -617,8 +617,8 @@ class TestParseProgram(unittest.TestCase):
             )
 
 
-class TestOperatorPrecendenceParsing(unittest.TestCase):
-    def test_operator_precedence_parsing(self) -> None:
+class TestMetaParsing(unittest.TestCase):
+    def test_parsing_operator_precedences(self) -> None:
         test_cases: tuple[tuple[str, str], ...] = (
             ("-a * b", "((-a) * b)"),
             ("!-a", "(!(-a))"),
@@ -655,3 +655,40 @@ class TestOperatorPrecendenceParsing(unittest.TestCase):
 
             with self.subTest(f"Parsed properly: {code}"):
                 self.assertEqual(str(program), expected)
+
+    def test_parses_function_parameters(self) -> None:
+        test_cases: tuple[tuple[str, list[str]], ...] = (
+            ("fn () {};", []),
+            ("fn (x) {};", ["x"]),
+            ("fn (x, y) {};", ["x", "y"]),
+            ("fn (x, y, z) {};", ["x", "y", "z"]),
+        )
+
+        for code, expected in test_cases:
+            with self.subTest(f"Test case: {code}"):
+                lexer = lexers.Lexer.new(code)
+                parser = parsers.Parser.new(lexer)
+                program = parser.parse_program()
+
+                with self.subTest("No errors"):
+                    self.assertEqual(len(parser.errors), 0, "\n".join(parser.errors))
+
+                statement = program.statements[0]
+                with self.subTest("Statement is expression statement"):
+                    self.assertIsInstance(statement, ast.ExpressionStatement)
+                    assert isinstance(statement, ast.ExpressionStatement)
+
+                expr = statement.expression
+                with self.subTest("Is function literal"):
+                    self.assertIsInstance(expr, ast.FunctionLiteral)
+                    assert isinstance(expr, ast.FunctionLiteral)
+
+                params = expr.parameters
+                with self.subTest("Num params"):
+                    self.assertEqual(
+                        len(params), len(expected), f"Expected {expected}, got {params}"
+                    )
+
+                with self.subTest("Params"):
+                    for i, p in enumerate(params):
+                        self.assertEqual(p.value, expected[i])
