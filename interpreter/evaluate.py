@@ -10,11 +10,12 @@ logger = logging.getLogger(__name__)
 
 def node(to_eval: ast.Node) -> objects.Object:
     match type(to_eval):
-        case ast.Program | ast.BlockStatement:
-            assert isinstance(to_eval, ast.Program) or isinstance(
-                to_eval, ast.BlockStatement
-            )
-            return statements(to_eval.statements)
+        case ast.Program:
+            assert isinstance(to_eval, ast.Program)
+            return program(to_eval)
+        case ast.BlockStatement:
+            assert isinstance(to_eval, ast.BlockStatement)
+            return block_statement(to_eval)
         case ast.ExpressionStatement:
             assert isinstance(to_eval, ast.ExpressionStatement) and to_eval.expression
             return node(to_eval.expression)
@@ -45,9 +46,21 @@ def node(to_eval: ast.Node) -> objects.Object:
             raise NotImplementedError
 
 
-def statements(statements_: list[ast.Statement]) -> objects.Object:
+def program(program: ast.Program) -> objects.Object:
     result: objects.Object | None = None
-    for statement in statements_:
+    for statement in program.statements:
+        result = node(statement)
+
+        if isinstance(result, objects.Return):
+            return result.value
+
+    assert result is not None
+    return result
+
+
+def block_statement(block: ast.BlockStatement) -> objects.Object:
+    result: objects.Object | None = None
+    for statement in block.statements:
         result = node(statement)
 
         if isinstance(result, objects.Return):
