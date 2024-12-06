@@ -19,6 +19,9 @@ def node(to_eval: ast.Node) -> objects.Object:
         case ast.IntegerLiteral:
             assert isinstance(to_eval, ast.IntegerLiteral)
             return objects.Integer(value=to_eval.value)
+        case ast.BooleanLiteral:
+            assert isinstance(to_eval, ast.BooleanLiteral)
+            return objects.Boolean(value=to_eval.value)
         case _:
             logger.error(f"Unhandled type: {type(to_eval)}")
             raise NotImplementedError

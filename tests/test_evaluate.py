@@ -34,3 +34,13 @@ class TestSelfEvaluating(unittest.TestCase):
         for code, expected in test_cases:
             actual = get_object(code)
             test_self_evaluating_object(self, objects.Integer, actual, expected)
+
+    def test_evaluates_booleans(self) -> None:
+        test_cases: tuple[tuple[str, bool], ...] = (
+            ("true", True),
+            ("false", False),
+        )
+
+        for code, expected in test_cases:
+            actual = get_object(code)
+            test_self_evaluating_object(self, objects.Boolean, actual, expected)
