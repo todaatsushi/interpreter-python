@@ -142,3 +142,15 @@ class TestSelfEvaluating(unittest.TestCase):
 
             if expected is None:
                 self.assertIs(actual, objects.NULL)
+
+    def test_evaluates_return(self) -> None:
+        test_cases: tuple[tuple[str, int], ...] = (
+            ("return 10;", 10),
+            ("return 10; 9;", 10),
+            ("return 2 * 5; 9;", 10),
+            ("9; return 2 * 5; 9;", 10),
+        )
+
+        for code, expected in test_cases:
+            actual = get_object(code)
+            test_self_evaluating_object(self, objects.Integer, actual, expected)
