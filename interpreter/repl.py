@@ -1,4 +1,4 @@
-from interpreter import lexers
+from interpreter import lexers, parsers
 
 
 class Scanner:
@@ -9,6 +9,11 @@ class Scanner:
             line = input(self.PROMPT)
             parsed = line.strip().split(self.PROMPT)[0].strip()
             lexer = lexers.Lexer.new(parsed)
+            parser = parsers.Parser.new(lexer)
 
-            while (token := lexer.next_token()) and token.value:
-                print(token)
+            program = parser.parse_program()
+
+            if not parser.errors:
+                print(program)
+            else:
+                print("\n".join(parser.errors))
