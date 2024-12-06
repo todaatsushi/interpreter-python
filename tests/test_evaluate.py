@@ -227,3 +227,16 @@ class TestErrorHandling(unittest.TestCase):
 
         actual = get_object(code)
         test_error_object(self, actual, expected)
+
+
+class TestFunctions(unittest.TestCase):
+    def test_evaluates_function_object(self) -> None:
+        code = "fn(x) { x + 2; };"
+        actual = get_object(code)
+
+        self.assertIsInstance(actual, objects.Function)
+        assert isinstance(actual, objects.Function)
+
+        self.assertEqual(len(actual.parameters), 1)
+        self.assertEqual(str(actual.parameters[0]), "x")
+        self.assertEqual(str(actual.body), "(x + 2)")
