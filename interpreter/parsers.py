@@ -174,9 +174,12 @@ class Parser:
                 yield self.parse_expression_statement()
 
     def parse_expression_statement(self) -> ast.ExpressionStatement:
+        inner = self.parse_expression(Precedences.LOWEST)
+        assert inner, "TODO: handle this"
+
         expression_statement = ast.ExpressionStatement(
             token=self.current_token,
-            expression=self.parse_expression(Precedences.LOWEST),
+            expression=inner,
         )
 
         if self.expect_token_type(self.peek_token, tokens.TokenType.SEMICOLON, False):
@@ -205,6 +208,7 @@ class Parser:
         self.next_token()
 
         let_expr = self.parse_expression(Precedences.LOWEST)
+        assert let_expr, "TODO: handle this"
         self.expect_token_type(self.peek_token, tokens.TokenType.SEMICOLON, True)
         return ast.Let(token=let_token, name=name, value=let_expr)
 
@@ -214,6 +218,7 @@ class Parser:
         self.next_token()
 
         return_expr = self.parse_expression(Precedences.LOWEST)
+        assert return_expr, "TODO: handle this"
         self.expect_token_type(self.peek_token, tokens.TokenType.SEMICOLON, True)
         return ast.Return(token=return_token, value=return_expr)
 
