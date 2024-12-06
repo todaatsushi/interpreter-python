@@ -83,6 +83,9 @@ class Parser:
             tokens.TokenType.LEFT_PARENTHESES, func=self.parse_grouped_expression
         )
         self.register_prefix(tokens.TokenType.IF, func=self.parse_if_expression)
+        self.register_prefix(
+            tokens.TokenType.FUNCTION, func=self.parse_function_literal
+        )
 
         # Register infix
         for token_type in (
@@ -231,6 +234,9 @@ class Parser:
             token=self.current_token,
             value=self.current_token.value.decode("ascii"),
         )
+
+    def parse_function_literal(self) -> ast.FunctionLiteral:
+        raise NotImplementedError
 
     def parse_integer_literal(self) -> ast.IntegerLiteral | None:
         assert self.current_token.value

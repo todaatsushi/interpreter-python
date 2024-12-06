@@ -120,6 +120,24 @@ class BooleanLiteral(Expression):
 
 
 @dc.dataclass
+class FunctionLiteral(Expression):
+    token: tokens.Token  # ie. fn
+    parameters: list[Identifier]
+    body: BlockStatement | None
+
+    def expression_node(self) -> None:
+        pass
+
+    def token_literal(self) -> str:
+        assert self.token.value
+        return self.token.value.decode("ascii")
+
+    def __str__(self) -> str:
+        params = ",".join(str(param) for param in self.parameters)
+        return f"{str(self.token.value)} ({params}) {str(self.body)}"
+
+
+@dc.dataclass
 class Let(Statement):
     token: tokens.Token
     name: Identifier

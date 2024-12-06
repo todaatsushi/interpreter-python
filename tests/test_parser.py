@@ -528,6 +528,94 @@ class TestParseProgram(unittest.TestCase):
                     )
                     self.assertIsNotNone(expression.expression)
 
+    def test_parses_function_literal(self) -> None:
+        code = "fn(x, y) { x + y; }"
+        lexer = lexers.Lexer.new(code)
+        parser = parsers.Parser.new(lexer)
+        program = parser.parse_program()
+
+        with self.subTest("No errors"):
+            self.assertEqual(len(parser.errors), 0, "\n".join(parser.errors))
+
+        with self.subTest("1 statement"):
+            self.assertEqual(
+                len(program.statements),
+                1,
+                f"More than 1 statement: {program.statements}",
+            )
+
+        statement = program.statements[0]
+        with self.subTest("Statement is expression statement"):
+            self.assertIsInstance(statement, ast.ExpressionStatement)
+            assert isinstance(statement, ast.ExpressionStatement)
+
+        function_literal = statement.expression
+        with self.subTest("Expression is function literal"):
+            self.assertIsInstance(function_literal, ast.FunctionLiteral)
+            assert isinstance(function_literal, ast.FunctionLiteral)
+
+        with self.subTest("Function literal token"):
+            self.assertEqual(
+                function_literal.token,
+                tokens.Token(value=b"fn", type=tokens.TokenType.FUNCTION),
+            )
+
+        with self.subTest("Function literal params"):
+            self.assertEqual(
+                function_literal.parameters,
+                [
+                    ast.Identifier(
+                        token=tokens.Token(
+                            value=b"x", type=tokens.TokenType.IDENTIFIER
+                        ),
+                        value="x",
+                    ),
+                    ast.Identifier(
+                        token=tokens.Token(
+                            value=b"y", type=tokens.TokenType.IDENTIFIER
+                        ),
+                        value="y",
+                    ),
+                ],
+            )
+
+        with self.subTest("Function literal body"):
+            body = function_literal.body
+            self.assertIsNotNone(body)
+            assert body
+
+            self.assertEqual(len(body.statements), 1)
+            body_statement = body.statements[0]
+            self.assertIsInstance(body_statement, ast.ExpressionStatement)
+            assert isinstance(body_statement, ast.ExpressionStatement)
+
+            body_expression = body_statement.expression
+            self.assertIsNotNone(body_expression)
+            assert body_expression
+
+            self.assertIsInstance(body_expression, ast.Infix)
+            assert isinstance(body_expression, ast.Infix)
+
+            self.assertEqual(
+                body_expression.token,
+                tokens.Token(value=b"+", type=tokens.TokenType.PLUS),
+            )
+
+            self.assertEqual(
+                body_expression.left,
+                ast.Identifier(
+                    token=tokens.Token(value=b"x", type=tokens.TokenType.IDENTIFIER),
+                    value="x",
+                ),
+            )
+            self.assertEqual(
+                body_expression.right,
+                ast.Identifier(
+                    token=tokens.Token(value=b"y", type=tokens.TokenType.IDENTIFIER),
+                    value="y",
+                ),
+            )
+
 
 class TestOperatorPrecendenceParsing(unittest.TestCase):
     def test_operator_precedence_parsing(self) -> None:
