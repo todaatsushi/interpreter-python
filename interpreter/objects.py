@@ -10,6 +10,7 @@ class ObjectType(enum.StrEnum):
     INTEGER = "INTEGER"
     BOOLEAN = "BOOLEAN"
     RETURN = "RETURN"
+    ERROR = "ERROR"
 
 
 class Object(abc.ABC):
@@ -65,3 +66,13 @@ class Return(Object):
 
     def inspect(self) -> str:
         return self.value.inspect()
+
+
+@dc.dataclass
+class Error(Object):
+    message: str
+
+    type = ObjectType.ERROR
+
+    def inspect(self) -> str:
+        return f"ERROR: {self.message}"
