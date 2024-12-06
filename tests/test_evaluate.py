@@ -59,3 +59,15 @@ class TestSelfEvaluating(unittest.TestCase):
         for code, expected in test_cases:
             actual = get_object(code)
             test_self_evaluating_object(self, objects.Boolean, actual, expected)
+
+    def test_evaluates_minus_prefix(self) -> None:
+        test_cases: tuple[tuple[str, int], ...] = (
+            ("5", 5),
+            ("10", 10),
+            ("-5", -5),
+            ("-10", -10),
+        )
+
+        for code, expected in test_cases:
+            actual = get_object(code)
+            test_self_evaluating_object(self, objects.Integer, actual, expected)

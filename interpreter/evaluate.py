@@ -45,6 +45,10 @@ def prefix_expression(operator: str, right: objects.Object) -> objects.Object:
     match operator:
         case "!":
             return exclaimation_mark(right)
+        case "-":
+            if isinstance(right, objects.Integer):
+                return minus(right)
+            return objects.NULL
         case _:
             logger.error(f"Unhandled for operator: {operator}")
             raise NotImplementedError
@@ -60,3 +64,7 @@ def exclaimation_mark(right: objects.Object) -> objects.Object:
             return objects.FALSE
         case _:
             return objects.FALSE
+
+
+def minus(right: objects.Integer) -> objects.Object:
+    return objects.Integer(value=right.value * -1)
