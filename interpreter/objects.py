@@ -13,6 +13,11 @@ class ObjectType(enum.StrEnum):
     ERROR = "ERROR"
 
 
+class ErrorTypes(enum.StrEnum):
+    TYPE_MISMATCH = "type mismatch"
+    UNKNOWN_OPERATOR = "unknown operator"
+
+
 class Object(abc.ABC):
     type: ObjectType
     value: object
