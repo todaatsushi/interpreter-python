@@ -256,3 +256,22 @@ class If(Expression):
         if self.alternative:
             s = f"{s} else {self.alternative}"
         return s
+
+
+@dc.dataclass()
+class Call(Expression):
+    token: tokens.Token  # ie. (
+
+    function: Identifier | FunctionLiteral
+    arguments: list[Expression]
+
+    def expression_node(self) -> None:
+        pass
+
+    def token_literal(self) -> str:
+        assert self.token.value
+        return self.token.value.decode("ascii")
+
+    def __str__(self) -> str:
+        args = [str(arg) for arg in self.arguments]
+        return f"{str(self.function)}{(', '.join(args))})"

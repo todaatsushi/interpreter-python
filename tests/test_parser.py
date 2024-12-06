@@ -616,6 +616,100 @@ class TestParseProgram(unittest.TestCase):
                 ),
             )
 
+    def test_parses_call_expression(self) -> None:
+        code = "add(1, 2 * 3, 4 + 5)"
+        lexer = lexers.Lexer.new(code)
+        parser = parsers.Parser.new(lexer)
+        program = parser.parse_program()
+
+        with self.subTest("No errors"):
+            self.assertEqual(len(parser.errors), 0, "\n".join(parser.errors))
+
+        with self.subTest("1 statement"):
+            self.assertEqual(
+                len(program.statements),
+                1,
+                f"More than 1 statement: {program.statements}",
+            )
+
+        statement = program.statements[0]
+        with self.subTest("Statement is expression statement"):
+            self.assertIsInstance(statement, ast.ExpressionStatement)
+            assert isinstance(statement, ast.ExpressionStatement)
+
+        call_expression = statement.expression
+        with self.subTest("Expression is call expression"):
+            self.assertIsInstance(call_expression, ast.Call)
+            assert isinstance(call_expression, ast.Call)
+
+        with self.subTest("Call expression token"):
+            self.assertEqual(
+                call_expression.token,
+                tokens.Token(value=b"(", type=tokens.TokenType.LEFT_PARENTHESES),
+            )
+
+        with self.subTest("Call expression identifier"):
+            self.assertEqual(
+                call_expression.function,
+                ast.Identifier(
+                    token=tokens.Token(value=b"add", type=tokens.TokenType.IDENTIFIER),
+                    value="add",
+                ),
+            )
+
+        with self.subTest("Call expression args"):
+            self.assertEqual(
+                len(call_expression.arguments),
+                3,
+                "\n".join(str(arg) for arg in call_expression.arguments),
+            )
+
+            arg = call_expression.arguments[0]
+            with self.subTest("Arg 1 is raw identifier"):
+                self.assertEqual(
+                    arg,
+                    ast.IntegerLiteral(
+                        token=tokens.Token(value=b"1", type=tokens.TokenType.INT),
+                        value=1,
+                    ),
+                )
+
+            arg = call_expression.arguments[1]
+            with self.subTest("Arg 2 is infix"):
+                self.assertEqual(
+                    arg,
+                    ast.Infix(
+                        token=tokens.Token(value=b"*", type=tokens.TokenType.MULTIPLY),
+                        operator="*",
+                        left=ast.IntegerLiteral(
+                            value=2,
+                            token=tokens.Token(value=b"2", type=tokens.TokenType.INT),
+                        ),
+                        right=ast.IntegerLiteral(
+                            value=3,
+                            token=tokens.Token(value=b"3", type=tokens.TokenType.INT),
+                        ),
+                    ),
+                )
+
+            arg = call_expression.arguments[2]
+            with self.subTest("Arg 3 is infix"):
+                self.assertEqual(
+                    arg,
+                    ast.Infix(
+                        token=tokens.Token(value=b"+", type=tokens.TokenType.PLUS),
+                        operator="+",
+                        left=ast.IntegerLiteral(
+                            value=4,
+                            token=tokens.Token(value=b"4", type=tokens.TokenType.INT),
+                        ),
+                        right=ast.IntegerLiteral(
+                            value=5,
+                            token=tokens.Token(value=b"5", type=tokens.TokenType.INT),
+                        ),
+                    ),
+                )
+
 
 class TestMetaParsing(unittest.TestCase):
     def test_parsing_operator_precedences(self) -> None:
@@ -691,4 +785,41 @@ class TestMetaParsing(unittest.TestCase):
 
                 with self.subTest("Params"):
                     for i, p in enumerate(params):
+                        self.assertEqual(p.value, expected[i])
+
+    def test_parses_call_expression_parameters(self) -> None:
+        test_cases: tuple[tuple[str, list[str]], ...] = tuple()
+
+        for code, expected in test_cases:
+            with self.subTest(f"Test case: {code}"):
+                lexer = lexers.Lexer.new(code)
+                parser = parsers.Parser.new(lexer)
+                program = parser.parse_program()
+
+                with self.subTest("No errors"):
+                    self.assertEqual(len(parser.errors), 0, "\n".join(parser.errors))
+
+                statement = program.statements[0]
+                with self.subTest("Statement is expression statement"):
+                    self.assertIsInstance(statement, ast.ExpressionStatement)
+                    assert isinstance(statement, ast.ExpressionStatement)
+
+                expr = statement.expression
+                with self.subTest("Is call expression"):
+                    self.assertIsInstance(expr, ast.Call)
+                    assert isinstance(expr, ast.Call)
+
+                arguments = expr.arguments
+                with self.subTest("Num arguments"):
+                    self.assertEqual(
+                        len(arguments),
+                        len(expected),
+                        f"Expected {expected}, got {arguments}",
+                    )
+
+                with self.subTest("Params"):
+                    for i, p in enumerate(arguments):
+                        self.assertIsInstance(p, ast.IntegerLiteral)
+                        assert isinstance(p, ast.IntegerLiteral)
+
                         self.assertEqual(p.value, expected[i])
