@@ -274,4 +274,4 @@ class Call(Expression):
 
     def __str__(self) -> str:
         args = [str(arg) for arg in self.arguments]
-        return f"{str(self.function)}{(', '.join(args))})"
+        return f"{str(self.function)}({', '.join(args)})"
