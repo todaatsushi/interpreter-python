@@ -24,6 +24,9 @@ def node(to_eval: ast.Node) -> objects.Object:
             if to_eval.value:
                 return objects.TRUE
             return objects.FALSE
+        case ast.Prefix:
+            assert isinstance(to_eval, ast.Prefix) and to_eval.right
+            return prefix_expression(to_eval.operator, node(to_eval.right))
         case _:
             logger.error(f"Unhandled type: {type(to_eval)}")
             raise NotImplementedError
@@ -36,3 +39,24 @@ def statements(statements_: list[ast.Statement]) -> objects.Object:
 
     assert result is not None
     return result
+
+
+def prefix_expression(operator: str, right: objects.Object) -> objects.Object:
+    match operator:
+        case "!":
+            return exclaimation_mark(right)
+        case _:
+            logger.error(f"Unhandled for operator: {operator}")
+            raise NotImplementedError
+
+
+def exclaimation_mark(right: objects.Object) -> objects.Object:
+    match right:
+        case objects.TRUE:
+            return objects.FALSE
+        case objects.FALSE:
+            return objects.TRUE
+        case objects.Null:
+            return objects.FALSE
+        case _:
+            return objects.FALSE
