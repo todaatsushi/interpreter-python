@@ -29,18 +29,32 @@ def node(to_eval: ast.Node) -> objects.Object:
             return objects.FALSE
         case ast.Prefix:
             assert isinstance(to_eval, ast.Prefix) and to_eval.right
-            return prefix_expression(to_eval.operator, node(to_eval.right))
+
+            value = node(to_eval.right)
+            if value.type == objects.ObjectType.ERROR:
+                return value
+            return prefix_expression(to_eval.operator, value)
         case ast.Infix:
             assert isinstance(to_eval, ast.Infix) and to_eval.right and to_eval.left
-            return infix_expression(
-                node(to_eval.left), to_eval.operator, node(to_eval.right)
-            )
+
+            left = node(to_eval.left)
+            if left.type == objects.ObjectType.ERROR:
+                return left
+            right = node(to_eval.right)
+            if right.type == objects.ObjectType.ERROR:
+                return right
+
+            return infix_expression(left, to_eval.operator, right)
+
         case ast.If:
             assert isinstance(to_eval, ast.If)
             return if_expression(to_eval)
         case ast.Return:
             assert isinstance(to_eval, ast.Return)
-            return objects.Return(value=node(to_eval.value))
+            value = node(to_eval.value)
+            if value.type == objects.ObjectType.ERROR:
+                return value
+            return objects.Return(value=value)
         case _:
             logger.error(f"Unhandled type: {type(to_eval)}")
             raise NotImplementedError
@@ -244,7 +258,9 @@ def is_truthy(obj: objects.Object) -> bool:
 
 def if_expression(expression: ast.If) -> objects.Object:
     condition = node(expression.condition)
-    if is_truthy(condition) and expression.consequence:
+    if condition.type == objects.ObjectType.ERROR:
+        return condition
+    elif is_truthy(condition) and expression.consequence:
         return node(expression.consequence)
     elif expression.alternative is not None:
         return node(expression.alternative)
