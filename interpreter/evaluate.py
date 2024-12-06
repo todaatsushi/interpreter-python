@@ -71,6 +71,14 @@ def infix_expression(
             return multiply(left, right)
         case "/":
             return divide(left, right)
+        case "<":
+            return less_than(left, right)
+        case ">":
+            return more_than(left, right)
+        case "==":
+            return equality(left, right, True)
+        case "!=":
+            return equality(left, right, False)
         case _:
             logger.error(f"Unhandled for operator: {operator}")
             raise NotImplementedError
@@ -133,3 +141,45 @@ def exclaimation_mark(right: objects.Object) -> objects.Object:
 
 def prefix_minus(right: objects.Integer) -> objects.Object:
     return objects.Integer(value=right.value * -1)
+
+
+def less_than(left: objects.Object, right: objects.Object) -> objects.Object:
+    if isinstance(left, objects.Integer) and isinstance(right, objects.Integer):
+        if left.value < right.value:
+            return objects.TRUE
+        return objects.FALSE
+
+    logger.error(
+        f"Unhandled less than for these types: {type(left)}(left), {type(right)}(right)"
+    )
+    raise NotImplementedError
+
+
+def more_than(left: objects.Object, right: objects.Object) -> objects.Object:
+    if isinstance(left, objects.Integer) and isinstance(right, objects.Integer):
+        if left.value > right.value:
+            return objects.TRUE
+        return objects.FALSE
+
+    logger.error(
+        f"Unhandled more than for these types: {type(left)}(left), {type(right)}(right)"
+    )
+    raise NotImplementedError
+
+
+def equality(
+    left: objects.Object, right: objects.Object, positive: bool
+) -> objects.Object:
+    if isinstance(left, objects.Integer) and isinstance(right, objects.Integer):
+        result = left.value == right.value
+        if not positive:
+            result = not result
+
+        if result:
+            return objects.TRUE
+        return objects.FALSE
+
+    logger.error(
+        f"Unhandled equality than for these types: {type(left)}(left), {type(right)}(right)"
+    )
+    raise NotImplementedError
