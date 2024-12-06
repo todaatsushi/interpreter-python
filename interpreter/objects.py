@@ -40,6 +40,10 @@ class Boolean(Object):
         return str(self.value).lower()
 
 
+TRUE = Boolean(True)
+FALSE = Boolean(False)
+
+
 @dc.dataclass
 class Null(Object):
     value: None = None

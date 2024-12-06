@@ -44,3 +44,4 @@ class TestSelfEvaluating(unittest.TestCase):
         for code, expected in test_cases:
             actual = get_object(code)
             test_self_evaluating_object(self, objects.Boolean, actual, expected)
+            self.assertIs(actual, objects.TRUE if expected else objects.FALSE)
