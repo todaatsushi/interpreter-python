@@ -235,8 +235,24 @@ class Parser:
             value=self.current_token.value.decode("ascii"),
         )
 
-    def parse_function_literal(self) -> ast.FunctionLiteral:
-        raise NotImplementedError
+    def parse_function_literal(self) -> ast.FunctionLiteral | None:
+        token = self.current_token
+
+        if not self.expect_token_type(
+            self.peek_token, tokens.TokenType.LEFT_PARENTHESES, True
+        ):
+            return None
+
+        params = self.parse_function_parameters()
+
+        if not self.expect_token_type(
+            self.peek_token, tokens.TokenType.LEFT_BRACE, True
+        ):
+            return None
+
+        body = self.parse_block_statement()
+        assert body is not None and params is not None
+        return ast.FunctionLiteral(token=token, parameters=params, body=body)
 
     def parse_integer_literal(self) -> ast.IntegerLiteral | None:
         assert self.current_token.value
@@ -298,6 +314,40 @@ class Parser:
             consequence=consequence,
             alternative=alternative,
         )
+
+    def parse_function_parameters(self) -> list[ast.Identifier] | None:
+        params: list[ast.Identifier] = []
+
+        if self.expect_token_type(
+            self.peek_token, tokens.TokenType.RIGHT_PARENTHESES, True
+        ):
+            return params
+
+        self.next_token()
+
+        # First arg
+        assert self.current_token.value
+        param = ast.Identifier(
+            token=self.current_token, value=self.current_token.value.decode("ascii")
+        )
+        params.append(param)
+
+        while self.expect_token_type(self.peek_token, tokens.TokenType.COMMA, False):
+            self.next_token()
+            self.next_token()
+
+            assert self.current_token.value
+            param = ast.Identifier(
+                token=self.current_token, value=self.current_token.value.decode("ascii")
+            )
+            params.append(param)
+
+        if not self.expect_token_type(
+            self.peek_token, tokens.TokenType.RIGHT_PARENTHESES, True
+        ):
+            return None
+
+        return params
 
     def parse_block_statement(self) -> ast.BlockStatement:
         token = self.current_token
