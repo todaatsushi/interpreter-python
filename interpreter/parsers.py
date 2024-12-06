@@ -48,6 +48,8 @@ class Precedences(enum.IntEnum):
                 return Precedences.SUM
             case tokens.TokenType.DIVIDE | tokens.TokenType.MULTIPLY:
                 return Precedences.PRODUCT
+            case tokens.TokenType.LEFT_PARENTHESES:
+                return Precedences.CALL
             case _:
                 return Precedences.LOWEST
 
@@ -99,6 +101,10 @@ class Parser:
             tokens.TokenType.DIVIDE,
         ):
             self.register_infix(token_type, func=self.parse_infix_expression)
+
+        self.register_infix(
+            tokens.TokenType.LEFT_PARENTHESES, func=self.parse_call_expression
+        )
 
     @classmethod
     def new(cls, lexer: lexers.Lexer) -> Parser:
@@ -217,6 +223,17 @@ class Parser:
 
         return ast.Return(token=return_token)
 
+    def parse_call_expression(self, left: ast.Expression) -> ast.Call | None:
+        token = self.current_token
+        if not (
+            isinstance(left, ast.FunctionLiteral) or isinstance(left, ast.Identifier)
+        ):
+            return None
+
+        arguments = self.parse_call_arguments()
+        assert arguments is not None
+        return ast.Call(token=token, function=left, arguments=arguments)
+
     def parse_grouped_expression(self) -> ast.Expression | None:
         self.next_token()
 
@@ -314,6 +331,29 @@ class Parser:
             consequence=consequence,
             alternative=alternative,
         )
+
+    def parse_call_arguments(self) -> list[ast.Expression] | None:
+        args: list[ast.Expression] = []
+        if self.expect_token_type(
+            self.peek_token, tokens.TokenType.RIGHT_PARENTHESES, True
+        ):
+            return args
+
+        self.next_token()
+        if arg := self.parse_expression(Precedences.LOWEST):
+            args.append(arg)
+
+        while self.expect_token_type(self.peek_token, tokens.TokenType.COMMA, False):
+            self.next_token()
+            self.next_token()
+            if arg := self.parse_expression(Precedences.LOWEST):
+                args.append(arg)
+
+        if not self.expect_token_type(
+            self.peek_token, tokens.TokenType.RIGHT_PARENTHESES, True
+        ):
+            return None
+        return args
 
     def parse_function_parameters(self) -> list[ast.Identifier] | None:
         params: list[ast.Identifier] = []
