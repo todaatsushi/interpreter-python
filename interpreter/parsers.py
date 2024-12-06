@@ -202,26 +202,20 @@ class Parser:
             self.errors.append(msg)
             return None
 
-        while not self.expect_token_type(
-            self.current_token, tokens.TokenType.SEMICOLON, False
-        ):
-            logger.info("TODO: fetch value expression")
-            self.next_token()
+        self.next_token()
 
-        return ast.Let(token=let_token, name=name)
+        let_expr = self.parse_expression(Precedences.LOWEST)
+        self.expect_token_type(self.peek_token, tokens.TokenType.SEMICOLON, True)
+        return ast.Let(token=let_token, name=name, value=let_expr)
 
     def parse_return_statement(self) -> ast.Return:
         return_token = self.current_token
 
         self.next_token()
 
-        while not self.expect_token_type(
-            self.current_token, tokens.TokenType.SEMICOLON, False
-        ):
-            logger.info("TODO: fetch value expression")
-            self.next_token()
-
-        return ast.Return(token=return_token)
+        return_expr = self.parse_expression(Precedences.LOWEST)
+        self.expect_token_type(self.peek_token, tokens.TokenType.SEMICOLON, True)
+        return ast.Return(token=return_token, value=return_expr)
 
     def parse_call_expression(self, left: ast.Expression) -> ast.Call | None:
         token = self.current_token
