@@ -45,3 +45,17 @@ class TestSelfEvaluating(unittest.TestCase):
             actual = get_object(code)
             test_self_evaluating_object(self, objects.Boolean, actual, expected)
             self.assertIs(actual, objects.TRUE if expected else objects.FALSE)
+
+    def test_evaluates_exclaimation_mark(self) -> None:
+        test_cases: tuple[tuple[str, bool], ...] = (
+            ("!true", False),
+            ("!false", True),
+            ("!5", False),
+            ("!!true", True),
+            ("!!false", False),
+            ("!!5", True),
+        )
+
+        for code, expected in test_cases:
+            actual = get_object(code)
+            test_self_evaluating_object(self, objects.Boolean, actual, expected)
