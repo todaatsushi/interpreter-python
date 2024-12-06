@@ -53,6 +53,8 @@ def program(program: ast.Program) -> objects.Object:
 
         if isinstance(result, objects.Return):
             return result.value
+        elif isinstance(result, objects.Error):
+            return result
 
     assert result is not None
     return result
@@ -63,7 +65,7 @@ def block_statement(block: ast.BlockStatement) -> objects.Object:
     for statement in block.statements:
         result = node(statement)
 
-        if result.type == objects.ObjectType.RETURN:
+        if result.type in (objects.ObjectType.RETURN, objects.ObjectType.ERROR):
             return result
 
     assert result is not None
@@ -77,10 +79,12 @@ def prefix_expression(operator: str, right: objects.Object) -> objects.Object:
         case "-":
             if isinstance(right, objects.Integer):
                 return prefix_minus(right)
-            return objects.NULL
         case _:
-            logger.error(f"Unhandled for operator: {operator}")
-            raise NotImplementedError
+            pass
+
+    return objects.Error(
+        message=f"{objects.ErrorTypes.UNKNOWN_OPERATOR}: {operator}{right.type}"
+    )
 
 
 def infix_expression(
@@ -104,38 +108,42 @@ def infix_expression(
         case "!=":
             return equality(left, right, False)
         case _:
-            logger.error(f"Unhandled for operator: {operator}")
-            raise NotImplementedError
+            return objects.Error(
+                message=f"{objects.ErrorTypes.UNKNOWN_OPERATOR}: {left.type} {operator} {right.type}"
+            )
 
 
 def plus(left: objects.Object, right: objects.Object) -> objects.Object:
     if isinstance(left, objects.Integer) and isinstance(right, objects.Integer):
         return objects.Integer(value=left.value + right.value)
 
-    logger.error(
-        f"Unhandled add for these types: {type(left)}(left), {type(right)}(right)"
-    )
-    raise NotImplementedError
+    if type(left) is not type(right):
+        error_type = objects.ErrorTypes.TYPE_MISMATCH
+    else:
+        error_type = objects.ErrorTypes.UNKNOWN_OPERATOR
+    return objects.Error(message=f"{error_type}: {left.type} + {right.type}")
 
 
 def minus(left: objects.Object, right: objects.Object) -> objects.Object:
     if isinstance(left, objects.Integer) and isinstance(right, objects.Integer):
         return objects.Integer(value=left.value - right.value)
 
-    logger.error(
-        f"Unhandled minus for these types: {type(left)}(left), {type(right)}(right)"
-    )
-    raise NotImplementedError
+    if type(left) is not type(right):
+        error_type = objects.ErrorTypes.TYPE_MISMATCH
+    else:
+        error_type = objects.ErrorTypes.UNKNOWN_OPERATOR
+    return objects.Error(message=f"{error_type}: {type(left)} - {type(right)}")
 
 
 def multiply(left: objects.Object, right: objects.Object) -> objects.Object:
     if isinstance(left, objects.Integer) and isinstance(right, objects.Integer):
         return objects.Integer(value=left.value * right.value)
 
-    logger.error(
-        f"Unhandled multiply for these types: {type(left)}(left), {type(right)}(right)"
-    )
-    raise NotImplementedError
+    if type(left) is not type(right):
+        error_type = objects.ErrorTypes.TYPE_MISMATCH
+    else:
+        error_type = objects.ErrorTypes.UNKNOWN_OPERATOR
+    return objects.Error(message=f"{error_type}: {type(left)} * {type(right)}")
 
 
 def divide(left: objects.Object, right: objects.Object) -> objects.Object:
@@ -145,10 +153,11 @@ def divide(left: objects.Object, right: objects.Object) -> objects.Object:
     if isinstance(left, objects.Integer) and isinstance(right, objects.Integer):
         return objects.Integer(value=left.value // right.value)
 
-    logger.error(
-        f"Unhandled divide for these types: {type(left)}(left), {type(right)}(right)"
-    )
-    raise NotImplementedError
+    if type(left) is not type(right):
+        error_type = objects.ErrorTypes.TYPE_MISMATCH
+    else:
+        error_type = objects.ErrorTypes.UNKNOWN_OPERATOR
+    return objects.Error(message=f"{error_type}: {type(left)} / {type(right)}")
 
 
 def exclaimation_mark(right: objects.Object) -> objects.Object:
@@ -173,10 +182,11 @@ def less_than(left: objects.Object, right: objects.Object) -> objects.Object:
             return objects.TRUE
         return objects.FALSE
 
-    logger.error(
-        f"Unhandled less than for these types: {type(left)}(left), {type(right)}(right)"
-    )
-    raise NotImplementedError
+    if type(left) is not type(right):
+        error_type = objects.ErrorTypes.TYPE_MISMATCH
+    else:
+        error_type = objects.ErrorTypes.UNKNOWN_OPERATOR
+    return objects.Error(message=f"{error_type}: {type(left)} < {type(right)}")
 
 
 def more_than(left: objects.Object, right: objects.Object) -> objects.Object:
@@ -185,10 +195,11 @@ def more_than(left: objects.Object, right: objects.Object) -> objects.Object:
             return objects.TRUE
         return objects.FALSE
 
-    logger.error(
-        f"Unhandled more than for these types: {type(left)}(left), {type(right)}(right)"
-    )
-    raise NotImplementedError
+    if type(left) is not type(right):
+        error_type = objects.ErrorTypes.TYPE_MISMATCH
+    else:
+        error_type = objects.ErrorTypes.UNKNOWN_OPERATOR
+    return objects.Error(message=f"{error_type}: {type(left)} > {type(right)}")
 
 
 def equality(
@@ -211,10 +222,12 @@ def equality(
             return objects.TRUE
         return objects.FALSE
 
-    logger.error(
-        f"Unhandled equality than for these types: {type(left)}(left), {type(right)}(right)"
-    )
-    raise NotImplementedError
+    operator = "==" if positive else "!="
+    if type(left) is not type(right):
+        error_type = objects.ErrorTypes.TYPE_MISMATCH
+    else:
+        error_type = objects.ErrorTypes.UNKNOWN_OPERATOR
+    return objects.Error(message=f"{error_type}: {type(left)} {operator} {type(right)}")
 
 
 def is_truthy(obj: objects.Object) -> bool:

@@ -17,6 +17,13 @@ def test_self_evaluating_object(
     tc.assertEqual(obj.value, expected, f"{obj.value} vs {expected}")
 
 
+def test_error_object(tc: unittest.TestCase, obj: objects.Object, message: str) -> None:
+    tc.assertIsInstance(obj, objects.Error)
+    assert isinstance(obj, objects.Error)
+
+    tc.assertEqual(obj.message, message)
+
+
 def get_object(code: str) -> objects.Object:
     lexer = lexers.Lexer.new(code)
     parser = parsers.Parser.new(lexer)
@@ -164,3 +171,38 @@ class TestSelfEvaluating(unittest.TestCase):
         for code, expected in test_cases:
             actual = get_object(code)
             test_self_evaluating_object(self, objects.Integer, actual, expected)
+
+
+class TestErrorHandling(unittest.TestCase):
+    def test_evaluates_type_mismatch_error(self) -> None:
+        test_cases: tuple[tuple[str, str], ...] = (
+            ("5 + true", "type mismatch: INTEGER + BOOLEAN"),
+            ("5 + true; 5;", "type mismatch: INTEGER + BOOLEAN"),
+        )
+
+        for code, expected in test_cases:
+            actual = get_object(code)
+            test_error_object(self, actual, expected)
+
+    def test_evaluates_unknown_operator_error(self) -> None:
+        test_cases: tuple[tuple[str, str], ...] = (
+            ("-true", "unknown operator: -BOOLEAN"),
+            ("true + false;", "unknown operator: BOOLEAN + BOOLEAN"),
+            ("5; true + false; 5", "unknown operator: BOOLEAN + BOOLEAN"),
+            ("if (10 > 1) { true + false; }", "unknown operator: BOOLEAN + BOOLEAN"),
+            (
+                """
+                if (10 > 1) {
+                    if (10 > 1) {
+                        return true + false;
+                    }
+                    return 1;
+                }
+                """,
+                "unknown operator: BOOLEAN + BOOLEAN",
+            ),
+        )
+
+        for code, expected in test_cases:
+            actual = get_object(code)
+            test_error_object(self, actual, expected)
