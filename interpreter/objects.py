@@ -5,6 +5,7 @@ import dataclasses as dc
 
 class ObjectType(enum.StrEnum):
     INTEGER = "INTEGER"
+    BOOLEAN = "BOOLEAN"
 
 
 class Object(abc.ABC):
@@ -23,3 +24,13 @@ class Integer(Object):
 
     def inspect(self) -> str:
         return str(self.value)
+
+
+@dc.dataclass
+class Boolean(Object):
+    value: bool
+
+    type = ObjectType.BOOLEAN
+
+    def inspect(self) -> str:
+        return str(self.value).lower()
