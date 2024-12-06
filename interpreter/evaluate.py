@@ -69,6 +69,12 @@ def node(to_eval: ast.Node, env: environment.Environment) -> objects.Object | No
                 return value
 
             env.set(to_eval.name.value, value)
+        case ast.FunctionLiteral:
+            assert isinstance(to_eval, ast.FunctionLiteral)
+            params = to_eval.parameters
+            body = to_eval.body
+            assert body
+            return objects.Function(body, env, params)
         case _:
             logger.error(f"Unhandled type: {type(to_eval)}")
             raise NotImplementedError
