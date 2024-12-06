@@ -178,6 +178,14 @@ def equality(
         if result:
             return objects.TRUE
         return objects.FALSE
+    if isinstance(left, objects.Boolean) and isinstance(right, objects.Boolean):
+        result = left.value is right.value
+        if not positive:
+            result = not result
+
+        if result:
+            return objects.TRUE
+        return objects.FALSE
 
     logger.error(
         f"Unhandled equality than for these types: {type(left)}(left), {type(right)}(right)"
