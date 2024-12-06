@@ -14,7 +14,7 @@ def test_self_evaluating_object(
     tc.assertIsInstance(obj, expected_class)
     assert isinstance(obj, expected_class)
 
-    tc.assertEqual(obj.value, expected)
+    tc.assertEqual(obj.value, expected, f"{obj.value} vs {expected}")
 
 
 def get_object(code: str) -> objects.Object:
@@ -94,3 +94,22 @@ class TestSelfEvaluating(unittest.TestCase):
         for code, expected in test_cases:
             actual = get_object(code)
             test_self_evaluating_object(self, objects.Integer, actual, expected)
+
+    def test_evalutes_boolean_expressions(self) -> None:
+        test_cases: tuple[tuple[str, bool], ...] = (
+            ("true", True),
+            ("false", False),
+            ("1 < 2", True),
+            ("1 > 2", False),
+            ("1 < 1", False),
+            ("1 > 1", False),
+            ("1 == 1", True),
+            ("1 != 1", False),
+            ("1 == 2", False),
+            ("1 != 2", True),
+        )
+
+        for code, expected in test_cases:
+            actual = get_object(code)
+            test_self_evaluating_object(self, objects.Boolean, actual, expected)
+            self.assertIs(actual, objects.TRUE if expected else objects.FALSE)
