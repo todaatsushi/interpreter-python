@@ -28,7 +28,9 @@ def get_object(code: str) -> objects.Object:
     lexer = lexers.Lexer.new(code)
     parser = parsers.Parser.new(lexer)
     program = parser.parse_program()
-    return evaluate.node(program, environment.Environment())
+    result = evaluate.node(program, environment.Environment())
+    assert result
+    return result
 
 
 class TestSelfEvaluating(unittest.TestCase):
@@ -172,6 +174,18 @@ class TestSelfEvaluating(unittest.TestCase):
             actual = get_object(code)
             test_self_evaluating_object(self, objects.Integer, actual, expected)
 
+    def test_evaluates_let(self) -> None:
+        test_cases: tuple[tuple[str, int], ...] = (
+            ("let a = 5; a;", 5),
+            ("let a = 5 * 5; a;", 25),
+            ("let a = 5; let b = a; b;", 5),
+            ("let a = 5; let b = a; let c = a + b + 5; c;", 15),
+        )
+
+        for code, expected in test_cases:
+            actual = get_object(code)
+            test_self_evaluating_object(self, objects.Integer, actual, expected)
+
 
 class TestErrorHandling(unittest.TestCase):
     def test_evaluates_type_mismatch_error(self) -> None:
@@ -206,3 +220,10 @@ class TestErrorHandling(unittest.TestCase):
         for code, expected in test_cases:
             actual = get_object(code)
             test_error_object(self, actual, expected)
+
+    def test_evaluates_missing_identifer(self) -> None:
+        code = "foobar"
+        expected = "missing identifier: foobar"
+
+        actual = get_object(code)
+        test_error_object(self, actual, expected)

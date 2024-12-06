@@ -15,6 +15,8 @@ class Scanner:
             program = parser.parse_program()
 
             if not parser.errors:
-                print(evaluate.node(program, env).inspect())
+                return_value = evaluate.node(program, env)
+                if return_value:
+                    print(return_value.inspect())
             else:
                 print("\n".join(parser.errors))

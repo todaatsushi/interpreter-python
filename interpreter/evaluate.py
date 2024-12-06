@@ -8,7 +8,7 @@ from interpreter import ast, environment, objects
 logger = logging.getLogger(__name__)
 
 
-def node(to_eval: ast.Node, env: environment.Environment) -> objects.Object:
+def node(to_eval: ast.Node, env: environment.Environment) -> objects.Object | None:
     match type(to_eval):
         case ast.Program:
             assert isinstance(to_eval, ast.Program)
@@ -34,6 +34,7 @@ def node(to_eval: ast.Node, env: environment.Environment) -> objects.Object:
             assert isinstance(to_eval, ast.Prefix) and to_eval.right
 
             value = node(to_eval.right, env)
+            assert value
             if value.type == objects.ObjectType.ERROR:
                 return value
             return prefix_expression(to_eval.operator, value)
@@ -41,9 +42,11 @@ def node(to_eval: ast.Node, env: environment.Environment) -> objects.Object:
             assert isinstance(to_eval, ast.Infix) and to_eval.right and to_eval.left
 
             left = node(to_eval.left, env)
+            assert left
             if left.type == objects.ObjectType.ERROR:
                 return left
             right = node(to_eval.right, env)
+            assert right
             if right.type == objects.ObjectType.ERROR:
                 return right
 
@@ -54,15 +57,26 @@ def node(to_eval: ast.Node, env: environment.Environment) -> objects.Object:
         case ast.Return:
             assert isinstance(to_eval, ast.Return)
             value = node(to_eval.value, env)
+            assert value
             if value.type == objects.ObjectType.ERROR:
                 return value
             return objects.Return(value=value)
+        case ast.Let:
+            assert isinstance(to_eval, ast.Let)
+            value = node(to_eval.value, env)
+            assert value
+            if value.type == objects.ObjectType.ERROR:
+                return value
+
+            env.set(to_eval.name.value, value)
         case _:
             logger.error(f"Unhandled type: {type(to_eval)}")
             raise NotImplementedError
 
 
-def program(program: ast.Program, env: environment.Environment) -> objects.Object:
+def program(
+    program: ast.Program, env: environment.Environment
+) -> objects.Object | None:
     result: objects.Object | None = None
     for statement in program.statements:
         result = node(statement, env)
@@ -72,21 +86,20 @@ def program(program: ast.Program, env: environment.Environment) -> objects.Objec
         elif isinstance(result, objects.Error):
             return result
 
-    assert result is not None
     return result
 
 
 def block_statement(
     block: ast.BlockStatement, env: environment.Environment
-) -> objects.Object:
+) -> objects.Object | None:
     result: objects.Object | None = None
     for statement in block.statements:
         result = node(statement, env)
+        assert result
 
         if result.type in (objects.ObjectType.RETURN, objects.ObjectType.ERROR):
             return result
 
-    assert result is not None
     return result
 
 
@@ -262,12 +275,17 @@ def is_truthy(obj: objects.Object) -> bool:
 
 def if_expression(expression: ast.If, env: environment.Environment) -> objects.Object:
     condition = node(expression.condition, env)
+    assert condition
     if condition.type == objects.ObjectType.ERROR:
         return condition
     elif is_truthy(condition) and expression.consequence:
-        return node(expression.consequence, env)
+        value = node(expression.consequence, env)
+        assert value
+        return value
     elif expression.alternative is not None:
-        return node(expression.alternative, env)
+        value = node(expression.alternative, env)
+        assert value
+        return value
     else:
         return objects.NULL
 
