@@ -63,8 +63,8 @@ def block_statement(block: ast.BlockStatement) -> objects.Object:
     for statement in block.statements:
         result = node(statement)
 
-        if isinstance(result, objects.Return):
-            return result.value
+        if result.type == objects.ObjectType.RETURN:
+            return result
 
     assert result is not None
     return result
