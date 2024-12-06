@@ -2,23 +2,23 @@ from __future__ import annotations
 
 import logging
 
-from interpreter import ast, objects
+from interpreter import ast, environment, objects
 
 
 logger = logging.getLogger(__name__)
 
 
-def node(to_eval: ast.Node) -> objects.Object:
+def node(to_eval: ast.Node, env: environment.Environment) -> objects.Object:
     match type(to_eval):
         case ast.Program:
             assert isinstance(to_eval, ast.Program)
-            return program(to_eval)
+            return program(to_eval, env)
         case ast.BlockStatement:
             assert isinstance(to_eval, ast.BlockStatement)
-            return block_statement(to_eval)
+            return block_statement(to_eval, env)
         case ast.ExpressionStatement:
             assert isinstance(to_eval, ast.ExpressionStatement) and to_eval.expression
-            return node(to_eval.expression)
+            return node(to_eval.expression, env)
         case ast.IntegerLiteral:
             assert isinstance(to_eval, ast.IntegerLiteral)
             return objects.Integer(value=to_eval.value)
@@ -30,17 +30,17 @@ def node(to_eval: ast.Node) -> objects.Object:
         case ast.Prefix:
             assert isinstance(to_eval, ast.Prefix) and to_eval.right
 
-            value = node(to_eval.right)
+            value = node(to_eval.right, env)
             if value.type == objects.ObjectType.ERROR:
                 return value
             return prefix_expression(to_eval.operator, value)
         case ast.Infix:
             assert isinstance(to_eval, ast.Infix) and to_eval.right and to_eval.left
 
-            left = node(to_eval.left)
+            left = node(to_eval.left, env)
             if left.type == objects.ObjectType.ERROR:
                 return left
-            right = node(to_eval.right)
+            right = node(to_eval.right, env)
             if right.type == objects.ObjectType.ERROR:
                 return right
 
@@ -48,10 +48,10 @@ def node(to_eval: ast.Node) -> objects.Object:
 
         case ast.If:
             assert isinstance(to_eval, ast.If)
-            return if_expression(to_eval)
+            return if_expression(to_eval, env)
         case ast.Return:
             assert isinstance(to_eval, ast.Return)
-            value = node(to_eval.value)
+            value = node(to_eval.value, env)
             if value.type == objects.ObjectType.ERROR:
                 return value
             return objects.Return(value=value)
@@ -60,10 +60,10 @@ def node(to_eval: ast.Node) -> objects.Object:
             raise NotImplementedError
 
 
-def program(program: ast.Program) -> objects.Object:
+def program(program: ast.Program, env: environment.Environment) -> objects.Object:
     result: objects.Object | None = None
     for statement in program.statements:
-        result = node(statement)
+        result = node(statement, env)
 
         if isinstance(result, objects.Return):
             return result.value
@@ -74,10 +74,12 @@ def program(program: ast.Program) -> objects.Object:
     return result
 
 
-def block_statement(block: ast.BlockStatement) -> objects.Object:
+def block_statement(
+    block: ast.BlockStatement, env: environment.Environment
+) -> objects.Object:
     result: objects.Object | None = None
     for statement in block.statements:
-        result = node(statement)
+        result = node(statement, env)
 
         if result.type in (objects.ObjectType.RETURN, objects.ObjectType.ERROR):
             return result
@@ -256,13 +258,13 @@ def is_truthy(obj: objects.Object) -> bool:
             return True
 
 
-def if_expression(expression: ast.If) -> objects.Object:
-    condition = node(expression.condition)
+def if_expression(expression: ast.If, env: environment.Environment) -> objects.Object:
+    condition = node(expression.condition, env)
     if condition.type == objects.ObjectType.ERROR:
         return condition
     elif is_truthy(condition) and expression.consequence:
-        return node(expression.consequence)
+        return node(expression.consequence, env)
     elif expression.alternative is not None:
-        return node(expression.alternative)
+        return node(expression.alternative, env)
     else:
         return objects.NULL
