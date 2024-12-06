@@ -10,8 +10,10 @@ logger = logging.getLogger(__name__)
 
 def node(to_eval: ast.Node) -> objects.Object:
     match type(to_eval):
-        case ast.Program:
-            assert isinstance(to_eval, ast.Program)
+        case ast.Program | ast.BlockStatement:
+            assert isinstance(to_eval, ast.Program) or isinstance(
+                to_eval, ast.BlockStatement
+            )
             return statements(to_eval.statements)
         case ast.ExpressionStatement:
             assert isinstance(to_eval, ast.ExpressionStatement) and to_eval.expression
@@ -32,6 +34,9 @@ def node(to_eval: ast.Node) -> objects.Object:
             return infix_expression(
                 node(to_eval.left), to_eval.operator, node(to_eval.right)
             )
+        case ast.If:
+            assert isinstance(to_eval, ast.If)
+            return if_expression(to_eval)
         case _:
             logger.error(f"Unhandled type: {type(to_eval)}")
             raise NotImplementedError
@@ -191,3 +196,25 @@ def equality(
         f"Unhandled equality than for these types: {type(left)}(left), {type(right)}(right)"
     )
     raise NotImplementedError
+
+
+def is_truthy(obj: objects.Object) -> bool:
+    match obj:
+        case objects.NULL:
+            return False
+        case objects.TRUE:
+            return True
+        case objects.FALSE:
+            return False
+        case _:
+            return True
+
+
+def if_expression(expression: ast.If) -> objects.Object:
+    condition = node(expression.condition)
+    if is_truthy(condition) and expression.consequence:
+        return node(expression.consequence)
+    elif expression.alternative is not None:
+        return node(expression.alternative)
+    else:
+        return objects.NULL
