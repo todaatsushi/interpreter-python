@@ -240,3 +240,17 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(len(actual.parameters), 1)
         self.assertEqual(str(actual.parameters[0]), "x")
         self.assertEqual(str(actual.body), "(x + 2)")
+
+    def test_evaluates_function_application(self) -> None:
+        test_cases: tuple[tuple[str, int], ...] = (
+            ("let identity = fn(x) { x; }; identity(5);", 5),
+            ("let identity = fn(x) { return x; }; identity(5);", 5),
+            ("let double = fn(x) { x * 2; }; double(5);", 10),
+            ("let add = fn(x, y) { x + y; }; add(5, 5);", 10),
+            ("let add = fn(x, y) { x + y; }; add(5 + 5, add(5, 5));", 20),
+            ("fn(x) { x; }(5)", 5),
+        )
+
+        for code, expected in test_cases:
+            actual = get_object(code)
+            test_self_evaluating_object(self, objects.Integer, actual, expected)

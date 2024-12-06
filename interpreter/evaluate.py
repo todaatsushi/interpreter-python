@@ -75,6 +75,15 @@ def node(to_eval: ast.Node, env: environment.Environment) -> objects.Object | No
             body = to_eval.body
             assert body
             return objects.Function(body, env, params)
+        case ast.Call:
+            assert isinstance(to_eval, ast.Call)
+            func = node(to_eval.function, env)
+            assert func
+
+            args = expressions(to_eval.arguments, env)
+            if len(args) == 1 and args[0].type == objects.ObjectType.ERROR:
+                return args[0]
+            return function(func, args)
         case _:
             logger.error(f"Unhandled type: {type(to_eval)}")
             raise NotImplementedError
@@ -304,3 +313,41 @@ def identifier(iden: ast.Identifier, env: environment.Environment) -> objects.Ob
         )
     assert value is not None
     return value
+
+
+def expressions(
+    exps: list[ast.Expression], env: environment.Environment
+) -> list[objects.Object]:
+    result: list[objects.Object] = []
+    for expression in exps:
+        evaluated_expression = node(expression, env)
+        if (
+            evaluated_expression
+            and evaluated_expression.type == objects.ObjectType.ERROR
+        ):
+            return [evaluated_expression]
+        if evaluated_expression:
+            result.append(evaluated_expression)
+    return result
+
+
+def extended_function_env(
+    function: objects.Function, parameters: list[objects.Object]
+) -> environment.Environment:
+    env = environment.Environment.new_enclosed(function.env)
+    for i, parameter in enumerate(function.parameters):
+        env.set(str(parameter.value), parameters[i])
+    return env
+
+
+def function(func: objects.Object, arguments: list[objects.Object]) -> objects.Object:
+    if not isinstance(func, objects.Function):
+        return objects.Error(
+            f"{objects.ErrorTypes.NOT_A_FUNC}: {func} - {', '.join([str(arg) for arg in arguments])}"
+        )
+    env = extended_function_env(func, arguments)
+    evaluated = node(func.body, env)
+    assert evaluated
+    if isinstance(evaluated, objects.Return):
+        return evaluated.value
+    return evaluated
