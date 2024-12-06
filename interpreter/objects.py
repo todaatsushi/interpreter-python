@@ -93,6 +93,8 @@ class Function(Object):
     env: environment.Environment
     parameters: list[ast.Identifier] = dc.field(default_factory=list)
 
+    type = ObjectType.FUNCTION
+
     def inspect(self) -> str:
         params = [str(param) for param in self.parameters]
         s = f"fn({', '.join(params)})" + "{\n"
