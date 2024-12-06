@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from interpreter import lexers, objects, parsers, evaluate
+from interpreter import environment, lexers, objects, parsers, evaluate
 
 
 def test_self_evaluating_object(
@@ -28,7 +28,7 @@ def get_object(code: str) -> objects.Object:
     lexer = lexers.Lexer.new(code)
     parser = parsers.Parser.new(lexer)
     program = parser.parse_program()
-    return evaluate.node(program)
+    return evaluate.node(program, environment.Environment())
 
 
 class TestSelfEvaluating(unittest.TestCase):
