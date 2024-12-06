@@ -9,6 +9,7 @@ class ObjectType(enum.StrEnum):
     NULL = "NULL"
     INTEGER = "INTEGER"
     BOOLEAN = "BOOLEAN"
+    RETURN = "RETURN"
 
 
 class Object(abc.ABC):
@@ -54,3 +55,13 @@ class Null(Object):
 
 
 NULL = Null()
+
+
+@dc.dataclass
+class Return(Object):
+    value: Object
+
+    type = ObjectType.RETURN
+
+    def inspect(self) -> str:
+        return self.value.inspect()
