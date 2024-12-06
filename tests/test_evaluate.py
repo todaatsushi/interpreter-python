@@ -122,3 +122,23 @@ class TestSelfEvaluating(unittest.TestCase):
             actual = get_object(code)
             test_self_evaluating_object(self, objects.Boolean, actual, expected)
             self.assertIs(actual, objects.TRUE if expected else objects.FALSE)
+
+    def test_evaluates_simple_if_else(self) -> None:
+        test_cases: tuple[tuple[str, int | None], ...] = (
+            ("if (true) { 10 }", 10),
+            ("if (false) { 10 }", None),
+            ("if (1) { 10 }", 10),
+            ("if (1 < 2) { 10 }", 10),
+            ("if (1 > 2) { 10 }", None),
+            ("if (1 > 2) { 10 } else { 20 }", 20),
+            ("if (1 < 2) { 10 } else { 20 }", 10),
+        )
+        for code, expected in test_cases:
+            actual = get_object(code)
+            expected_class = objects.Integer
+            if expected is None:
+                expected_class = objects.Null
+            test_self_evaluating_object(self, expected_class, actual, expected)
+
+            if expected is None:
+                self.assertIs(actual, objects.NULL)
