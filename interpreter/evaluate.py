@@ -27,6 +27,9 @@ def node(to_eval: ast.Node, env: environment.Environment) -> objects.Object:
             if to_eval.value:
                 return objects.TRUE
             return objects.FALSE
+        case ast.Identifier:
+            assert isinstance(to_eval, ast.Identifier)
+            return identifier(to_eval, env)
         case ast.Prefix:
             assert isinstance(to_eval, ast.Prefix) and to_eval.right
 
@@ -45,7 +48,6 @@ def node(to_eval: ast.Node, env: environment.Environment) -> objects.Object:
                 return right
 
             return infix_expression(left, to_eval.operator, right)
-
         case ast.If:
             assert isinstance(to_eval, ast.If)
             return if_expression(to_eval, env)
@@ -268,3 +270,13 @@ def if_expression(expression: ast.If, env: environment.Environment) -> objects.O
         return node(expression.alternative, env)
     else:
         return objects.NULL
+
+
+def identifier(iden: ast.Identifier, env: environment.Environment) -> objects.Object:
+    value, ok = env.get(iden.value)
+    if not ok:
+        return objects.Error(
+            message=f"{objects.ErrorTypes.MISSING_IDENTIFER}: {iden.value}"
+        )
+    assert value is not None
+    return value
