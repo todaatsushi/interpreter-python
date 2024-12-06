@@ -254,3 +254,14 @@ class TestFunctions(unittest.TestCase):
         for code, expected in test_cases:
             actual = get_object(code)
             test_self_evaluating_object(self, objects.Integer, actual, expected)
+
+    def test_evaluates_closures(self) -> None:
+        code = """
+        let newAdder = fn(x) {
+            fn(y) { x + y };
+        };
+        let addTwo = newAdder(2);
+        addTwo(2);
+        """
+        actual = get_object(code)
+        test_self_evaluating_object(self, objects.Integer, actual, 4)
