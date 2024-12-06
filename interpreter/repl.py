@@ -1,4 +1,4 @@
-from interpreter import lexers, parsers
+from interpreter import lexers, parsers, evaluate
 
 
 class Scanner:
@@ -14,6 +14,6 @@ class Scanner:
             program = parser.parse_program()
 
             if not parser.errors:
-                print(program)
+                print(evaluate.node(program).inspect())
             else:
                 print("\n".join(parser.errors))
