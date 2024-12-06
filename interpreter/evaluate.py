@@ -37,6 +37,9 @@ def node(to_eval: ast.Node) -> objects.Object:
         case ast.If:
             assert isinstance(to_eval, ast.If)
             return if_expression(to_eval)
+        case ast.Return:
+            assert isinstance(to_eval, ast.Return)
+            return objects.Return(value=node(to_eval.value))
         case _:
             logger.error(f"Unhandled type: {type(to_eval)}")
             raise NotImplementedError
@@ -46,6 +49,9 @@ def statements(statements_: list[ast.Statement]) -> objects.Object:
     result: objects.Object | None = None
     for statement in statements_:
         result = node(statement)
+
+        if isinstance(result, objects.Return):
+            return result.value
 
     assert result is not None
     return result
