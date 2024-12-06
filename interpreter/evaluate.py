@@ -1,17 +1,33 @@
 from __future__ import annotations
+
 import logging
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from interpreter import ast, objects
+from interpreter import ast, objects
 
 
 logger = logging.getLogger(__name__)
 
 
-def node(node: ast.Node) -> objects.Object:
-    match type(node):
+def node(to_eval: ast.Node) -> objects.Object:
+    match type(to_eval):
+        case ast.Program:
+            assert isinstance(to_eval, ast.Program)
+            return statements(to_eval.statements)
+        case ast.ExpressionStatement:
+            assert isinstance(to_eval, ast.ExpressionStatement) and to_eval.expression
+            return node(to_eval.expression)
+        case ast.IntegerLiteral:
+            assert isinstance(to_eval, ast.IntegerLiteral)
+            return objects.Integer(value=to_eval.value)
         case _:
-            logger.error(f"Unhandled type: {type(node)}")
+            logger.error(f"Unhandled type: {type(to_eval)}")
             raise NotImplementedError
+
+
+def statements(statements_: list[ast.Statement]) -> objects.Object:
+    result: objects.Object | None = None
+    for statement in statements_:
+        result = node(statement)
+
+    assert result is not None
+    return result
