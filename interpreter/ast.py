@@ -142,8 +142,7 @@ class Let(Statement):
     token: tokens.Token
     name: Identifier
 
-    # TODO - needs not nullable expression later
-    value: Expression | None = None
+    value: Expression | None
 
     def statement_node(self) -> None:
         pass
@@ -163,8 +162,7 @@ class Let(Statement):
 class Return(Statement):
     token: tokens.Token
 
-    # TODO - needs not nullable expression later
-    value: Expression | None = None
+    value: Expression
 
     def statement_node(self) -> None:
         pass
@@ -183,7 +181,7 @@ class Return(Statement):
 @dc.dataclass
 class ExpressionStatement(Statement):
     token: tokens.Token
-    expression: Expression | None
+    expression: Expression
 
     def statement_node(self) -> None:
         pass
