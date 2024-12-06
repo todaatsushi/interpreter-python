@@ -51,3 +51,6 @@ class Null(Object):
 
     def inspect(self) -> str:
         return "null"
+
+
+NULL = Null()
