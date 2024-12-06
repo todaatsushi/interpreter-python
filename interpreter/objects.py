@@ -4,6 +4,8 @@ import abc
 import enum
 import dataclasses as dc
 
+from interpreter import ast, environment
+
 
 class ObjectType(enum.StrEnum):
     NULL = "NULL"
@@ -11,6 +13,7 @@ class ObjectType(enum.StrEnum):
     BOOLEAN = "BOOLEAN"
     RETURN = "RETURN"
     ERROR = "ERROR"
+    FUNCTION = "FUNCTION"
 
 
 class ErrorTypes(enum.StrEnum):
@@ -82,3 +85,17 @@ class Error(Object):
 
     def inspect(self) -> str:
         return f"ERROR: {self.message}"
+
+
+@dc.dataclass
+class Function(Object):
+    body: ast.BlockStatement
+    env: environment.Environment
+    parameters: list[ast.Identifier] = dc.field(default_factory=list)
+
+    type = ObjectType.FUNCTION
+
+    def inspect(self) -> str:
+        params = [str(param) for param in self.parameters]
+        s = f"fn({', '.join(params)})" + "{\n"
+        return f"{s}{str(self.body)}" + "\n}"
