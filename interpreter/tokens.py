@@ -11,6 +11,7 @@ class TokenType(enum.StrEnum):
     # Identifiers + literals
     IDENTIFIER = "IDENTIFIER"  # add, x, y
     INT = "INT"
+    STRING = "STRING"
     TRUE = "TRUE"
     FALSE = "FALSE"
 
