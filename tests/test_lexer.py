@@ -88,6 +88,20 @@ class TestNextToken(unittest.TestCase):
                     f"Expected '{expected_type}', got '{actual_type}'",
                 )
 
+    def test_parses_string(self) -> None:
+        code = '"test string"'
+        lexer = lx.Lexer.new(code)
+
+        token: tk.Token = lexer.next_token()
+
+        self.assertIsNotNone(token.value)
+        assert token.value is not None
+
+        self.assertEqual(token.type, tk.TokenType.STRING)
+
+        actual_value = token.value.decode("ascii")
+        self.assertEqual(actual_value, "test string")
+
     def test_parses_script(self) -> None:
         input = utils.read_script("tests/fixtures/01.mky")
         lexer = lx.Lexer.new(input)
@@ -180,6 +194,10 @@ class TestNextToken(unittest.TestCase):
             ("9", tk.TokenType.INT),
             (";", tk.TokenType.SEMICOLON),
             # Line 20
+            ("foobar", tk.TokenType.STRING),
+            # Line 21
+            ("foo bar", tk.TokenType.STRING),
+            # Line 22
             ("`", tk.TokenType.ILLEGAL),
             (None, tk.TokenType.EOF),
         )

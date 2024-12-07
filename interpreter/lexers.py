@@ -5,6 +5,10 @@ import dataclasses as dc
 from interpreter import tokens as tk
 
 
+class Unexpected(Exception):
+    pass
+
+
 @dc.dataclass
 class Lexer:
     input: str
@@ -87,7 +91,20 @@ class Lexer:
             if value in (None, ""):
                 return tk.TokenType.EOF, value
             if token_type := tk.TOKEN_TYPE_MAP.get(value):
-                if token_type not in (
+                if token_type == tk.TokenType.STRING:
+                    value = ""
+                    while self.peek_char() != '"':
+                        self.read_char()
+                        _current = self.get_current()
+                        if _current is None:
+                            raise Unexpected("Didn't expect None.")
+                        value = f"{value}{_current}"
+
+                    # Skip last str char and second "
+                    self.read_char()
+                    self.read_char()
+                    return token_type, value
+                elif token_type not in (
                     tk.TokenType.ASSIGN,
                     tk.TokenType.EXCLAIMATION_MARK,
                 ):

@@ -80,6 +80,7 @@ TOKEN_TYPE_MAP = {
     "<": TokenType.LESS_THAN,
     ">": TokenType.MORE_THAN,
     "!": TokenType.EXCLAIMATION_MARK,
+    '"': TokenType.STRING,
 }
 
 COULD_BE_DOUBLE = {TokenType.EXCLAIMATION_MARK, TokenType.ASSIGN}
