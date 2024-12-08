@@ -264,6 +264,23 @@ class Infix(Expression):
 
 
 @dc.dataclass
+class Index(Expression):
+    token: tokens.Token  # ie. [
+    left: Expression
+    index: Expression
+
+    def expression_node(self) -> None:
+        pass
+
+    def token_literal(self) -> str:
+        assert self.token.value
+        return self.token.value.decode("ascii")
+
+    def __str__(self) -> str:
+        return f"({str(self.left)}[{str(self.index)}])"
+
+
+@dc.dataclass
 class If(Expression):
     token: tokens.Token  # ie. if
 

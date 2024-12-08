@@ -874,6 +874,56 @@ class TestMetaParsing(unittest.TestCase):
             with self.subTest(f"Parsed properly: {code}"):
                 self.assertEqual(str(program), expected)
 
+    def test_parses_index_expressions(self) -> None:
+        code = "array[1 + 3]"
+        lexer = lexers.Lexer.new(code)
+        parser = parsers.Parser.new(lexer)
+
+        program = parser.parse_program()
+
+        with self.subTest(f"Check no errors for: {code}"):
+            self.assertEqual(
+                len(parser.errors), 0, f"{len(parser.errors)} found for {code}"
+            )
+
+        statement = program.statements[0]
+        with self.subTest("Statement is expression statement"):
+            self.assertIsInstance(statement, ast.ExpressionStatement)
+            assert isinstance(statement, ast.ExpressionStatement)
+
+        index_expression = statement.expression
+        with self.subTest("Is index expression"):
+            self.assertIsInstance(index_expression, ast.Index)
+            assert isinstance(index_expression, ast.Index)
+
+        with self.subTest("Left"):
+            self.assertEqual(
+                index_expression.left,
+                ast.Identifier(
+                    token=tokens.Token(
+                        value=b"array", type=tokens.TokenType.IDENTIFIER
+                    ),
+                    value="array",
+                ),
+            )
+
+        with self.subTest("Index"):
+            self.assertEqual(
+                index_expression.index,
+                ast.Infix(
+                    token=tokens.Token(value=b"+", type=tokens.TokenType.PLUS),
+                    left=ast.IntegerLiteral(
+                        token=tokens.Token(value=b"1", type=tokens.TokenType.INT),
+                        value=1,
+                    ),
+                    operator="+",
+                    right=ast.IntegerLiteral(
+                        token=tokens.Token(value=b"1", type=tokens.TokenType.INT),
+                        value=3,
+                    ),
+                ),
+            )
+
     def test_parses_function_parameters(self) -> None:
         test_cases: tuple[tuple[str, list[str]], ...] = (
             ("fn () {};", []),
