@@ -198,6 +198,15 @@ class TestNextToken(unittest.TestCase):
             # Line 21
             ("foo bar", tk.TokenType.STRING),
             # Line 22
+            ("[", tk.TokenType.LEFT_SQUARE_BRACKET),
+            ("1", tk.TokenType.INT),
+            (",", tk.TokenType.COMMA),
+            ("two", tk.TokenType.STRING),
+            (",", tk.TokenType.COMMA),
+            ("three", tk.TokenType.IDENTIFIER),
+            ("]", tk.TokenType.RIGHT_SQUARE_BRACKET),
+            (";", tk.TokenType.SEMICOLON),
+            # Line 23
             ("`", tk.TokenType.ILLEGAL),
             (None, tk.TokenType.EOF),
         )
