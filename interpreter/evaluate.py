@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import logging
 
+from typing import cast
+
 from interpreter import ast, environment, objects
 
 
@@ -101,6 +103,9 @@ def node(to_eval: ast.Node, env: environment.Environment) -> objects.Object | No
             if idx.type == objects.ObjectType.ERROR:
                 return idx
             return index_expression(left, idx)
+        case ast.Map:
+            assert isinstance(to_eval, ast.Map)
+            return hash(to_eval, env)
         case _:
             logger.error(f"Unhandled type: {type(to_eval)}")
             raise NotImplementedError(str(type(to_eval)))
@@ -394,3 +399,20 @@ def index_array(left: objects.Array, idx: objects.Integer) -> objects.Object:
             message=f"{objects.ErrorTypes.INVALID_INDEX}: index must be between 0 and {len(left.items) - 1} inclusive"
         )
     return left.items[idx.value]
+
+
+def hash(hashmap: ast.Map, env: environment.Environment) -> objects.Object:
+    pairs = {}
+    for k, v in hashmap.pairs.items():
+        key = cast(objects.Hashable, node(k, env))
+        assert key
+        if key.type == objects.ObjectType.ERROR:
+            return key
+
+        value = cast(objects.Hashable, node(v, env))
+        assert value
+        if value.type == objects.ObjectType.ERROR:
+            return value
+
+        pairs[key.hash_key()] = objects.HashPair(key=key, value=value)
+    return objects.Hash(pairs=pairs)

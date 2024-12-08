@@ -468,3 +468,37 @@ class TestHashing(unittest.TestCase):
             one = class_(value)  # type: ignore
             two = class_(value)  # type: ignore
             self.assertEqual(one.hash_key(), two.hash_key())
+
+    def test_evaluates_hash(self) -> None:
+        code = """
+        let two = "two";
+        {
+           "one": 10 - 9,
+           two: 1 + 1,
+           "thr" + "ee": 6 / 2,
+           4: 4,
+           true: 5,
+           false: 6
+        }
+        """
+        hash = get_object(code)
+
+        self.assertIsInstance(hash, objects.Hash)
+        assert isinstance(hash, objects.Hash)
+
+        expected = {
+            objects.String("one").hash_key(): 1,
+            objects.String("two").hash_key(): 2,
+            objects.String("three").hash_key(): 3,
+            objects.Integer(4).hash_key(): 4,
+            objects.TRUE.hash_key(): 5,
+            objects.FALSE.hash_key(): 6,
+        }
+
+        with self.subTest("Num keys"):
+            self.assertEqual(len(expected), len(hash.pairs))
+
+        for expected_hash_key, expected_value in expected.items():
+            pair = hash.pairs[expected_hash_key]
+            with self.subTest(expected_hash_key):
+                self.assertEqual(expected_value, pair.value.value)
