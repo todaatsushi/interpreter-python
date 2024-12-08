@@ -34,6 +34,16 @@ def get_object(code: str) -> objects.Object:
 
 
 class TestSelfEvaluating(unittest.TestCase):
+    def test_evalutates_string(self) -> None:
+        test_cases: tuple[tuple[str, str], ...] = (
+            ('"Hey nazo";', "Hey nazo"),
+            ('"";', ""),
+        )
+
+        for code, expected in test_cases:
+            actual = get_object(code)
+            test_self_evaluating_object(self, objects.String, actual, expected)
+
     def test_evaluates_integers(self) -> None:
         test_cases: tuple[tuple[str, int], ...] = (
             ("5", 5),

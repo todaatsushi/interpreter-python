@@ -30,6 +30,9 @@ def node(to_eval: ast.Node, env: environment.Environment) -> objects.Object | No
         case ast.Identifier:
             assert isinstance(to_eval, ast.Identifier)
             return identifier(to_eval, env)
+        case ast.StringLiteral:
+            assert isinstance(to_eval, ast.StringLiteral)
+            return objects.String(value=to_eval.value)
         case ast.Prefix:
             assert isinstance(to_eval, ast.Prefix) and to_eval.right
 
