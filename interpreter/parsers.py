@@ -89,6 +89,9 @@ class Parser:
             tokens.TokenType.FUNCTION, func=self.parse_function_literal
         )
         self.register_prefix(tokens.TokenType.STRING, func=self.parse_string_literal)
+        self.register_prefix(
+            tokens.TokenType.LEFT_SQUARE_BRACKET, func=self.parse_array_literal
+        )
 
         # Register infix
         for token_type in (
@@ -291,6 +294,9 @@ class Parser:
             return None
 
         return ast.IntegerLiteral(token=self.current_token, value=value)
+
+    def parse_array_literal(self) -> ast.ArrayLiteral:
+        raise NotImplementedError
 
     def parse_boolean_literal(self) -> ast.BooleanLiteral:
         assert self.current_token.value
