@@ -422,3 +422,36 @@ class TestBuiltinFunctions(unittest.TestCase):
             with self.subTest(code):
                 actual = get_object(code)
                 test_error_object(self, actual, expected)
+
+    def test_evaluates_push(self) -> None:
+        test_cases: tuple[tuple[str, list[int | str]], ...] = (
+            ("[1, 2, 3], 4", [1, 2, 3, 4]),
+            ('[], "hello"', ["hello"]),
+        )
+
+        for input_, expected in test_cases:
+            with self.subTest(input_):
+                code = f"push({input_})"
+                array = get_object(code)
+
+                self.assertIsInstance(array, objects.Array)
+                assert isinstance(array, objects.Array)
+
+                actual = [item.value for item in array.items]
+                self.assertListEqual(actual, expected)
+
+    def test_evaluates_push_errors(self) -> None:
+        test_cases: tuple[tuple[str, str], ...] = (
+            ("push()", "wrong number of arguments, got 0, want 2"),
+            ("push([1])", "wrong number of arguments, got 1, want 2"),
+            ("push([1], [1], [1])", "wrong number of arguments, got 3, want 2"),
+            (
+                'push("hello", 1)',
+                "argument to 'rest' at position 1 not supported, got STRING",
+            ),
+        )
+
+        for code, expected in test_cases:
+            with self.subTest(code):
+                actual = get_object(code)
+                test_error_object(self, actual, expected)

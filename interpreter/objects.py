@@ -214,6 +214,24 @@ class Rest(F):
         return Error(message=f"{self.UNSUPPORTED_TYPE} {arg.type}")
 
 
+class Push(F):
+    NO_KWARGS = "kwargs not supported"
+    WRONG_NUM_ARGS = "wrong number of arguments, got {}, want 2"
+    UNSUPPORTED_TYPE = "argument to 'rest' at position 1 not supported, got"
+
+    def __call__(self, *args: Object, **kwargs: Object) -> Object:
+        if len(kwargs):
+            return Error(message=self.NO_KWARGS)
+
+        if len(args) != 2:
+            return Error(message=self.WRONG_NUM_ARGS.format(len(args)))
+
+        arg = args[0]
+        if isinstance(arg, Array):
+            return Array(items=[item for item in arg.items] + [args[1]])
+        return Error(message=f"{self.UNSUPPORTED_TYPE} {arg.type}")
+
+
 @dc.dataclass
 class BuiltInFunction(Object):
     function: F
@@ -229,4 +247,5 @@ BUILTIN_MAP: dict[str, BuiltInFunction] = {
     "first": BuiltInFunction(function=First()),
     "last": BuiltInFunction(function=Last()),
     "rest": BuiltInFunction(function=Rest()),
+    "push": BuiltInFunction(function=Push()),
 }
