@@ -38,6 +38,7 @@ class TestSelfEvaluating(unittest.TestCase):
         test_cases: tuple[tuple[str, str], ...] = (
             ('"Hey nazo";', "Hey nazo"),
             ('"";', ""),
+            ('"Chef " + "Nazo";', "Chef Nazo"),
         )
 
         for code, expected in test_cases:

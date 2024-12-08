@@ -166,6 +166,9 @@ def plus(left: objects.Object, right: objects.Object) -> objects.Object:
     if isinstance(left, objects.Integer) and isinstance(right, objects.Integer):
         return objects.Integer(value=left.value + right.value)
 
+    if isinstance(left, objects.String) and isinstance(right, objects.String):
+        return objects.String(value=f"{left.value}{right.value}")
+
     if type(left) is not type(right):
         error_type = objects.ErrorTypes.TYPE_MISMATCH
     else:
