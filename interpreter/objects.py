@@ -13,6 +13,7 @@ class ObjectType(enum.StrEnum):
     BOOLEAN = "BOOLEAN"
     RETURN = "RETURN"
     ERROR = "ERROR"
+    BUILTIN_FUNCTION = "BUILTIN_FUNCTION"
     FUNCTION = "FUNCTION"
     STRING = "STRING"
 
@@ -111,3 +112,19 @@ class Function(Object):
         params = [str(param) for param in self.parameters]
         s = f"fn({', '.join(params)})" + "{\n"
         return f"{s}{str(self.body)}" + "\n}"
+
+
+class BuiltinFunc(abc.ABC):
+    @abc.abstractmethod
+    def __call__(self, *args: Object, **kwargs: Object) -> Object:
+        raise NotImplementedError
+
+
+@dc.dataclass
+class BuiltInFunction(Object):
+    function: BuiltinFunc
+
+    type = ObjectType.BUILTIN_FUNCTION
+
+    def inspect(self) -> str:
+        return str(self.function)
