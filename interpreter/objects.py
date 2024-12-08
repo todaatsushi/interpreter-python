@@ -51,20 +51,26 @@ class Hashable(abc.ABC):
 
 
 @dc.dataclass(frozen=True)
-class Integer(Object):
+class Integer(Object, Hashable):
     value: int
 
     type = ObjectType.INTEGER
+
+    def hash_key(self) -> HashKey:
+        return HashKey(value=self.value)
 
     def inspect(self) -> str:
         return str(self.value)
 
 
 @dc.dataclass(frozen=True)
-class Boolean(Object):
+class Boolean(Object, Hashable):
     value: bool
 
     type = ObjectType.BOOLEAN
+
+    def hash_key(self) -> HashKey:
+        return HashKey(value=1 if self.value else 0)
 
     def inspect(self) -> str:
         return str(self.value).lower()
@@ -75,10 +81,13 @@ FALSE = Boolean(False)
 
 
 @dc.dataclass(frozen=True)
-class String(Object):
+class String(Object, Hashable):
     value: str
 
     type = ObjectType.STRING
+
+    def hash_key(self) -> HashKey:
+        return HashKey(value=int.from_bytes(self.value.encode("utf-8")))
 
     def inspect(self) -> str:
         return self.value

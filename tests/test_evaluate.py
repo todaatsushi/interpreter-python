@@ -455,3 +455,16 @@ class TestBuiltinFunctions(unittest.TestCase):
             with self.subTest(code):
                 actual = get_object(code)
                 test_error_object(self, actual, expected)
+
+
+class TestHashing(unittest.TestCase):
+    def test_evaluates_same_with_value(self) -> None:
+        test_cases: tuple[tuple[object, type[objects.Hashable]], ...] = (
+            ("Nazo de aru", objects.String),
+            (10, objects.Integer),
+            (True, objects.Boolean),
+        )
+        for value, class_ in test_cases:
+            one = class_(value)  # type: ignore
+            two = class_(value)  # type: ignore
+            self.assertEqual(one.hash_key(), two.hash_key())
