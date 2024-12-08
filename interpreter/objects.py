@@ -16,6 +16,7 @@ class ObjectType(enum.StrEnum):
     BUILTIN_FUNCTION = "BUILTIN_FUNCTION"
     FUNCTION = "FUNCTION"
     STRING = "STRING"
+    ARRAY = "ARRAY"
 
 
 class ErrorTypes(enum.StrEnum):
@@ -78,6 +79,16 @@ class Null(Object):
 
 
 NULL = Null()
+
+
+@dc.dataclass
+class Array(Object):
+    items: list[Object]
+
+    type = ObjectType.ARRAY
+
+    def inspect(self) -> str:
+        return f"[{', '.join(str(item) for item in self.items)}]"
 
 
 @dc.dataclass
