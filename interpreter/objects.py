@@ -120,6 +120,24 @@ class BuiltinFunc(abc.ABC):
         raise NotImplementedError
 
 
+class GetLength(BuiltinFunc):
+    WRONG_NUM_ARGS = "wrong number of arguments, got {}, want 1"
+    UNSUPPORTED_TYPE = "argument to 'len' not supported, got"
+
+    def __call__(self, *args: Object, **kwargs: Object) -> Object:
+        if len(args) != 1 or len(kwargs) != 0:
+            return Error(message=self.WRONG_NUM_ARGS.format(len(args) + len(kwargs)))
+
+        arg = args[0]
+        if isinstance(arg, String):
+            return Integer(value=len(arg.value))
+
+        return Error(message=f"{self.UNSUPPORTED_TYPE} {arg.type}")
+
+    def __str__(self) -> str:
+        return "len"
+
+
 @dc.dataclass
 class BuiltInFunction(Object):
     function: BuiltinFunc
@@ -128,3 +146,8 @@ class BuiltInFunction(Object):
 
     def inspect(self) -> str:
         return str(self.function)
+
+
+BUILTIN_MAP: dict[str, BuiltInFunction] = {
+    "len": BuiltInFunction(function=GetLength()),
+}
