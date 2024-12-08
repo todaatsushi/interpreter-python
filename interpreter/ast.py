@@ -1,4 +1,5 @@
 import abc
+from collections.abc import Mapping
 import dataclasses as dc
 import logging
 
@@ -278,6 +279,27 @@ class Index(Expression):
 
     def __str__(self) -> str:
         return f"({str(self.left)}[{str(self.index)}])"
+
+
+@dc.dataclass
+class Map(Expression):
+    token: tokens.Token  # ie. {
+
+    pairs: Mapping[str, Expression]
+
+    def expression_node(self) -> None:
+        pass
+
+    def token_literal(self) -> str:
+        assert self.token.value
+        return self.token.value.decode("ascii")
+
+    def __str__(self) -> str:
+        s = "{"
+        for k, v in self.pairs.items():
+            s = f"{k} : {str(v)}"
+        s = s + "}"
+        return s
 
 
 @dc.dataclass

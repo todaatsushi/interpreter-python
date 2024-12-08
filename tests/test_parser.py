@@ -828,6 +828,70 @@ class TestParseProgram(unittest.TestCase):
                     ),
                 )
 
+    def test_parses_map_expression(self) -> None:
+        with self.subTest("Non empty"):
+            code = '{"hello": 1 + 10}'
+            lexer = lexers.Lexer.new(code)
+            parser = parsers.Parser.new(lexer)
+
+            program = parser.parse_program()
+
+            with self.subTest("No errors"):
+                self.assertEqual(len(parser.errors), 0, parser.errors)
+
+            statement = program.statements[0]
+            with self.subTest("Statement is expression statement"):
+                self.assertIsInstance(statement, ast.ExpressionStatement)
+                assert isinstance(statement, ast.ExpressionStatement)
+
+            map_expression = statement.expression
+            with self.subTest("Is map expression"):
+                self.assertIsInstance(map_expression, ast.Map)
+                assert isinstance(map_expression, ast.Map)
+
+            with self.subTest("Map registered"):
+                key = ast.StringLiteral(
+                    token=tokens.Token(value=b"hello", type=tokens.TokenType.STRING),
+                    value="hello",
+                )
+                value = ast.Infix(
+                    token=tokens.Token(value=b"+", type=tokens.TokenType.PLUS),
+                    operator="+",
+                    right=ast.IntegerLiteral(
+                        token=tokens.Token(value=b"10", type=tokens.TokenType.INT),
+                        value=10,
+                    ),
+                    left=ast.IntegerLiteral(
+                        token=tokens.Token(value=b"1", type=tokens.TokenType.INT),
+                        value=1,
+                    ),
+                )
+                self.assertIn(str(key), map_expression.pairs)
+                self.assertEqual(map_expression.pairs[str(key)], value)
+
+        with self.subTest("Empty"):
+            code = "{}"
+            lexer = lexers.Lexer.new(code)
+            parser = parsers.Parser.new(lexer)
+
+            program = parser.parse_program()
+
+            with self.subTest("No errors"):
+                self.assertEqual(len(parser.errors), 0, parser.errors)
+
+            statement = program.statements[0]
+            with self.subTest("Statement is expression statement"):
+                self.assertIsInstance(statement, ast.ExpressionStatement)
+                assert isinstance(statement, ast.ExpressionStatement)
+
+            map_expression = statement.expression
+            with self.subTest("Is map expression"):
+                self.assertIsInstance(map_expression, ast.Map)
+                assert isinstance(map_expression, ast.Map)
+
+            with self.subTest("Map registered"):
+                self.assertEqual(map_expression.pairs, {})
+
 
 class TestMetaParsing(unittest.TestCase):
     def test_parsing_operator_precedences(self) -> None:

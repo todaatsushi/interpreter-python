@@ -95,6 +95,9 @@ class Parser:
         self.register_prefix(
             tokens.TokenType.LEFT_SQUARE_BRACKET, func=self.parse_array_literal
         )
+        self.register_prefix(
+            tokens.TokenType.LEFT_BRACE, func=self.parse_map_expression
+        )
 
         # Register infix
         for token_type in (
@@ -245,6 +248,9 @@ class Parser:
 
         assert idx is not None
         return ast.Index(token=token, left=left, index=idx)
+
+    def parse_map_expression(self) -> ast.Index | None:
+        raise NotImplementedError
 
     def parse_call_expression(self, left: ast.Expression) -> ast.Call | None:
         token = self.current_token
