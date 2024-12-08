@@ -198,17 +198,43 @@ class TestSelfEvaluating(unittest.TestCase):
             test_self_evaluating_object(self, objects.Integer, actual, expected)
 
     def test_evaluates_array_literals(self) -> None:
-        code = "[1, 2 * 2, 3 + 3]"
-        obj = get_object(code)
+        test_cases: tuple[tuple[str, int | str | list[int]], ...] = (
+            ("[1, 2 * 2, 3 + 3]", [1, 4, 6]),
+            ("[1, 2, 3][0]", 1),
+            ("[1, 2, 3][1]", 2),
+            ("[1, 2, 3][2]", 3),
+            ("let i = 0; [1][i];", 1),
+            ("[1, 2, 3][1 + 1];", 3),
+            ("let myArray = [1, 2, 3]; myArray[2];", 3),
+            ("let myArray = [1, 2, 3]; myArray[0] + myArray[1] + myArray[2];", 6),
+            ("let myArray = [1, 2, 3]; let i = myArray[0]; myArray[i]", 2),
+            ("[1, 2, 3][3]", "invalid index: index must be between 0 and 2 inclusive"),
+            ("[1, 2, 3][-1]", "invalid index: index must be between 0 and 2 inclusive"),
+        )
 
-        self.assertIsInstance(obj, objects.Array)
-        assert isinstance(obj, objects.Array)
+        for code, expected in test_cases:
+            with self.subTest(code):
+                obj = get_object(code)
 
-        self.assertEqual(len(obj.items), 3)
+                if isinstance(expected, str):
+                    test_error_object(self, obj, expected)
+                else:
+                    if isinstance(expected, list):
+                        self.assertIsInstance(obj, objects.Array)
+                        assert isinstance(obj, objects.Array)
+                        self.assertEqual(len(obj.items), len(expected))
+                        for i, expected in enumerate(expected):
+                            actual = obj.items[i]
+                            test_self_evaluating_object(
+                                self, objects.Integer, actual, expected
+                            )
+                    else:
+                        self.assertIsInstance(obj, objects.Integer)
+                        assert isinstance(obj, objects.Integer)
 
-        for i, expected in enumerate([1, 4, 6]):
-            actual = obj.items[i]
-            test_self_evaluating_object(self, objects.Integer, actual, expected)
+                        test_self_evaluating_object(
+                            self, objects.Integer, obj, expected
+                        )
 
 
 class TestErrorHandling(unittest.TestCase):

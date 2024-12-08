@@ -90,9 +90,20 @@ def node(to_eval: ast.Node, env: environment.Environment) -> objects.Object | No
             if len(args) == 1 and args[0].type == objects.ObjectType.ERROR:
                 return args[0]
             return function(func, args)
+        case ast.Index:
+            assert isinstance(to_eval, ast.Index)
+            left = node(to_eval.left, env)
+            assert left is not None
+            if left.type == objects.ObjectType.ERROR:
+                return left
+            idx = node(to_eval.index, env)
+            assert idx is not None
+            if idx.type == objects.ObjectType.ERROR:
+                return idx
+            return index_expression(left, idx)
         case _:
             logger.error(f"Unhandled type: {type(to_eval)}")
-            raise NotImplementedError
+            raise NotImplementedError(str(type(to_eval)))
 
 
 def program(
@@ -367,3 +378,19 @@ def function(func: objects.Object, arguments: list[objects.Object]) -> objects.O
     return objects.Error(
         f"{objects.ErrorTypes.NOT_A_FUNC}: {func} - {', '.join([str(arg) for arg in arguments])}"
     )
+
+
+def index_expression(left: objects.Object, idx: objects.Object) -> objects.Object:
+    if isinstance(left, objects.Array) and isinstance(idx, objects.Integer):
+        return index_array(left, idx)
+    return objects.Error(
+        message=f"{objects.ErrorTypes.INVALID_INDEX}: can't index {left.type} with {idx.type}"
+    )
+
+
+def index_array(left: objects.Array, idx: objects.Integer) -> objects.Object:
+    if not 0 <= idx.value <= (len(left.items) - 1):
+        return objects.Error(
+            message=f"{objects.ErrorTypes.INVALID_INDEX}: index must be between 0 and {len(left.items) - 1} inclusive"
+        )
+    return left.items[idx.value]

@@ -24,6 +24,7 @@ class ErrorTypes(enum.StrEnum):
     UNKNOWN_OPERATOR = "unknown operator"
     MISSING_IDENTIFER = "missing identifier"
     NOT_A_FUNC = "NOT_A_FUNC"
+    INVALID_INDEX = "invalid index"
 
 
 class Object(abc.ABC):
