@@ -197,6 +197,19 @@ class TestSelfEvaluating(unittest.TestCase):
             actual = get_object(code)
             test_self_evaluating_object(self, objects.Integer, actual, expected)
 
+    def test_evaluates_array_literals(self) -> None:
+        code = "[1, 2 * 2, 3 + 3]"
+        obj = get_object(code)
+
+        self.assertIsInstance(obj, objects.Array)
+        assert isinstance(obj, objects.Array)
+
+        self.assertEqual(len(obj.items), 3)
+
+        for i, expected in enumerate([1, 4, 6]):
+            actual = obj.items[i]
+            test_self_evaluating_object(self, objects.Integer, actual, expected)
+
 
 class TestErrorHandling(unittest.TestCase):
     def test_evaluates_type_mismatch_error(self) -> None:

@@ -72,6 +72,9 @@ def node(to_eval: ast.Node, env: environment.Environment) -> objects.Object | No
                 return value
 
             env.set(to_eval.name.value, value)
+        case ast.ArrayLiteral:
+            assert isinstance(to_eval, ast.ArrayLiteral)
+            return objects.Array(items=expressions(to_eval.items, env))
         case ast.FunctionLiteral:
             assert isinstance(to_eval, ast.FunctionLiteral)
             params = to_eval.parameters
