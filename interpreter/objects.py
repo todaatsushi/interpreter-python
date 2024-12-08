@@ -126,13 +126,17 @@ class Function(Object):
         return f"{s}{str(self.body)}" + "\n}"
 
 
-class BuiltinFunc(abc.ABC):
+class F(abc.ABC):
+    """
+    aka Built in function - avoid name overlap with evaluated object.
+    """
+
     @abc.abstractmethod
     def __call__(self, *args: Object, **kwargs: Object) -> Object:
         raise NotImplementedError
 
 
-class GetLength(BuiltinFunc):
+class GetLength(F):
     WRONG_NUM_ARGS = "wrong number of arguments, got {}, want 1"
     UNSUPPORTED_TYPE = "argument to 'len' not supported, got"
 
@@ -150,9 +154,49 @@ class GetLength(BuiltinFunc):
         return "len"
 
 
+class First(F):
+    WRONG_NUM_ARGS = "wrong number of arguments, got {}, want 1"
+    NO_KWARGS = "kwargs not supported"
+    UNSUPPORTED_TYPE = "argument to 'first' not supported, got"
+
+    def __call__(self, *args: Object, **kwargs: Object) -> Object:
+        if len(kwargs):
+            return Error(message=self.NO_KWARGS)
+
+        if len(args) != 1:
+            return Error(message=self.WRONG_NUM_ARGS.format(len(args)))
+
+        arg = args[0]
+        if isinstance(arg, Array):
+            if not arg.items:
+                return NULL
+            return arg.items[0]
+        return Error(message=f"{self.UNSUPPORTED_TYPE} {arg.type}")
+
+
+class Last(F):
+    WRONG_NUM_ARGS = "wrong number of arguments, got {}, want 1"
+    NO_KWARGS = "kwargs not supported"
+    UNSUPPORTED_TYPE = "argument to 'last' not supported, got"
+
+    def __call__(self, *args: Object, **kwargs: Object) -> Object:
+        if len(kwargs):
+            return Error(message=self.NO_KWARGS)
+
+        if len(args) != 1:
+            return Error(message=self.WRONG_NUM_ARGS.format(len(args)))
+
+        arg = args[0]
+        if isinstance(arg, Array):
+            if not arg.items:
+                return NULL
+            return arg.items[-1]
+        return Error(message=f"{self.UNSUPPORTED_TYPE} {arg.type}")
+
+
 @dc.dataclass
 class BuiltInFunction(Object):
-    function: BuiltinFunc
+    function: F
 
     type = ObjectType.BUILTIN_FUNCTION
 
@@ -162,4 +206,6 @@ class BuiltInFunction(Object):
 
 BUILTIN_MAP: dict[str, BuiltInFunction] = {
     "len": BuiltInFunction(function=GetLength()),
+    "first": BuiltInFunction(function=First()),
+    "last": BuiltInFunction(function=Last()),
 }

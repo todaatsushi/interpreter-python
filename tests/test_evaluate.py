@@ -331,7 +331,7 @@ class TestBuiltinFunctions(unittest.TestCase):
 
     def test_evaluates_len_errors(self) -> None:
         test_cases: tuple[tuple[list[object], str], ...] = (
-            # ([1], "argument to 'len' not supported, got INTEGER"),
+            ([1], "argument to 'len' not supported, got INTEGER"),
             (['"one"', '"two"'], "wrong number of arguments, got 2, want 1"),
         )
 
@@ -339,3 +339,57 @@ class TestBuiltinFunctions(unittest.TestCase):
             code = f"len({', '.join(str(arg) for arg in call_args)});"
             actual = get_object(code)
             test_error_object(self, actual, expected)
+
+    def test_evaluates_first(self) -> None:
+        test_cases: tuple[tuple[str, object], ...] = (
+            ("[1, 2, 3]", 1),
+            ("[]", None),
+        )
+
+        for input_, expected in test_cases:
+            with self.subTest(input_):
+                code = f"first({input_})"
+                actual = get_object(code)
+                if isinstance(expected, int):
+                    test_self_evaluating_object(self, objects.Integer, actual, 1)
+                elif expected is None:
+                    self.assertEqual(actual, objects.NULL)
+
+    def test_evaluates_first_error(self) -> None:
+        test_cases: tuple[tuple[str, object], ...] = (
+            ("first()", "wrong number of arguments, got 0, want 1"),
+            ("first(1, 2, 3)", "wrong number of arguments, got 3, want 1"),
+            ('first("hello")', "argument to 'first' not supported, got STRING"),
+        )
+
+        for code, expected in test_cases:
+            with self.subTest(code):
+                actual = get_object(code)
+                test_error_object(self, actual, expected)
+
+    def test_evaluates_last(self) -> None:
+        test_cases: tuple[tuple[str, object], ...] = (
+            ("[1, 2, 3]", 3),
+            ("[]", None),
+        )
+
+        for input_, expected in test_cases:
+            with self.subTest(input_):
+                code = f"last({input_})"
+                actual = get_object(code)
+                if isinstance(expected, int):
+                    test_self_evaluating_object(self, objects.Integer, actual, 3)
+                elif expected is None:
+                    self.assertEqual(actual, objects.NULL)
+
+    def test_evaluates_last_error(self) -> None:
+        test_cases: tuple[tuple[str, object], ...] = (
+            ("last()", "wrong number of arguments, got 0, want 1"),
+            ("last(1, 2, 3)", "wrong number of arguments, got 3, want 1"),
+            ('last("hello")', "argument to 'last' not supported, got STRING"),
+        )
+
+        for code, expected in test_cases:
+            with self.subTest(code):
+                actual = get_object(code)
+                test_error_object(self, actual, expected)
