@@ -593,7 +593,14 @@ class TestParseProgram(unittest.TestCase):
                 with self.subTest("Items match"):
                     for i, item in enumerate(array_literal.items):
                         e_i = expected[i]
-                        self.assertEqual(getattr(item, "value", None), e_i)
+                        if isinstance(item, ast.Infix):
+                            # Yes, this is shit
+                            l_value = getattr(item.left, "value")
+                            r_value = getattr(item.right, "value")
+                            op = item.operator
+                            self.assertEqual(eval(f"{l_value} {op} {r_value}"), e_i)
+                        else:
+                            self.assertEqual(getattr(item, "value", None), e_i)
 
     def test_parses_function_literal(self) -> None:
         code = "fn(x, y) { x + y; }"

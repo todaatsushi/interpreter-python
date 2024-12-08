@@ -233,7 +233,7 @@ class Parser:
         ):
             return None
 
-        arguments = self.parse_call_arguments()
+        arguments = self.parse_expression_list(tokens.TokenType.RIGHT_PARENTHESES)
         assert arguments is not None
         return ast.Call(token=token, function=left, arguments=arguments)
 
@@ -296,7 +296,9 @@ class Parser:
         return ast.IntegerLiteral(token=self.current_token, value=value)
 
     def parse_array_literal(self) -> ast.ArrayLiteral:
-        raise NotImplementedError
+        token = self.current_token
+        items = self.parse_expression_list(tokens.TokenType.RIGHT_SQUARE_BRACKET)
+        return ast.ArrayLiteral(token=token, items=items or [])
 
     def parse_boolean_literal(self) -> ast.BooleanLiteral:
         assert self.current_token.value is not None
@@ -346,11 +348,11 @@ class Parser:
             alternative=alternative,
         )
 
-    def parse_call_arguments(self) -> list[ast.Expression] | None:
+    def parse_expression_list(
+        self, end_token: tokens.TokenType
+    ) -> list[ast.Expression] | None:
         args: list[ast.Expression] = []
-        if self.expect_token_type(
-            self.peek_token, tokens.TokenType.RIGHT_PARENTHESES, True
-        ):
+        if self.expect_token_type(self.peek_token, end_token, True):
             return args
 
         self.next_token()
@@ -363,9 +365,7 @@ class Parser:
             if arg := self.parse_expression(Precedences.LOWEST):
                 args.append(arg)
 
-        if not self.expect_token_type(
-            self.peek_token, tokens.TokenType.RIGHT_PARENTHESES, True
-        ):
+        if not self.expect_token_type(self.peek_token, end_token, True):
             return None
         return args
 
