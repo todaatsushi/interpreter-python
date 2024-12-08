@@ -36,6 +36,7 @@ class Precedences(enum.IntEnum):
     PRODUCT = 5
     PREFIX = 6
     CALL = 7
+    INDEX = 8
 
     @classmethod
     def from_token_type(cls, token_type: tokens.TokenType) -> Precedences:
@@ -50,6 +51,8 @@ class Precedences(enum.IntEnum):
                 return Precedences.PRODUCT
             case tokens.TokenType.LEFT_PARENTHESES:
                 return Precedences.CALL
+            case tokens.TokenType.LEFT_SQUARE_BRACKET:
+                return Precedences.INDEX
             case _:
                 return Precedences.LOWEST
 
@@ -108,6 +111,9 @@ class Parser:
 
         self.register_infix(
             tokens.TokenType.LEFT_PARENTHESES, func=self.parse_call_expression
+        )
+        self.register_infix(
+            tokens.TokenType.LEFT_SQUARE_BRACKET, func=self.parse_index_expression
         )
 
     @classmethod
@@ -225,6 +231,9 @@ class Parser:
         assert return_expr, "TODO: handle this"
         self.expect_token_type(self.peek_token, tokens.TokenType.SEMICOLON, True)
         return ast.Return(token=return_token, value=return_expr)
+
+    def parse_index_expression(self, left: ast.Expression) -> ast.Index | None:
+        raise NotImplementedError
 
     def parse_call_expression(self, left: ast.Expression) -> ast.Call | None:
         token = self.current_token
