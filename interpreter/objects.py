@@ -26,7 +26,7 @@ class ErrorTypes(enum.StrEnum):
     TYPE_MISMATCH = "type mismatch"
     UNKNOWN_OPERATOR = "unknown operator"
     MISSING_IDENTIFER = "missing identifier"
-    NOT_A_FUNC = "NOT_A_FUNC"
+    NOT_A_FUNC = "not a function"
     INVALID_INDEX = "invalid index"
     KEY_ERROR = "key error"
 
