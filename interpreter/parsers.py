@@ -88,6 +88,7 @@ class Parser:
         self.register_prefix(
             tokens.TokenType.FUNCTION, func=self.parse_function_literal
         )
+        self.register_prefix(tokens.TokenType.STRING, func=self.parse_string_literal)
 
         # Register infix
         for token_type in (
@@ -250,6 +251,14 @@ class Parser:
             token=self.current_token,
             value=self.current_token.value.decode("ascii"),
         )
+
+    def parse_string_literal(self) -> ast.StringLiteral:
+        value = self.current_token.value
+        if value:
+            value = value.decode("ascii")
+        else:
+            value = ""
+        return ast.StringLiteral(token=self.current_token, value=value)
 
     def parse_function_literal(self) -> ast.FunctionLiteral | None:
         token = self.current_token

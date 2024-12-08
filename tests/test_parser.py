@@ -643,6 +643,50 @@ class TestParseProgram(unittest.TestCase):
                 ),
             )
 
+    def test_parses_string_literal(self) -> None:
+        test_cases: tuple[tuple[str, str | None], ...] = (
+            ('"Hello, world";', "Hello, world"),
+            ('""', None),
+        )
+
+        for code, expected in test_cases:
+            with self.subTest(code):
+                lexer = lexers.Lexer.new(code)
+                parser = parsers.Parser.new(lexer)
+                program = parser.parse_program()
+
+                with self.subTest("No errors"):
+                    self.assertEqual(len(parser.errors), 0, "\n".join(parser.errors))
+
+                with self.subTest("1 statement"):
+                    self.assertEqual(
+                        len(program.statements),
+                        1,
+                        f"More than 1 statement: {program.statements}",
+                    )
+
+                statement = program.statements[0]
+                with self.subTest("Statement is expression statement"):
+                    self.assertIsInstance(statement, ast.ExpressionStatement)
+                    assert isinstance(statement, ast.ExpressionStatement)
+
+                string_literal = statement.expression
+                with self.subTest("Expression is string literal"):
+                    self.assertIsInstance(string_literal, ast.StringLiteral)
+                    assert isinstance(string_literal, ast.StringLiteral)
+
+                with self.subTest("String literal token"):
+                    self.assertEqual(
+                        string_literal.token,
+                        tokens.Token(
+                            value=expected.encode("ascii") if expected else None,
+                            type=tokens.TokenType.STRING,
+                        ),
+                    )
+
+                with self.subTest("String literal value"):
+                    self.assertEqual(string_literal.value, expected or "")
+
     def test_parses_call_expression(self) -> None:
         code = "add(1, 2 * 3, 4 + 5)"
         lexer = lexers.Lexer.new(code)
