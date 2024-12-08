@@ -44,14 +44,14 @@ class HashKey:
     value: int
 
 
-class Hashable(abc.ABC):
+class Hashable(Object):
     @abc.abstractmethod
     def hash_key(self) -> HashKey:
         pass
 
 
 @dc.dataclass(frozen=True)
-class Integer(Object, Hashable):
+class Integer(Hashable):
     value: int
 
     type = ObjectType.INTEGER
@@ -64,13 +64,13 @@ class Integer(Object, Hashable):
 
 
 @dc.dataclass(frozen=True)
-class Boolean(Object, Hashable):
+class Boolean(Hashable):
     value: bool
 
     type = ObjectType.BOOLEAN
 
     def hash_key(self) -> HashKey:
-        return HashKey(value=1 if self.value else 0)
+        return HashKey(value=self.value)
 
     def inspect(self) -> str:
         return str(self.value).lower()
@@ -81,7 +81,7 @@ FALSE = Boolean(False)
 
 
 @dc.dataclass(frozen=True)
-class String(Object, Hashable):
+class String(Hashable):
     value: str
 
     type = ObjectType.STRING
