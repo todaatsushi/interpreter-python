@@ -20,4 +20,5 @@ if (5 < 10) {
 "foobar"
 "foo bar"
 [1, "two", three];
+{"hello": "world"};
 `

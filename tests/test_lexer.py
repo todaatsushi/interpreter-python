@@ -207,6 +207,13 @@ class TestNextToken(unittest.TestCase):
             ("]", tk.TokenType.RIGHT_SQUARE_BRACKET),
             (";", tk.TokenType.SEMICOLON),
             # Line 23
+            ("{", tk.TokenType.LEFT_BRACE),
+            ("hello", tk.TokenType.STRING),
+            (":", tk.TokenType.COLON),
+            ("world", tk.TokenType.STRING),
+            ("}", tk.TokenType.RIGHT_BRACE),
+            (";", tk.TokenType.SEMICOLON),
+            # Line 24
             ("`", tk.TokenType.ILLEGAL),
             (None, tk.TokenType.EOF),
         )

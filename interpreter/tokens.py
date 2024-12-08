@@ -30,6 +30,7 @@ class TokenType(enum.StrEnum):
     # Delimiters
     COMMA = ","
     SEMICOLON = ";"
+    COLON = ":"
 
     LEFT_PARENTHESES = "("
     RIGHT_PARENTHESES = ")"
@@ -71,6 +72,7 @@ TOKEN_TYPE_MAP = {
     "+": TokenType.PLUS,
     "=": TokenType.ASSIGN,
     ";": TokenType.SEMICOLON,
+    ":": TokenType.COLON,
     "(": TokenType.LEFT_PARENTHESES,
     ")": TokenType.RIGHT_PARENTHESES,
     "{": TokenType.LEFT_BRACE,
