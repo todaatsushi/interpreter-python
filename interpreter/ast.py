@@ -38,7 +38,7 @@ class Expression(Node):
         return ""
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class Program(Node):
     statements: list[Statement] = dc.field(default_factory=list)
 
@@ -54,7 +54,7 @@ class Program(Node):
         return s
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class BlockStatement(Node):
     token: tokens.Token  # ie. {
     statements: list[Statement] = dc.field(default_factory=list)
@@ -73,7 +73,7 @@ class BlockStatement(Node):
         return s
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class Identifier(Expression):
     token: tokens.Token
     value: str
@@ -89,7 +89,7 @@ class Identifier(Expression):
         return self.value
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class IntegerLiteral(Expression):
     token: tokens.Token
     value: int
@@ -105,7 +105,7 @@ class IntegerLiteral(Expression):
         return str(self.value)
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class ArrayLiteral(Expression):
     token: tokens.Token  # ie. [
     items: list[Expression]
@@ -121,7 +121,7 @@ class ArrayLiteral(Expression):
         return f"[{', '.join(str(i) for i in self.items)}]"
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class BooleanLiteral(Expression):
     token: tokens.Token
     value: bool
@@ -136,7 +136,7 @@ class BooleanLiteral(Expression):
         return self.token_literal()
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class FunctionLiteral(Expression):
     token: tokens.Token  # ie. fn
     parameters: list[Identifier]
@@ -154,7 +154,7 @@ class FunctionLiteral(Expression):
         return f"{str(self.token.value)} ({params}) {str(self.body)}"
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class StringLiteral(Expression):
     token: tokens.Token  # ie. "
     value: str
@@ -170,7 +170,7 @@ class StringLiteral(Expression):
         return self.value
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class Let(Statement):
     token: tokens.Token
     name: Identifier
@@ -191,7 +191,7 @@ class Let(Statement):
         return f"{s};"
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class Return(Statement):
     token: tokens.Token
 
@@ -211,7 +211,7 @@ class Return(Statement):
         return f"{s};"
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class ExpressionStatement(Statement):
     token: tokens.Token
     expression: Expression
@@ -229,7 +229,7 @@ class ExpressionStatement(Statement):
         return ""
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class Prefix(Expression):
     token: tokens.Token
     operator: str
@@ -245,7 +245,7 @@ class Prefix(Expression):
         return f"({self.operator}{str(self.right)})"
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class Infix(Expression):
     token: tokens.Token  # ie. the operator
 
@@ -264,7 +264,7 @@ class Infix(Expression):
         return f"({self.left} {self.operator} {self.right})"
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class Index(Expression):
     token: tokens.Token  # ie. [
     left: Expression
@@ -302,7 +302,7 @@ class Map(Expression):
         return s
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class If(Expression):
     token: tokens.Token  # ie. if
 
@@ -327,7 +327,7 @@ class If(Expression):
         return s
 
 
-@dc.dataclass()
+@dc.dataclass(frozen=True)
 class Call(Expression):
     token: tokens.Token  # ie. (
 

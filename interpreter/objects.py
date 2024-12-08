@@ -36,7 +36,7 @@ class Object(abc.ABC):
         pass
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class Integer(Object):
     value: int
 
@@ -46,7 +46,7 @@ class Integer(Object):
         return str(self.value)
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class Boolean(Object):
     value: bool
 
@@ -60,7 +60,7 @@ TRUE = Boolean(True)
 FALSE = Boolean(False)
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class String(Object):
     value: str
 
@@ -70,7 +70,7 @@ class String(Object):
         return self.value
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class Null(Object):
     value: None = None
     type = ObjectType.NULL
@@ -82,7 +82,7 @@ class Null(Object):
 NULL = Null()
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class Array(Object):
     items: list[Object]
 
@@ -92,7 +92,7 @@ class Array(Object):
         return f"[{', '.join(str(item) for item in self.items)}]"
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class Return(Object):
     value: Object
 
@@ -102,7 +102,7 @@ class Return(Object):
         return self.value.inspect()
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class Error(Object):
     message: str
 
@@ -112,7 +112,7 @@ class Error(Object):
         return f"ERROR: {self.message}"
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class Function(Object):
     body: ast.BlockStatement
     env: environment.Environment
@@ -232,7 +232,7 @@ class Push(F):
         return Error(message=f"{self.UNSUPPORTED_TYPE} {arg.type}")
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class BuiltInFunction(Object):
     function: F
 
