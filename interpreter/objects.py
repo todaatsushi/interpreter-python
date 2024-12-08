@@ -14,6 +14,7 @@ class ObjectType(enum.StrEnum):
     RETURN = "RETURN"
     ERROR = "ERROR"
     FUNCTION = "FUNCTION"
+    STRING = "STRING"
 
 
 class ErrorTypes(enum.StrEnum):
@@ -54,6 +55,16 @@ class Boolean(Object):
 
 TRUE = Boolean(True)
 FALSE = Boolean(False)
+
+
+@dc.dataclass
+class String(Object):
+    value: str
+
+    type = ObjectType.STRING
+
+    def inspect(self) -> str:
+        return self.value
 
 
 @dc.dataclass
