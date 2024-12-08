@@ -830,7 +830,7 @@ class TestParseProgram(unittest.TestCase):
 
     def test_parses_map_expression(self) -> None:
         with self.subTest("Non empty"):
-            code = '{"hello": 1 + 10}'
+            code = '{"hello": 1 + 10, "world": 2}'
             lexer = lexers.Lexer.new(code)
             parser = parsers.Parser.new(lexer)
 
@@ -850,24 +850,47 @@ class TestParseProgram(unittest.TestCase):
                 assert isinstance(map_expression, ast.Map)
 
             with self.subTest("Map registered"):
-                key = ast.StringLiteral(
-                    token=tokens.Token(value=b"hello", type=tokens.TokenType.STRING),
-                    value="hello",
-                )
-                value = ast.Infix(
-                    token=tokens.Token(value=b"+", type=tokens.TokenType.PLUS),
-                    operator="+",
-                    right=ast.IntegerLiteral(
-                        token=tokens.Token(value=b"10", type=tokens.TokenType.INT),
-                        value=10,
+                expected: tuple[tuple[ast.Node, ast.Node], ...] = (
+                    (
+                        ast.StringLiteral(
+                            token=tokens.Token(
+                                value=b"hello", type=tokens.TokenType.STRING
+                            ),
+                            value="hello",
+                        ),
+                        ast.Infix(
+                            token=tokens.Token(value=b"+", type=tokens.TokenType.PLUS),
+                            operator="+",
+                            right=ast.IntegerLiteral(
+                                token=tokens.Token(
+                                    value=b"10", type=tokens.TokenType.INT
+                                ),
+                                value=10,
+                            ),
+                            left=ast.IntegerLiteral(
+                                token=tokens.Token(
+                                    value=b"1", type=tokens.TokenType.INT
+                                ),
+                                value=1,
+                            ),
+                        ),
                     ),
-                    left=ast.IntegerLiteral(
-                        token=tokens.Token(value=b"1", type=tokens.TokenType.INT),
-                        value=1,
+                    (
+                        ast.StringLiteral(
+                            token=tokens.Token(
+                                value=b"world", type=tokens.TokenType.STRING
+                            ),
+                            value="world",
+                        ),
+                        ast.IntegerLiteral(
+                            token=tokens.Token(value=b"2", type=tokens.TokenType.INT),
+                            value=2,
+                        ),
                     ),
                 )
-                self.assertIn(key, map_expression.pairs)
-                self.assertEqual(map_expression.pairs[key], value)
+                for key, value in expected:
+                    with self.subTest(key):
+                        self.assertEqual(map_expression.pairs[key], value)
 
         with self.subTest("Empty"):
             code = "{}"

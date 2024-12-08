@@ -272,7 +272,7 @@ class Parser:
             if not self.expect_token_type(
                 self.peek_token, tokens.TokenType.RIGHT_BRACE, False
             ) and not self.expect_token_type(
-                self.peek_token, tokens.TokenType.COMMA, False
+                self.peek_token, tokens.TokenType.COMMA, True
             ):
                 return None
 
