@@ -278,6 +278,20 @@ class TestErrorHandling(unittest.TestCase):
         actual = get_object(code)
         test_error_object(self, actual, expected)
 
+    def test_evaluates_unhashable_index_key(self) -> None:
+        code = '{"name": "Monkey"}[fn(x) { x }];'
+        expected = "invalid index: can't index HASH with FUNCTION"
+
+        actual = get_object(code)
+        test_error_object(self, actual, expected)
+
+    def test_evaluates_hash_key_error(self) -> None:
+        code = '{"name": "Monkey"}["nazo"];'
+        expected = 'key error: no value with key "nazo"'
+
+        actual = get_object(code)
+        test_error_object(self, actual, expected)
+
 
 class TestFunctions(unittest.TestCase):
     def test_evaluates_function_object(self) -> None:
@@ -502,3 +516,16 @@ class TestHashing(unittest.TestCase):
             pair = hash.pairs[expected_hash_key]
             with self.subTest(expected_hash_key):
                 self.assertEqual(expected_value, pair.value.value)
+
+    def test_evaluates_index_expressions(self) -> None:
+        test_cases: tuple[tuple[str, int | None], ...] = (
+            ('{"foo": 5}["foo"]', 5),
+            ('{"foo": 5}["foo"]', 5),
+        )
+
+        for code, expected in test_cases:
+            actual = get_object(code)
+            if isinstance(expected, int):
+                test_self_evaluating_object(self, objects.Integer, actual, expected)
+            else:
+                self.assertEqual(actual, objects.NULL)

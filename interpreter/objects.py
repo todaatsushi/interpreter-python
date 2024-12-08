@@ -28,6 +28,7 @@ class ErrorTypes(enum.StrEnum):
     MISSING_IDENTIFER = "missing identifier"
     NOT_A_FUNC = "NOT_A_FUNC"
     INVALID_INDEX = "invalid index"
+    KEY_ERROR = "key error"
 
 
 class Object(abc.ABC):

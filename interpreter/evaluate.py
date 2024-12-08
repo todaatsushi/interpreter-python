@@ -388,6 +388,14 @@ def function(func: objects.Object, arguments: list[objects.Object]) -> objects.O
 def index_expression(left: objects.Object, idx: objects.Object) -> objects.Object:
     if isinstance(left, objects.Array) and isinstance(idx, objects.Integer):
         return index_array(left, idx)
+    if isinstance(left, objects.Hash) and isinstance(idx, objects.Hashable):
+        try:
+            value = left.pairs[idx.hash_key()]
+        except KeyError:
+            return objects.Error(
+                message=f'{objects.ErrorTypes.KEY_ERROR}: no value with key "{idx.inspect()}"'
+            )
+        return value.value
     return objects.Error(
         message=f"{objects.ErrorTypes.INVALID_INDEX}: can't index {left.type} with {idx.type}"
     )
