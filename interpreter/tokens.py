@@ -37,6 +37,8 @@ class TokenType(enum.StrEnum):
     RIGHT_BRACE = "}"
     LESS_THAN = "<"
     MORE_THAN = ">"
+    LEFT_SQUARE_BRACKET = "["
+    RIGHT_SQUARE_BRACKET = "]"
 
     # Other
     EXCLAIMATION_MARK = "!"
@@ -81,6 +83,8 @@ TOKEN_TYPE_MAP = {
     ">": TokenType.MORE_THAN,
     "!": TokenType.EXCLAIMATION_MARK,
     '"': TokenType.STRING,
+    "[": TokenType.LEFT_SQUARE_BRACKET,
+    "]": TokenType.RIGHT_SQUARE_BRACKET,
 }
 
 COULD_BE_DOUBLE = {TokenType.EXCLAIMATION_MARK, TokenType.ASSIGN}
