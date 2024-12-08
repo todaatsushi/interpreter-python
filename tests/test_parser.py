@@ -962,7 +962,10 @@ class TestMetaParsing(unittest.TestCase):
                         self.assertEqual(p.value, expected[i])
 
     def test_parses_call_expression_parameters(self) -> None:
-        test_cases: tuple[tuple[str, list[str]], ...] = tuple()
+        test_cases: tuple[tuple[str, list[int]], ...] = (
+            ("add(1, 2)", [1, 2]),
+            ("minus(3, 5, 1)", [3, 5, 1]),
+        )
 
         for code, expected in test_cases:
             with self.subTest(f"Test case: {code}"):
