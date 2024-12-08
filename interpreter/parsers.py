@@ -233,7 +233,18 @@ class Parser:
         return ast.Return(token=return_token, value=return_expr)
 
     def parse_index_expression(self, left: ast.Expression) -> ast.Index | None:
-        raise NotImplementedError
+        token = self.current_token
+
+        self.next_token()
+        idx = self.parse_expression(Precedences.LOWEST)
+
+        if not self.expect_token_type(
+            self.peek_token, tokens.TokenType.RIGHT_SQUARE_BRACKET, True
+        ):
+            return None
+
+        assert idx is not None
+        return ast.Index(token=token, left=left, index=idx)
 
     def parse_call_expression(self, left: ast.Expression) -> ast.Call | None:
         token = self.current_token

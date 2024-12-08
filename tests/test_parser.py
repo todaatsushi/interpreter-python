@@ -923,7 +923,7 @@ class TestMetaParsing(unittest.TestCase):
                     ),
                     operator="+",
                     right=ast.IntegerLiteral(
-                        token=tokens.Token(value=b"1", type=tokens.TokenType.INT),
+                        token=tokens.Token(value=b"3", type=tokens.TokenType.INT),
                         value=3,
                     ),
                 ),
