@@ -592,8 +592,8 @@ class TestParseProgram(unittest.TestCase):
 
                 with self.subTest("Items match"):
                     for i, item in enumerate(array_literal.items):
-                        actual = expected[i]
-                        self.assertEqual(getattr(item, "value", None), actual)
+                        e_i = expected[i]
+                        self.assertEqual(getattr(item, "value", None), e_i)
 
     def test_parses_function_literal(self) -> None:
         code = "fn(x, y) { x + y; }"
