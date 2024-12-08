@@ -249,8 +249,38 @@ class Parser:
         assert idx is not None
         return ast.Index(token=token, left=left, index=idx)
 
-    def parse_map_expression(self) -> ast.Index | None:
-        raise NotImplementedError
+    def parse_map_expression(self) -> ast.Map | None:
+        token = self.current_token
+        pairs = {}
+
+        while not self.expect_token_type(
+            self.peek_token, tokens.TokenType.RIGHT_BRACE, False
+        ):
+            self.next_token()
+            key = self.parse_expression(Precedences.LOWEST)
+            assert key is not None
+
+            if not self.expect_token_type(
+                self.peek_token, tokens.TokenType.COLON, True
+            ):
+                return None
+
+            self.next_token()
+            value = self.parse_expression(Precedences.LOWEST)
+            pairs[str(key)] = value
+
+            if not self.expect_token_type(
+                self.peek_token, tokens.TokenType.RIGHT_BRACE, False
+            ) and not self.expect_token_type(
+                self.peek_token, tokens.TokenType.COMMA, False
+            ):
+                return None
+
+        if not self.expect_token_type(
+            self.peek_token, tokens.TokenType.RIGHT_BRACE, True
+        ):
+            return None
+        return ast.Map(token=token, pairs=pairs)
 
     def parse_call_expression(self, left: ast.Expression) -> ast.Call | None:
         token = self.current_token
