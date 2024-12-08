@@ -281,11 +281,11 @@ class Index(Expression):
         return f"({str(self.left)}[{str(self.index)}])"
 
 
-@dc.dataclass
+@dc.dataclass(frozen=True)
 class Map(Expression):
     token: tokens.Token  # ie. {
 
-    pairs: Mapping[str, Expression]
+    pairs: Mapping[Expression, Expression]
 
     def expression_node(self) -> None:
         pass

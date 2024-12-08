@@ -267,7 +267,7 @@ class Parser:
 
             self.next_token()
             value = self.parse_expression(Precedences.LOWEST)
-            pairs[str(key)] = value
+            pairs[key] = value
 
             if not self.expect_token_type(
                 self.peek_token, tokens.TokenType.RIGHT_BRACE, False

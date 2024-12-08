@@ -866,8 +866,8 @@ class TestParseProgram(unittest.TestCase):
                         value=1,
                     ),
                 )
-                self.assertIn(str(key), map_expression.pairs)
-                self.assertEqual(map_expression.pairs[str(key)], value)
+                self.assertIn(key, map_expression.pairs)
+                self.assertEqual(map_expression.pairs[key], value)
 
         with self.subTest("Empty"):
             code = "{}"
