@@ -179,7 +179,7 @@ class Parser:
 
     def parse_expression_statement(self) -> ast.ExpressionStatement:
         inner = self.parse_expression(Precedences.LOWEST)
-        assert inner, "TODO: handle this"
+        assert inner is not None, "TODO: handle this"
 
         expression_statement = ast.ExpressionStatement(
             token=self.current_token,
@@ -283,7 +283,7 @@ class Parser:
         return ast.FunctionLiteral(token=token, parameters=params, body=body)
 
     def parse_integer_literal(self) -> ast.IntegerLiteral | None:
-        assert self.current_token.value
+        assert self.current_token.value is not None
         value = self.current_token.value.decode("ascii")
 
         try:
@@ -299,7 +299,7 @@ class Parser:
         raise NotImplementedError
 
     def parse_boolean_literal(self) -> ast.BooleanLiteral:
-        assert self.current_token.value
+        assert self.current_token.value is not None
         value = self.current_token.value.decode("ascii") == "true"
         return ast.BooleanLiteral(token=self.current_token, value=value)
 
@@ -314,7 +314,7 @@ class Parser:
         self.next_token()
 
         condition = self.parse_expression(Precedences.LOWEST)
-        assert condition
+        assert condition is not None
 
         if not self.expect_token_type(
             self.peek_token, tokens.TokenType.RIGHT_PARENTHESES, True
@@ -327,7 +327,7 @@ class Parser:
             return None
 
         consequence = self.parse_block_statement()
-        assert consequence
+        assert consequence is not None
 
         alternative = None
         if self.expect_token_type(self.peek_token, tokens.TokenType.ELSE, False):
@@ -380,7 +380,7 @@ class Parser:
         self.next_token()
 
         # First arg
-        assert self.current_token.value
+        assert self.current_token.value is not None
         param = ast.Identifier(
             token=self.current_token, value=self.current_token.value.decode("ascii")
         )
@@ -390,7 +390,7 @@ class Parser:
             self.next_token()
             self.next_token()
 
-            assert self.current_token.value
+            assert self.current_token.value is not None
             param = ast.Identifier(
                 token=self.current_token, value=self.current_token.value.decode("ascii")
             )
@@ -427,7 +427,7 @@ class Parser:
         return ast.BlockStatement(token=token, statements=statements)
 
     def parse_prefix_expression(self) -> ast.Prefix:
-        assert self.current_token.value
+        assert self.current_token.value is not None
         token = self.current_token
         operator = self.current_token.value.decode("ascii")
 
@@ -441,7 +441,7 @@ class Parser:
 
     def parse_infix_expression(self, left: ast.Expression) -> ast.Infix:
         current = self.current_token
-        assert current.value
+        assert current.value is not None
 
         precendence = self.get_precendence("CURRENT")
         self.next_token()
@@ -471,6 +471,6 @@ class Parser:
 
             self.next_token()
 
-            assert left
+            assert left is not None
             left = infix_func(left)
         return left
