@@ -17,6 +17,7 @@ class ObjectType(enum.StrEnum):
     FUNCTION = "FUNCTION"
     STRING = "STRING"
     ARRAY = "ARRAY"
+    HASH_KEY = "HASH_KEY"
 
 
 class ErrorTypes(enum.StrEnum):
@@ -33,6 +34,19 @@ class Object(abc.ABC):
 
     @abc.abstractmethod
     def inspect(self) -> str:
+        pass
+
+
+@dc.dataclass(frozen=True)
+class HashKey:
+    type = ObjectType.HASH_KEY
+
+    value: int
+
+
+class Hashable(abc.ABC):
+    @abc.abstractmethod
+    def hash_key(self) -> HashKey:
         pass
 
 
