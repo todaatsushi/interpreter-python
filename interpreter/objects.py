@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import abc
+from collections.abc import Mapping
 import enum
 import dataclasses as dc
 
@@ -113,6 +114,27 @@ class Array(Object):
 
     def inspect(self) -> str:
         return f"[{', '.join(str(item) for item in self.items)}]"
+
+
+@dc.dataclass(frozen=True)
+class HashPair(Object):
+    key: Object
+    value: Object
+
+    def inspect(self) -> str:
+        return f"{str(self.key)} : {str(self.value)}"
+
+
+@dc.dataclass(frozen=True)
+class Hash(Object):
+    pairs: Mapping[HashKey, HashPair]
+
+    def inspect(self) -> str:
+        s = "{"
+        for _, v in self.pairs.items():
+            s = str(v.inspect())
+        s = s + "}"
+        return s
 
 
 @dc.dataclass(frozen=True)
