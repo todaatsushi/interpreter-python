@@ -462,7 +462,7 @@ class TestParseProgram(unittest.TestCase):
     def test_parses_if_expression(self) -> None:
         test_cases: tuple[tuple[str, bool], ...] = (
             ("if (x < y) { x } else { y }", True),
-            # ("if (x < y) { x }", False),
+            ("if (x < y) { x }", False),
         )
 
         for code, has_alt in test_cases:
@@ -554,6 +554,46 @@ class TestParseProgram(unittest.TestCase):
                         tokens.Token(value=b"y", type=tokens.TokenType.IDENTIFIER),
                     )
                     self.assertIsNotNone(expression.expression)
+
+    def test_parses_array_literal(self) -> None:
+        test_cases: tuple[tuple[str, list], ...] = (
+            ('[1, "one"]', [1, "one"]),
+            ("[1, 2 * 2, 3 + 3]", [1, 4, 6]),
+        )
+
+        for code, expected in test_cases:
+            lexer = lexers.Lexer.new(code)
+            parser = parsers.Parser.new(lexer)
+            program = parser.parse_program()
+
+            with self.subTest(code):
+                with self.subTest("No errors"):
+                    self.assertEqual(len(parser.errors), 0, "\n".join(parser.errors))
+
+                with self.subTest("1 statement"):
+                    self.assertEqual(
+                        len(program.statements),
+                        1,
+                        f"More than 1 statement: {program.statements}",
+                    )
+
+                statement = program.statements[0]
+                with self.subTest("Statement is expression statement"):
+                    self.assertIsInstance(statement, ast.ExpressionStatement)
+                    assert isinstance(statement, ast.ExpressionStatement)
+
+                array_literal = statement.expression
+                with self.subTest("Expression is array literal"):
+                    self.assertIsInstance(array_literal, ast.ArrayLiteral)
+                    assert isinstance(array_literal, ast.ArrayLiteral)
+
+                with self.subTest("Num items"):
+                    self.assertEqual(len(array_literal.items), len(expected))
+
+                with self.subTest("Items match"):
+                    for i, item in enumerate(array_literal.items):
+                        actual = expected[i]
+                        self.assertEqual(getattr(item, "value", None), actual)
 
     def test_parses_function_literal(self) -> None:
         code = "fn(x, y) { x + y; }"
