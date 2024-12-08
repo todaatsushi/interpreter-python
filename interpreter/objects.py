@@ -281,6 +281,12 @@ class Push(F):
         return Error(message=f"{self.UNSUPPORTED_TYPE} {arg.type}")
 
 
+class Puts(F):
+    def __call__(self, *args: Object, **kwargs: Object) -> Object:
+        for arg in args:
+            print(arg.inspect())
+
+
 @dc.dataclass(frozen=True)
 class BuiltInFunction(Object):
     function: F
@@ -297,4 +303,5 @@ BUILTIN_MAP: dict[str, BuiltInFunction] = {
     "last": BuiltInFunction(function=Last()),
     "rest": BuiltInFunction(function=Rest()),
     "push": BuiltInFunction(function=Push()),
+    "puts": BuiltInFunction(function=Puts()),
 }
