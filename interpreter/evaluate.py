@@ -313,12 +313,16 @@ def if_expression(expression: ast.If, env: environment.Environment) -> objects.O
 
 def identifier(iden: ast.Identifier, env: environment.Environment) -> objects.Object:
     value, ok = env.get(iden.value)
-    if not ok:
-        return objects.Error(
-            message=f"{objects.ErrorTypes.MISSING_IDENTIFER}: {iden.value}"
-        )
-    assert value is not None
-    return value
+    if value:
+        return value
+
+    if f := objects.BUILTIN_MAP.get(iden.value):
+        return f
+
+    assert not ok
+    return objects.Error(
+        message=f"{objects.ErrorTypes.MISSING_IDENTIFER}: {iden.value}"
+    )
 
 
 def expressions(
@@ -347,13 +351,16 @@ def extended_function_env(
 
 
 def function(func: objects.Object, arguments: list[objects.Object]) -> objects.Object:
-    if not isinstance(func, objects.Function):
-        return objects.Error(
-            f"{objects.ErrorTypes.NOT_A_FUNC}: {func} - {', '.join([str(arg) for arg in arguments])}"
-        )
-    env = extended_function_env(func, arguments)
-    evaluated = node(func.body, env)
-    assert evaluated
-    if isinstance(evaluated, objects.Return):
-        return evaluated.value
-    return evaluated
+    if isinstance(func, objects.Function):
+        env = extended_function_env(func, arguments)
+        evaluated = node(func.body, env)
+        assert evaluated
+        if isinstance(evaluated, objects.Return):
+            return evaluated.value
+        return evaluated
+    elif isinstance(func, objects.BuiltInFunction):
+        return func.function(*arguments)
+
+    return objects.Error(
+        f"{objects.ErrorTypes.NOT_A_FUNC}: {func} - {', '.join([str(arg) for arg in arguments])}"
+    )

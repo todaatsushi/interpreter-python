@@ -276,3 +276,27 @@ class TestFunctions(unittest.TestCase):
         """
         actual = get_object(code)
         test_self_evaluating_object(self, objects.Integer, actual, 4)
+
+
+class TestBuiltinFunctions(unittest.TestCase):
+    def test_evaluates_len(self) -> None:
+        test_cases: tuple[tuple[str, int], ...] = (
+            ("Hello World!", 12),
+            ("", 0),
+        )
+
+        for value, expected in test_cases:
+            code = f'len("{value}");'
+            actual = get_object(code)
+            test_self_evaluating_object(self, objects.Integer, actual, expected)
+
+    def test_evaluates_len_errors(self) -> None:
+        test_cases: tuple[tuple[list[object], str], ...] = (
+            # ([1], "argument to 'len' not supported, got INTEGER"),
+            (['"one"', '"two"'], "wrong number of arguments, got 2, want 1"),
+        )
+
+        for call_args, expected in test_cases:
+            code = f"len({', '.join(str(arg) for arg in call_args)});"
+            actual = get_object(code)
+            test_error_object(self, actual, expected)
