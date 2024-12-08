@@ -19,6 +19,7 @@ class ObjectType(enum.StrEnum):
     STRING = "STRING"
     ARRAY = "ARRAY"
     HASH_KEY = "HASH_KEY"
+    HASH = "HASH"
 
 
 class ErrorTypes(enum.StrEnum):
@@ -128,6 +129,8 @@ class HashPair(Object):
 @dc.dataclass(frozen=True)
 class Hash(Object):
     pairs: Mapping[HashKey, HashPair]
+
+    type = ObjectType.HASH
 
     def inspect(self) -> str:
         s = "{"
