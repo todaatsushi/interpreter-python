@@ -105,6 +105,22 @@ class IntegerLiteral(Expression):
 
 
 @dc.dataclass
+class ArrayLiteral(Expression):
+    token: tokens.Token  # ie. [
+    items: list[Expression]
+
+    def expression_node(self) -> None:
+        pass
+
+    def token_literal(self) -> str:
+        assert self.token.value
+        return self.token.value.decode("ascii")
+
+    def __str__(self) -> str:
+        return f"[{', '.join(str(i) for i in self.items)}]"
+
+
+@dc.dataclass
 class BooleanLiteral(Expression):
     token: tokens.Token
     value: bool
