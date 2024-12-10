@@ -80,4 +80,14 @@ def read_operands(
     """
     Reverse of make.
     """
-    raise NotImplementedError
+    operands: list[int] = [0] * len(definition.operand_widths)
+    offset = 0
+
+    for i, width in enumerate(definition.operand_widths):
+        match width:
+            case 2:
+                operands[i] = int.from_bytes(instructions[offset : offset + width])
+            case _:
+                raise NotImplementedError(width)
+        offset += width
+    return operands, offset
