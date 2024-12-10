@@ -50,6 +50,9 @@ def lookup_byte(op: bytes) -> Definition:
 
 
 def make(op: OpCodes, *operands: int) -> Instructions:
+    """
+    Reverse of read_operands.
+    """
     try:
         definition = lookup_byte(op)
     except OpCodeException:
@@ -74,4 +77,7 @@ def make(op: OpCodes, *operands: int) -> Instructions:
 def read_operands(
     definition: Definition, instructions: bytearray
 ) -> tuple[list[int], int]:
+    """
+    Reverse of make.
+    """
     raise NotImplementedError
