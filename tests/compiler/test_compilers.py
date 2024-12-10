@@ -43,7 +43,7 @@ def test_instructions(
 class TestCompiler(unittest.TestCase):
     def test_integer_arithmetic(self) -> None:
         test_cases: tuple[tuple[str, list[object], list[code.Instructions]], ...] = (
-            tuple()
+            ("1 + 2", [1, 2], [code.make(code.OpCodes.CONSTANT, i) for i in range(2)]),
         )
 
         for input_, expected_constants, expected_instructions in test_cases:
