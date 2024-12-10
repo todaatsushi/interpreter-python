@@ -2,7 +2,7 @@ import unittest
 
 from interpreter import tokens as tk, lexers as lx
 
-from tests import utils
+from tests.interpreter import utils
 
 
 class TestNextToken(unittest.TestCase):

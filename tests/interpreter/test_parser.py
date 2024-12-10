@@ -2,7 +2,8 @@ import unittest
 
 from interpreter import lexers, parsers, tokens
 from interpreter import ast
-from tests import utils
+
+from tests.interpreter import utils
 
 
 class TestParser(unittest.TestCase):
