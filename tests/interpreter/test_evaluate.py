@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from interpreter import environment, lexers, objects, parsers, evaluate
+from monkey.interpreter import environment, lexers, objects, parsers, evaluate
 
 
 def test_self_evaluating_object(

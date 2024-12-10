@@ -1,4 +1,4 @@
-from interpreter import environment, lexers, parsers, evaluate
+from monkey.interpreter import environment, lexers, parsers, evaluate
 
 
 class Scanner:

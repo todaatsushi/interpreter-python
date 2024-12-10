@@ -3,7 +3,7 @@ from collections.abc import Mapping
 import dataclasses as dc
 import logging
 
-from interpreter import tokens
+from monkey.interpreter import tokens
 
 logger = logging.getLogger(__name__)
 

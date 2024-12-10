@@ -1,6 +1,6 @@
 import unittest
 
-from interpreter import tokens as tk, lexers as lx
+from monkey.interpreter import tokens as tk, lexers as lx
 
 from tests.interpreter import utils
 

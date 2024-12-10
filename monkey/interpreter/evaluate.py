@@ -4,7 +4,7 @@ import logging
 
 from typing import cast
 
-from interpreter import ast, environment, objects
+from monkey.interpreter import ast, environment, objects
 
 
 logger = logging.getLogger(__name__)

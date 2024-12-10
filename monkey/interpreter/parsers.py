@@ -8,7 +8,7 @@ import logging
 import dataclasses as dc
 from typing import Literal, TypeAlias, TypedDict
 
-from interpreter import ast, lexers, tokens
+from monkey.interpreter import ast, lexers, tokens
 
 logger = logging.getLogger(__name__)
 

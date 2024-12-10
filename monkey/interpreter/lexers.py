@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses as dc
 
-from interpreter import tokens as tk
+from monkey.interpreter import tokens as tk
 
 
 class Unexpected(Exception):

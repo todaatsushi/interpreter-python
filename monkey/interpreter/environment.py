@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import dataclasses as dc
 
-from interpreter import objects
+from monkey.interpreter import objects
 
 
 @dc.dataclass

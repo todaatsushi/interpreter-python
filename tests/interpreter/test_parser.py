@@ -1,7 +1,7 @@
 import unittest
 
-from interpreter import lexers, parsers, tokens
-from interpreter import ast
+from monkey.interpreter import lexers, parsers, tokens
+from monkey.interpreter import ast
 
 from tests.interpreter import utils
 

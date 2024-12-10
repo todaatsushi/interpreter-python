@@ -1,6 +1,6 @@
 import sys
 
-from interpreter import repl
+from monkey.interpreter import repl
 
 
 def main() -> None:

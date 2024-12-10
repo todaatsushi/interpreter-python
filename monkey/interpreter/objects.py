@@ -5,7 +5,7 @@ from collections.abc import Mapping
 import enum
 import dataclasses as dc
 
-from interpreter import ast, environment
+from monkey.interpreter import ast, environment
 
 
 class ObjectType(enum.StrEnum):
