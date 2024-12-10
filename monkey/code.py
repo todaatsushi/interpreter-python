@@ -1,10 +1,15 @@
+from __future__ import annotations
+
+from collections.abc import Sequence
 import dataclasses as dc
 import enum
 import struct
 
 
 class Instructions(bytearray):
-    pass
+    @classmethod
+    def concat_bytes(cls, instructions: Sequence[Instructions]) -> Instructions:
+        return cls(b"".join(instructions))
 
 
 class OpCodeException(Exception):
