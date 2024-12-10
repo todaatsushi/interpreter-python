@@ -2,10 +2,9 @@ import dataclasses as dc
 import enum
 import struct
 
-from typing import TypeAlias
 
-
-Instructions: TypeAlias = bytes
+class Instructions(bytearray):
+    pass
 
 
 class OpCodeException(Exception):
@@ -42,14 +41,14 @@ def lookup_byte(op: bytes) -> Definition:
         raise NotFound from exc
 
 
-def make(op: OpCodes, *operands: int) -> bytes:
+def make(op: OpCodes, *operands: int) -> Instructions:
     try:
         definition = lookup_byte(op)
     except OpCodeException:
-        return bytes([])
+        return Instructions()
 
     instruction_len = sum(definition.operand_widths) + 1
-    result = bytearray(instruction_len)
+    result = Instructions(instruction_len)
     result[0] = op.as_int()
 
     offset = 1
