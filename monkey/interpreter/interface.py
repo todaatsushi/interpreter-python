@@ -11,6 +11,13 @@ class Repl:
             print(run(parsed))
 
 
+class Script:
+    def eval(self, filename: str) -> None:
+        with open(filename) as f:
+            code = f.read()
+            print(run(code))
+
+
 def run(code: str) -> str:
     lexer = lexers.Lexer.new(code)
     parser = parsers.Parser.new(lexer)

@@ -1,0 +1,6 @@
+let add = fn(x, y) {
+    x + y;
+}
+
+let result = add(1, add(10, 11));
+puts(result)

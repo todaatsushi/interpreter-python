@@ -24,6 +24,12 @@ def main() -> None:
                 except (KeyboardInterrupt, EOFError):
                     print("\nBye!")
                 return
+            case Option.RUN:
+                if len(sys.argv) < 3:
+                    print("Usage: python main.py run [filename]")
+                    return
+                file = sys.argv[2]
+                interface.Script().eval(file)
     else:
         print("Usage: python main.py [repl]")
 
