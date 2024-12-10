@@ -6,7 +6,15 @@ from typing import TYPE_CHECKING
 from monkey import code
 
 if TYPE_CHECKING:
-    from monkey.interpreter import objects
+    from monkey.interpreter import objects, ast
+
+
+class CompilerError(Exception):
+    pass
+
+
+class CouldntCompile(CompilerError):
+    pass
 
 
 @dc.dataclass
@@ -24,8 +32,11 @@ class Compiler:
     def new(cls) -> Compiler:
         return cls()
 
-    def compile(self) -> None:
-        raise NotImplementedError
+    def compile(self, program: ast.Program) -> None:
+        try:
+            raise NotImplementedError
+        except Exception as exc:
+            raise CouldntCompile from exc
 
     def bytecode(self) -> Bytecode:
         return Bytecode()
