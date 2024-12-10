@@ -10,6 +10,12 @@ if TYPE_CHECKING:
 
 
 @dc.dataclass
+class Bytecode:
+    instructions: code.Instructions = dc.field(init=False, default_factory=bytes)
+    constants: list[objects.Object] = dc.field(init=False, default_factory=list)
+
+
+@dc.dataclass
 class Compiler:
     instructions: code.Instructions = dc.field(init=False, default_factory=bytes)
     constants: list[objects.Object] = dc.field(init=False, default_factory=list)
@@ -20,3 +26,6 @@ class Compiler:
 
     def compile(self) -> None:
         raise NotImplementedError
+
+    def bytecode(self) -> Bytecode:
+        return Bytecode()
