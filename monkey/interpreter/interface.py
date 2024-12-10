@@ -1,7 +1,7 @@
 from monkey.interpreter import environment, lexers, parsers, evaluate
 
 
-class Scanner:
+class Repl:
     PROMPT = ">>>> "
 
     def start(self) -> None:

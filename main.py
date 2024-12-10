@@ -1,11 +1,12 @@
 import sys
 import enum
 
-from monkey.interpreter import repl
+from monkey.interpreter import interface
 
 
 class Option(enum.StrEnum):
     REPL = "repl"
+    RUN = "run"
 
 
 def main() -> None:
@@ -19,7 +20,7 @@ def main() -> None:
         match opt:
             case Option.REPL:
                 try:
-                    repl.Scanner().start()
+                    interface.Repl().start()
                 except (KeyboardInterrupt, EOFError):
                     print("\nBye!")
                 return
