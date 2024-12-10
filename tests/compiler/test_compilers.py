@@ -65,3 +65,17 @@ class TestCompiler(unittest.TestCase):
 
                 with self.subTest("Constants"):
                     test_constants(self, expected_constants, bytecode.constants)
+
+
+class TestInstructions(unittest.TestCase):
+    def test_string(self) -> None:
+        instructions = [code.make(code.OpCodes.CONSTANT, i) for i in [1, 2, 65535]]
+
+        expected = """
+        0000 OpConstant 1
+        0003 OpConstant 2
+        0006 OpConstant 65535
+        """.strip()
+
+        concatted = code.Instructions.concat_bytes(instructions)
+        self.assertEqual(str(concatted), expected)

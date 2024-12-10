@@ -11,6 +11,9 @@ class Instructions(bytearray):
     def concat_bytes(cls, instructions: Sequence[Instructions]) -> Instructions:
         return cls(b"".join(instructions))
 
+    def __str__(self) -> str:
+        return ""
+
 
 class OpCodeException(Exception):
     pass
