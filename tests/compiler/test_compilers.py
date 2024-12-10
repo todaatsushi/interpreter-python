@@ -16,7 +16,16 @@ def parse(code: str) -> ast.Program:
 def test_constants(
     tc: unittest.TestCase, expected: list[object], actual: list[objects.Object]
 ) -> None:
-    pass
+    tc.assertEqual(len(expected), len(actual))
+
+    for i, exp in enumerate(expected):
+        if isinstance(exp, int):
+            tc.assertIsInstance(actual[i], objects.Integer)
+            assert isinstance(actual[i], objects.Integer)
+
+            tc.assertEqual(actual[i].value, exp)
+        else:
+            tc.fail(f"{type(exp)} not supported")
 
 
 def test_instructions(
