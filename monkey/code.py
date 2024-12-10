@@ -1,5 +1,6 @@
 import dataclasses as dc
 import enum
+import struct
 
 from typing import TypeAlias
 
@@ -39,3 +40,25 @@ def lookup_byte(op: bytes) -> Definition:
         return DEFINITIONS[code]
     except (KeyError, ValueError) as exc:
         raise NotFound from exc
+
+
+def make(op: OpCodes, *operands: int) -> bytes:
+    try:
+        definition = lookup_byte(op)
+    except OpCodeException:
+        return bytes([])
+
+    instruction_len = sum(definition.operand_widths) + 1
+    result = bytearray(instruction_len)
+    result[0] = op.as_int()
+
+    offset = 1
+    for i, operand in enumerate(operands):
+        width = definition.operand_widths[i]
+        match width:
+            case 2:
+                struct.pack_into(">H", result, offset, operand)
+            case _:
+                raise NotImplementedError(width)
+        offset += width
+    return result
