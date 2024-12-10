@@ -79,3 +79,20 @@ class TestInstructions(unittest.TestCase):
 
         concatted = code.Instructions.concat_bytes(instructions)
         self.assertEqual(str(concatted), expected)
+
+    def test_read_operands(self) -> None:
+        test_cases: tuple[tuple[code.OpCodes, list[int], int], ...] = tuple()
+
+        for op, operands, bytes_read in test_cases:
+            with self.subTest(str(op)):
+                instruction = code.make(op, *operands)
+
+                try:
+                    definition = code.lookup_byte(code.OpCodes(op))
+                except (ValueError, code.NotFound) as exc:
+                    self.fail(exc)
+
+                # Without opcode
+                operands_read, n = code.read_operands(definition, instruction[1:])
+                self.assertEqual(n, bytes_read)
+                self.assertEqual(operands_read, operands)

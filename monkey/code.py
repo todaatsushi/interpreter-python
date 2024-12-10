@@ -46,7 +46,7 @@ def lookup_byte(op: bytes) -> Definition:
         code = OpCodes(op)
         return DEFINITIONS[code]
     except (KeyError, ValueError) as exc:
-        raise NotFound from exc
+        raise NotFound(int.from_bytes(op)) from exc
 
 
 def make(op: OpCodes, *operands: int) -> Instructions:
@@ -69,3 +69,9 @@ def make(op: OpCodes, *operands: int) -> Instructions:
                 raise NotImplementedError(width)
         offset += width
     return result
+
+
+def read_operands(
+    definition: Definition, instructions: bytearray
+) -> tuple[list[int], int]:
+    raise NotImplementedError
