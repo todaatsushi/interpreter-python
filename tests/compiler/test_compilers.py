@@ -24,7 +24,11 @@ def test_instructions(
     expected: list[code.Instructions],
     actual: code.Instructions,
 ) -> None:
-    pass
+    all_instructions = [i for i in expected]
+    for i, instruction in enumerate(all_instructions):
+        tc.assertEqual(
+            instruction, actual[i], f"Expected '{instruction}', got '{actual[i]}'"
+        )
 
 
 class TestCompiler(unittest.TestCase):
