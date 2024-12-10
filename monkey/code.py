@@ -5,7 +5,7 @@ import struct
 from typing import TypeAlias
 
 
-Instructions: TypeAlias = list[bytes]
+Instructions: TypeAlias = bytes
 
 
 class OpCodeException(Exception):
