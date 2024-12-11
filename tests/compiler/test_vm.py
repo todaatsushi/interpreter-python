@@ -1,5 +1,5 @@
 import unittest
-from monkey.compiler import compilers
+from monkey.compiler import compilers, vm
 
 from monkey.interpreter import objects
 from tests import utils
@@ -35,6 +35,7 @@ def run_vm_test(
             except compilers.CouldntCompile as exc:
                 tc.fail(str(exc))
 
-            # New VM
-            # Run VM
-            # Check stack elements
+            virtual_machine = vm.VM.new()
+            virtual_machine.run()
+
+            test_expected_object(tc, expected, virtual_machine.stack_top())
