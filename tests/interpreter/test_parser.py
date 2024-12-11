@@ -3,7 +3,7 @@ import unittest
 from monkey.interpreter import lexers, parsers, tokens
 from monkey.interpreter import ast
 
-from tests.interpreter import utils
+from tests import utils
 
 
 class TestParser(unittest.TestCase):
