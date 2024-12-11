@@ -33,10 +33,12 @@ def test_instructions(
     expected: list[code.Instructions],
     actual: code.Instructions,
 ) -> None:
-    all_instructions = [i for i in expected]
+    all_instructions = code.Instructions.concat_bytes(expected)
     for i, instruction in enumerate(all_instructions):
         tc.assertEqual(
-            instruction, actual[i], f"Expected '{instruction}', got '{actual[i]}'"
+            instruction,
+            actual[i],
+            f"Expected '{instruction}' at position {i}, got '{actual[i]}'",
         )
 
 

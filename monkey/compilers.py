@@ -20,8 +20,8 @@ class CouldntCompile(CompilerError):
 
 @dc.dataclass
 class Bytecode:
-    instructions: code.Instructions = dc.field(init=False, default_factory=bytes)
-    constants: list[objects.Object] = dc.field(init=False, default_factory=list)
+    instructions: code.Instructions = dc.field(default_factory=bytes)
+    constants: list[objects.Object] = dc.field(default_factory=list)
 
 
 @dc.dataclass
@@ -50,7 +50,7 @@ class Compiler:
                 case _:
                     raise NotImplementedError
         except Exception as exc:
-            raise CouldntCompile from exc
+            raise CouldntCompile(str(exc)) from exc
 
     def bytecode(self) -> Bytecode:
-        return Bytecode()
+        return Bytecode(instructions=self.instructions, constants=self.constants)
