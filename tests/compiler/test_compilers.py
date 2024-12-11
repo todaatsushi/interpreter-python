@@ -53,8 +53,10 @@ class TestCompiler(unittest.TestCase):
 
                 try:
                     compiler.compile(program)
-                except Exception as exc:
-                    self.fail(str(exc))
+                except compilers.CouldntCompile as exc:
+                    self.fail(
+                        f"Couldn't compile program{': ' + str(exc) if str(exc) else '.'}"
+                    )
 
                 bytecode = compiler.bytecode()
 
