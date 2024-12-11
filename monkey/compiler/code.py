@@ -20,8 +20,10 @@ class Instructions(bytearray):
             return f"ERROR: operand len {len(operands)} does not match definition {num_operands}"
 
         match num_operands:
+            case 0:
+                return f"{definition.name}"
             case 1:
-                return f"{str(definition.name)} {operands[0]}"
+                return f"{definition.name} {operands[0]}"
         return f"ERROR: unhandled num_operands for {definition.name}"
 
     def __str__(self) -> str:
@@ -96,6 +98,8 @@ def make(op: OpCodes, *operands: int) -> Instructions:
     for i, operand in enumerate(operands):
         width = definition.operand_widths[i]
         match width:
+            case 0:
+                pass
             case 2:
                 struct.pack_into(">H", result, offset, operand)
             case _:

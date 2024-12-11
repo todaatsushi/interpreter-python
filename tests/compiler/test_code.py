@@ -21,15 +21,11 @@ class TestOpCodes(unittest.TestCase):
 
     def test_string(self) -> None:
         instructions = [
-            code.make(code.OpCodes.CONSTANT, i)
-            for i in [
-                1,
-                2,
-                65535,
-            ]
+            code.make(code.OpCodes.ADD),
+            *[code.make(code.OpCodes.CONSTANT, i) for i in [2, 65535]],
         ]
 
-        expected = "0000 OpConstant 1\n0003 OpConstant 2\n0006 OpConstant 65535"
+        expected = "0000 OpAdd\n0001 OpConstant 2\n0004 OpConstant 65535"
 
         concatted = code.Instructions.concat_bytes(instructions)
         self.assertEqual(str(concatted), expected)
