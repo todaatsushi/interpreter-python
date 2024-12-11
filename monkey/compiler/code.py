@@ -52,8 +52,8 @@ class NotFound(OpCodeException):
 
 
 class OpCodes(bytes, enum.Enum):
-    CONSTANT = enum.auto()
-    ADD = enum.auto()
+    CONSTANT = bytes([0])
+    ADD = bytes([1])
 
     def as_int(self) -> int:
         return int.from_bytes(self)
