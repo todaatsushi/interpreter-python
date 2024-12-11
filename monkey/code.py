@@ -37,7 +37,7 @@ class Definition:
 
 
 DEFINITIONS: dict[OpCodes, Definition] = {
-    OpCodes.CONSTANT: Definition(name="op_constant", operand_widths=[2])
+    OpCodes.CONSTANT: Definition(name="OpConstant", operand_widths=[2])
 }
 
 
