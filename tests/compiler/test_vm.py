@@ -48,6 +48,6 @@ class TestArithmetic(unittest.TestCase):
             (
                 ("1", 1),
                 ("2", 2),
-                ("1 + 2", 2),  # TODO: will be 3
+                ("1 + 2", 3),
             ),
         )
