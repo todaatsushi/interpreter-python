@@ -17,13 +17,13 @@ class CouldntCompile(CompilerError):
 
 @dc.dataclass
 class Bytecode:
-    instructions: code.Instructions = dc.field(default_factory=bytes)
+    instructions: code.Instructions = dc.field(default_factory=code.Instructions)
     constants: list[objects.Object] = dc.field(default_factory=list)
 
 
 @dc.dataclass
 class Compiler:
-    instructions: code.Instructions = dc.field(init=False, default_factory=bytes)
+    instructions: code.Instructions = dc.field(default_factory=code.Instructions)
     constants: list[objects.Object] = dc.field(init=False, default_factory=list)
 
     @classmethod
