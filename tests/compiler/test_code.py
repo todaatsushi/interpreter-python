@@ -11,6 +11,7 @@ class TestOpCodes(unittest.TestCase):
                 [65534],
                 bytes([code.OpCodes.CONSTANT.as_int(), 255, 254]),
             ),
+            (code.OpCodes.ADD, [], bytes([code.OpCodes.ADD.as_int()])),
         )
 
         for op, operands, expected in test_cases:

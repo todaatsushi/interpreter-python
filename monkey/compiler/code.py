@@ -53,6 +53,7 @@ class NotFound(OpCodeException):
 
 class OpCodes(bytes, enum.Enum):
     CONSTANT = enum.auto()
+    ADD = enum.auto()
 
     def as_int(self) -> int:
         return int.from_bytes(self)
@@ -65,7 +66,8 @@ class Definition:
 
 
 DEFINITIONS: dict[OpCodes, Definition] = {
-    OpCodes.CONSTANT: Definition(name="OpConstant", operand_widths=[2])
+    OpCodes.CONSTANT: Definition(name="OpConstant", operand_widths=[2]),
+    OpCodes.ADD: Definition(name="OpAdd", operand_widths=[]),
 }
 
 
