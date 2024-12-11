@@ -15,6 +15,14 @@ if TYPE_CHECKING:
 STACK_SIZE: Final = 2048
 
 
+class VMError(Exception):
+    pass
+
+
+class EmptyStack(VMError):
+    pass
+
+
 @dc.dataclass
 class VM:
     stack_pointer: int
@@ -37,4 +45,6 @@ class VM:
 
     @property
     def stack_top(self) -> objects.Object:
-        raise NotImplementedError
+        if self.stack_pointer == 0:
+            raise EmptyStack
+        return self.stack[self.stack_pointer - 1]
