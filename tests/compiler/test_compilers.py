@@ -1,6 +1,6 @@
 import unittest
 
-from monkey import code, compilers
+from monkey.compiler import code, compilers
 from monkey.interpreter import ast, lexers, objects, parsers
 
 

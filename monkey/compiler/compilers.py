@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses as dc
 
-from monkey import code
+from monkey.compiler import code
 from monkey.interpreter import ast
 from monkey.interpreter import objects
 

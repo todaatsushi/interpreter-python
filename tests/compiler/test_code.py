@@ -1,6 +1,6 @@
 import unittest
 
-from monkey import code
+from monkey.compiler import code
 
 
 class TestOpCodes(unittest.TestCase):
