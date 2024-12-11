@@ -54,10 +54,18 @@ class VM:
         )
 
     def run(self) -> None:
-        for instruction_pointer, byte in enumerate(self.instructions):
-            op_code = code.lookup_byte(bytes([byte]))
+        instruction_pointer = 0
+        while instruction_pointer < len(self.instructions):
+            op_code = code.OpCodes(bytes([self.instructions[instruction_pointer]]))
 
             match op_code:
+                case code.OpCodes.CONSTANT:
+                    left = instruction_pointer + 1
+                    right = left + 2
+                    const_index = int.from_bytes(self.instructions[left:right])
+
+                    self.push(self.constants[const_index])
+                    instruction_pointer += 2
                 case _:
                     raise NotImplementedError
 
