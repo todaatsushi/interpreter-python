@@ -4,9 +4,10 @@ import dataclasses as dc
 from typing import TYPE_CHECKING
 
 from monkey import code
+from monkey.interpreter import ast
 
 if TYPE_CHECKING:
-    from monkey.interpreter import objects, ast
+    from monkey.interpreter import objects
 
 
 class CompilerError(Exception):
@@ -34,7 +35,20 @@ class Compiler:
 
     def compile(self, node: ast.Node) -> None:
         try:
-            raise NotImplementedError
+            match type(node):
+                case ast.Program:
+                    assert isinstance(node, ast.Program)
+                    for statement in node.statements:
+                        self.compile(statement)
+                case ast.ExpressionStatement:
+                    assert isinstance(node, ast.ExpressionStatement)
+                    self.compile(node.expression)
+                case ast.Infix:
+                    assert isinstance(node, ast.Infix) and node.right
+                    self.compile(node.left)
+                    self.compile(node.right)
+                case _:
+                    raise NotImplementedError
         except Exception as exc:
             raise CouldntCompile from exc
 
