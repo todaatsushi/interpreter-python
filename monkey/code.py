@@ -4,6 +4,9 @@ from collections.abc import Sequence
 import dataclasses as dc
 import enum
 import struct
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Instructions(bytearray):
@@ -11,8 +14,33 @@ class Instructions(bytearray):
     def concat_bytes(cls, instructions: Sequence[Instructions]) -> Instructions:
         return cls(b"".join(instructions))
 
+    def _format_instruction(self, definition: Definition, operands: list[int]) -> str:
+        num_operands = len(definition.operand_widths)
+        if num_operands != len(operands):
+            return f"ERROR: operand len {len(operands)} does not match definition {num_operands}"
+
+        match num_operands:
+            case 1:
+                return f"{str(definition.name)} {operands[0]}"
+        return f"ERROR: unhandled num_operands for {definition.name}"
+
     def __str__(self) -> str:
-        return ""
+        string = ""
+        index = 0
+        while index < len(self):
+            try:
+                definition = lookup_byte(bytes([self[index]]))
+            except NotFound:
+                logger.exception(str(self[index]))
+                continue
+
+            operands, read = read_operands(definition, self[index + 1 :])
+            op_code = "{:04}".format(index)
+            string = (
+                f"{string}\n{op_code} {self._format_instruction(definition, operands)}"
+            )
+            index += 1 + read
+        return string.strip()
 
 
 class OpCodeException(Exception):
