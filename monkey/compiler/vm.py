@@ -41,7 +41,12 @@ class VM:
         )
 
     def run(self) -> None:
-        raise NotImplementedError
+        for instruction_pointer, byte in enumerate(self.instructions):
+            op_code = code.lookup_byte(bytes([byte]))
+
+            match op_code:
+                case _:
+                    raise NotImplementedError
 
     @property
     def stack_top(self) -> objects.Object:
