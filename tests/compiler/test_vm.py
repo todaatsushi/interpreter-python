@@ -35,10 +35,10 @@ def run_vm_test(
             except compilers.CouldntCompile as exc:
                 tc.fail(str(exc))
 
-            virtual_machine = vm.VM.new()
+            virtual_machine = vm.VM.from_bytecode(compiler.bytecode())
             virtual_machine.run()
 
-            test_expected_object(tc, expected, virtual_machine.stack_top())
+            test_expected_object(tc, expected, virtual_machine.stack_top)
 
 
 class TestArithmetic(unittest.TestCase):
