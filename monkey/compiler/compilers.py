@@ -61,6 +61,12 @@ class Compiler:
                     assert isinstance(node, ast.Infix) and node.right
                     self.compile(node.left)
                     self.compile(node.right)
+
+                    match node.operator:
+                        case "+":
+                            self.emit(code.OpCodes.ADD)
+                        case _:
+                            raise NotImplementedError(node.operator)
                 case ast.IntegerLiteral:
                     assert isinstance(node, ast.IntegerLiteral)
                     integer = objects.Integer(value=node.value)
