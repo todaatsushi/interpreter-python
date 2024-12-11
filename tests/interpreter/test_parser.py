@@ -40,11 +40,8 @@ class TestParser(unittest.TestCase):
 
 class TestParseProgram(unittest.TestCase):
     def test_parses_let(self) -> None:
-        script = utils.read_script("tests/fixtures/02.mky")
-        lexer = lexers.Lexer.new(script)
-        parser = parsers.Parser.new(lexer)
-
-        program = parser.parse_program()
+        code = utils.read_script("tests/fixtures/02.mky")
+        program = utils.parse(code)
 
         self.assertEqual(len(program.statements), 3)
 
@@ -103,11 +100,8 @@ class TestParseProgram(unittest.TestCase):
                 self.assertEqual(err, expected[i])
 
     def test_parses_return(self) -> None:
-        script = utils.read_script("tests/fixtures/03.mky")
-        lexer = lexers.Lexer.new(script)
-        parser = parsers.Parser.new(lexer)
-
-        program = parser.parse_program()
+        code = utils.read_script("tests/fixtures/03.mky")
+        program = utils.parse(code)
 
         self.assertEqual(len(program.statements), 3)
 
@@ -274,7 +268,6 @@ class TestParseProgram(unittest.TestCase):
         for code, prefix_operator, operated_value, expected_class in test_cases:
             lexer = lexers.Lexer.new(code)
             parser = parsers.Parser.new(lexer)
-
             program = parser.parse_program()
 
             with self.subTest(f"Prefix for code: {code}"):
@@ -417,10 +410,7 @@ class TestParseProgram(unittest.TestCase):
             expected_class_left,
             expected_class_right,
         ) in test_cases:
-            lexer = lexers.Lexer.new(code)
-            parser = parsers.Parser.new(lexer)
-
-            program = parser.parse_program()
+            program = utils.parse(code)
 
             with self.subTest(f"Infix for code: {code}"):
                 with self.subTest(f"Number of statements for {code}"):
@@ -469,7 +459,6 @@ class TestParseProgram(unittest.TestCase):
         for code, has_alt in test_cases:
             lexer = lexers.Lexer.new(code)
             parser = parsers.Parser.new(lexer)
-
             program = parser.parse_program()
 
             with self.subTest(f"No errors for {code}"):
