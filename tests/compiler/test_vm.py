@@ -39,3 +39,15 @@ def run_vm_test(
             virtual_machine.run()
 
             test_expected_object(tc, expected, virtual_machine.stack_top())
+
+
+class TestArithmetic(unittest.TestCase):
+    def test_integer(self) -> None:
+        run_vm_test(
+            self,
+            (
+                ("1", 1),
+                ("2", 2),
+                ("1 + 2", 2),  # TODO: will be 3
+            ),
+        )
