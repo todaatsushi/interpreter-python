@@ -19,7 +19,19 @@ class VMError(Exception):
     pass
 
 
-class EmptyStack(VMError):
+class StackError(VMError):
+    pass
+
+
+class Missing(StackError):
+    pass
+
+
+class Empty(StackError):
+    pass
+
+
+class Overflow(StackError):
     pass
 
 
@@ -30,7 +42,7 @@ class VM:
     constants: list[objects.Object]
     instructions: code.Instructions
 
-    stack: list[objects.Object] = dc.field(default_factory=list)
+    stack: list[objects.Object | None] = dc.field(default_factory=list)
 
     @classmethod
     def from_bytecode(cls, bytecode: compilers.Bytecode) -> VM:
@@ -38,6 +50,7 @@ class VM:
             constants=bytecode.constants,
             instructions=bytecode.instructions,
             stack_pointer=0,
+            stack=[None] * STACK_SIZE,
         )
 
     def run(self) -> None:
@@ -51,5 +64,14 @@ class VM:
     @property
     def stack_top(self) -> objects.Object:
         if self.stack_pointer == 0:
-            raise EmptyStack
-        return self.stack[self.stack_pointer - 1]
+            raise Empty
+        if item := self.stack[self.stack_pointer - 1]:
+            return item
+        raise Missing
+
+    def push(self, o: objects.Object) -> None:
+        if self.stack_pointer >= STACK_SIZE:
+            raise Overflow
+
+        self.stack[self.stack_pointer] = o
+        self.stack_pointer += 1
