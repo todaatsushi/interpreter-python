@@ -1,13 +1,10 @@
 from __future__ import annotations
 
 import dataclasses as dc
-from typing import TYPE_CHECKING
 
 from monkey import code
 from monkey.interpreter import ast
-
-if TYPE_CHECKING:
-    from monkey.interpreter import objects
+from monkey.interpreter import objects
 
 
 class CompilerError(Exception):
@@ -32,6 +29,23 @@ class Compiler:
     @classmethod
     def new(cls) -> Compiler:
         return cls()
+
+    def _add_constant(self, o: objects.Object) -> int:
+        """Returns position"""
+        self.constants.append(o)
+        return len(self.constants) - 1
+
+    def _add_instruction(self, instruction: code.Instructions) -> int:
+        """Returns position"""
+        num_instructions = len(self.instructions)
+        self.instructions = code.Instructions.concat_bytes(
+            [self.instructions, instruction]
+        )
+        return num_instructions
+
+    def emit(self, op_code: code.OpCodes, *operands: int) -> int:
+        instruction = code.make(op_code, *operands)
+        return self._add_instruction(instruction)
 
     def compile(self, node: ast.Node) -> None:
         try:
