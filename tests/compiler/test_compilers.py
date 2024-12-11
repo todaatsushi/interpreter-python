@@ -26,6 +26,12 @@ def test_instructions(
     actual: code.Instructions,
 ) -> None:
     all_instructions = code.Instructions.concat_bytes(expected)
+    tc.assertEqual(
+        len(actual),
+        len(all_instructions),
+        f"Expected {len(all_instructions)} bytes, got:\n\n{all_instructions}\n\nvs\n\n{actual}",
+    )
+
     for i, instruction in enumerate(all_instructions):
         tc.assertEqual(
             instruction,
