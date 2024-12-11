@@ -1,4 +1,5 @@
 import enum
+from monkey.compiler import compilers, vm
 from monkey.interpreter import environment, parsers, evaluate, lexers
 
 
@@ -29,11 +30,19 @@ def run(code: str, run_type: RunType) -> str:
     parser = parsers.Parser.new(lexer)
     program = parser.parse_program()
 
-    if not parser.errors:
+    if parser.errors:
+        return "\n".join(parser.errors)
+
+    if run_type == RunType.INTERPRETER:
         env = environment.Environment()
         return_value = evaluate.node(program, env)
         if return_value:
             return return_value.inspect()
-        return ""
     else:
-        return "\n".join(parser.errors)
+        compiler = compilers.Compiler.new()
+        compiler.compile(program)
+        machine = vm.VM.from_bytecode(compiler.bytecode())
+        machine.run()
+        print(machine.stack_top.inspect())
+
+    return ""
