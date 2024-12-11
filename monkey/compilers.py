@@ -32,7 +32,7 @@ class Compiler:
     def new(cls) -> Compiler:
         return cls()
 
-    def compile(self, program: ast.Program) -> None:
+    def compile(self, node: ast.Node) -> None:
         try:
             raise NotImplementedError
         except Exception as exc:
