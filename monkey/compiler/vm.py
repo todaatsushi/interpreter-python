@@ -19,6 +19,10 @@ class VMError(Exception):
     pass
 
 
+class Unhandled(VMError):
+    pass
+
+
 class StackError(VMError):
     pass
 
@@ -67,12 +71,13 @@ class VM:
                     to_add = self.constants[const_index]
                     self.push(to_add)
                     instruction_pointer += 2
-                case code.OpCodes.ADD:
-                    left, right = self.pop(), self.pop()
-                    assert isinstance(left, objects.Integer) and isinstance(
-                        right, objects.Integer
-                    )
-                    self.push(objects.Integer(value=left.value + right.value))
+                case (
+                    code.OpCodes.ADD
+                    | code.OpCodes.SUBTRACT
+                    | code.OpCodes.MULTIPLY
+                    | code.OpCodes.DIVIDE
+                ):
+                    self.execute_binary_operation(op_code)
                 case code.OpCodes.POP:
                     self.pop()
                 case _:
@@ -102,3 +107,28 @@ class VM:
 
         self.stack_pointer -= 1
         return o
+
+    # Operations
+    def execute_binary_operation(self, op: code.OpCodes) -> None:
+        right = self.pop()
+        left = self.pop()
+
+        if isinstance(left, objects.Integer) and isinstance(right, objects.Integer):
+            return self.execute_binary_integer_operation(op, left, right)
+        raise NotImplementedError(op, left, right)
+
+    def execute_binary_integer_operation(
+        self, op: code.OpCodes, left: objects.Integer, right: objects.Integer
+    ) -> None:
+        match op:
+            case code.OpCodes.ADD:
+                result = left.value + right.value
+            case code.OpCodes.MULTIPLY:
+                result = left.value * right.value
+            case code.OpCodes.SUBTRACT:
+                result = left.value - right.value
+            case code.OpCodes.DIVIDE:
+                result = left.value // right.value
+            case _:
+                raise Unhandled(op)
+        self.push(objects.Integer(value=result))

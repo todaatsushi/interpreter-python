@@ -42,12 +42,28 @@ def run_vm_test(
 
 
 class TestArithmetic(unittest.TestCase):
-    def test_integer(self) -> None:
+    def test_integers(self) -> None:
         run_vm_test(
             self,
             (
                 ("1", 1),
                 ("2", 2),
+            ),
+        )
+
+    def test_integer_operations(self) -> None:
+        run_vm_test(
+            self,
+            (
+                ("1 - 2", -1),
+                ("1 * 2", 2),
                 ("1 + 2", 3),
+                ("4 / 2", 2),
+                ("50 / 2 * 2 + 10 - 5", 55),
+                ("5 + 5 + 5 + 5 - 10", 10),
+                ("2 * 2 * 2 * 2 * 2", 32),
+                ("5 * 2 + 10", 20),
+                ("5 + 2 * 10", 25),
+                ("5 * (2 + 10)", 60),
             ),
         )
