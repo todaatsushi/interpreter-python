@@ -73,6 +73,8 @@ class VM:
                         right, objects.Integer
                     )
                     self.push(objects.Integer(value=left.value + right.value))
+                case code.OpCodes.POP:
+                    self.pop()
                 case _:
                     raise NotImplementedError(op_code)
 

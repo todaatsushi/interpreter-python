@@ -38,7 +38,7 @@ def run_vm_test(
             virtual_machine = vm.VM.from_bytecode(compiler.bytecode())
             virtual_machine.run()
 
-            test_expected_object(tc, expected, virtual_machine.stack_top)
+            test_expected_object(tc, expected, virtual_machine.last_popped_stack_elem)
 
 
 class TestArithmetic(unittest.TestCase):
