@@ -57,6 +57,9 @@ class OpCodes(bytes, enum.Enum):
     CONSTANT = bytes([0])
     ADD = bytes([1])
     POP = bytes([2])
+    SUBTRACT = bytes([3])
+    MULTIPLY = bytes([4])
+    DIVIDE = bytes([5])
 
     def as_int(self) -> int:
         return int.from_bytes(self)
@@ -72,6 +75,9 @@ DEFINITIONS: dict[OpCodes, Definition] = {
     OpCodes.CONSTANT: Definition(name="OpConstant", operand_widths=[2]),
     OpCodes.ADD: Definition(name="OpAdd", operand_widths=[]),
     OpCodes.POP: Definition(name="OpPop", operand_widths=[]),
+    OpCodes.SUBTRACT: Definition(name="OpSub", operand_widths=[]),
+    OpCodes.MULTIPLY: Definition(name="OpMul", operand_widths=[]),
+    OpCodes.DIVIDE: Definition(name="OpDiv", operand_widths=[]),
 }
 
 
