@@ -66,6 +66,12 @@ class Compiler:
                     match node.operator:
                         case "+":
                             self.emit(code.OpCodes.ADD)
+                        case "-":
+                            self.emit(code.OpCodes.SUBTRACT)
+                        case "/":
+                            self.emit(code.OpCodes.DIVIDE)
+                        case "*":
+                            self.emit(code.OpCodes.MULTIPLY)
                         case _:
                             raise NotImplementedError(node.operator)
                 case ast.IntegerLiteral:
