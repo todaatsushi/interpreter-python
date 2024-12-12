@@ -80,11 +80,20 @@ class VM:
 
     @property
     def stack_top(self) -> objects.Object:
+        """
+        Don't need this?
+        """
         if self.stack_pointer == 0:
             raise Empty
         if item := self.stack[self.stack_pointer - 1]:
             return item
         raise Missing
+
+    @property
+    def last_popped_stack_elem(self) -> objects.Object:
+        if item := self.stack[self.stack_pointer]:
+            return item
+        raise Empty
 
     def push(self, o: objects.Object) -> None:
         if self.stack_pointer >= STACK_SIZE:
