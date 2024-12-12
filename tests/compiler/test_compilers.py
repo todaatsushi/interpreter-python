@@ -41,7 +41,7 @@ def test_instructions(
 
 
 class TestCompiler(unittest.TestCase):
-    def test_integers(self) -> None:
+    def test_integers_arithmetic(self) -> None:
         test_cases: tuple[tuple[str, list[object], list[code.Instructions]], ...] = (
             (
                 "1 + 2",
@@ -53,12 +53,32 @@ class TestCompiler(unittest.TestCase):
                 ],
             ),
             (
-                "1; 2",
+                "1 - 2",
                 [1, 2],
                 [
                     code.make(code.OpCodes.CONSTANT, 0),
-                    code.make(code.OpCodes.POP),
                     code.make(code.OpCodes.CONSTANT, 1),
+                    code.make(code.OpCodes.SUBTRACT),
+                    code.make(code.OpCodes.POP),
+                ],
+            ),
+            (
+                "1 * 2",
+                [1, 2],
+                [
+                    code.make(code.OpCodes.CONSTANT, 0),
+                    code.make(code.OpCodes.CONSTANT, 1),
+                    code.make(code.OpCodes.MULTIPLY),
+                    code.make(code.OpCodes.POP),
+                ],
+            ),
+            (
+                "1 / 2",
+                [1, 2],
+                [
+                    code.make(code.OpCodes.CONSTANT, 0),
+                    code.make(code.OpCodes.CONSTANT, 1),
+                    code.make(code.OpCodes.DIVIDE),
                     code.make(code.OpCodes.POP),
                 ],
             ),
@@ -85,3 +105,29 @@ class TestCompiler(unittest.TestCase):
 
                 with self.subTest("Constants"):
                     test_constants(self, expected_constants, bytecode.constants)
+
+    def test_expression_pops(self) -> None:
+        program = utils.parse("1; 2")
+        compiler = compilers.Compiler.new()
+
+        try:
+            compiler.compile(program)
+        except compilers.CouldntCompile as exc:
+            self.fail(f"Couldn't compile program{': ' + str(exc) if str(exc) else '.'}")
+
+        bytecode = compiler.bytecode()
+
+        with self.subTest("Instructions"):
+            test_instructions(
+                self,
+                [
+                    code.make(code.OpCodes.CONSTANT, 0),
+                    code.make(code.OpCodes.POP),
+                    code.make(code.OpCodes.CONSTANT, 1),
+                    code.make(code.OpCodes.POP),
+                ],
+                bytecode.instructions,
+            )
+
+        with self.subTest("Constants"):
+            test_constants(self, [1, 2], bytecode.constants)
