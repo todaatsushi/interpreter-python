@@ -43,6 +43,6 @@ def run(code: str, run_type: RunType) -> str:
         compiler.compile(program)
         machine = vm.VM.from_bytecode(compiler.bytecode())
         machine.run()
-        print(machine.stack_top.inspect())
+        print(machine.last_popped_stack_elem.inspect())
 
     return ""
