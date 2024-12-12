@@ -56,6 +56,7 @@ class NotFound(OpCodeException):
 class OpCodes(bytes, enum.Enum):
     CONSTANT = bytes([0])
     ADD = bytes([1])
+    POP = bytes([2])
 
     def as_int(self) -> int:
         return int.from_bytes(self)
@@ -70,6 +71,7 @@ class Definition:
 DEFINITIONS: dict[OpCodes, Definition] = {
     OpCodes.CONSTANT: Definition(name="OpConstant", operand_widths=[2]),
     OpCodes.ADD: Definition(name="OpAdd", operand_widths=[]),
+    OpCodes.POP: Definition(name="OpPop", operand_widths=[]),
 }
 
 
