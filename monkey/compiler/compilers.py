@@ -57,6 +57,7 @@ class Compiler:
                 case ast.ExpressionStatement:
                     assert isinstance(node, ast.ExpressionStatement)
                     self.compile(node.expression)
+                    self.emit(code.OpCodes.POP)
                 case ast.Infix:
                     assert isinstance(node, ast.Infix) and node.right
                     self.compile(node.left)

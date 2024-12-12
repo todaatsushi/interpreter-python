@@ -41,7 +41,7 @@ def test_instructions(
 
 
 class TestCompiler(unittest.TestCase):
-    def test_integer_arithmetic(self) -> None:
+    def test_integers(self) -> None:
         test_cases: tuple[tuple[str, list[object], list[code.Instructions]], ...] = (
             (
                 "1 + 2",
@@ -49,6 +49,17 @@ class TestCompiler(unittest.TestCase):
                 [
                     *[code.make(code.OpCodes.CONSTANT, i) for i in range(2)],
                     code.make(code.OpCodes.ADD),
+                    code.make(code.OpCodes.POP),
+                ],
+            ),
+            (
+                "1; 2",
+                [1, 2],
+                [
+                    code.make(code.OpCodes.CONSTANT, 0),
+                    code.make(code.OpCodes.POP),
+                    code.make(code.OpCodes.CONSTANT, 1),
+                    code.make(code.OpCodes.POP),
                 ],
             ),
         )
