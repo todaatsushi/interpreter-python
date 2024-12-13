@@ -22,7 +22,7 @@ def test_expected_object(
             return test_integer_object(tc, expected, actual)
 
 
-def run_vm_test(
+def run_vm_tests(
     tc: unittest.TestCase, test_cases: tuple[tuple[str, object], ...]
 ) -> None:
     for input_, expected in test_cases:
@@ -43,7 +43,7 @@ def run_vm_test(
 
 class TestArithmetic(unittest.TestCase):
     def test_integers(self) -> None:
-        run_vm_test(
+        run_vm_tests(
             self,
             (
                 ("1", 1),
@@ -52,7 +52,7 @@ class TestArithmetic(unittest.TestCase):
         )
 
     def test_integer_operations(self) -> None:
-        run_vm_test(
+        run_vm_tests(
             self,
             (
                 ("1 - 2", -1),
