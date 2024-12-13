@@ -101,11 +101,12 @@ class VM:
         self.stack_pointer += 1
 
     def pop(self) -> objects.Object:
-        if self.stack_pointer == -1:
+        if self.stack_pointer <= 0:
             raise Empty
 
         o = self.stack[self.stack_pointer - 1]
-        assert o
+        if o is None:
+            raise Missing(f"No value at {self.stack_pointer - 1}")
 
         self.stack_pointer -= 1
         return o
