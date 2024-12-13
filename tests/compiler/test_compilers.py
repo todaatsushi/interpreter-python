@@ -131,3 +131,45 @@ class TestCompiler(unittest.TestCase):
 
         with self.subTest("Constants"):
             test_constants(self, [1, 2], bytecode.constants)
+
+    def test_boolean_expressions(self) -> None:
+        test_cases: tuple[tuple[str, list[object], list[code.Instructions]], ...] = (
+            (
+                "true",
+                [],
+                [
+                    code.make(code.OpCodes.TRUE),
+                    code.make(code.OpCodes.POP),
+                ],
+            ),
+            (
+                "false",
+                [],
+                [
+                    code.make(code.OpCodes.FALSE),
+                    code.make(code.OpCodes.POP),
+                ],
+            ),
+        )
+
+        for input_, expected_constants, expected_instructions in test_cases:
+            with self.subTest(input_):
+                program = utils.parse(input_)
+                compiler = compilers.Compiler.new()
+
+                try:
+                    compiler.compile(program)
+                except compilers.CouldntCompile as exc:
+                    self.fail(
+                        f"Couldn't compile program{': ' + str(exc) if str(exc) else '.'}"
+                    )
+
+                bytecode = compiler.bytecode()
+
+                with self.subTest("Instructions"):
+                    test_instructions(
+                        self, expected_instructions, bytecode.instructions
+                    )
+
+                with self.subTest("Constants"):
+                    test_constants(self, expected_constants, bytecode.constants)
