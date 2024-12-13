@@ -14,12 +14,23 @@ def test_integer_object(
     tc.assertEqual(expected, actual.value)
 
 
+def test_boolean_object(
+    tc: unittest.TestCase, expected: bool, actual: objects.Object
+) -> None:
+    tc.assertIsInstance(actual, objects.Boolean)
+    assert isinstance(actual, objects.Boolean)
+
+    tc.assertEqual(expected, actual.value)
+
+
 def test_expected_object(
     tc: unittest.TestCase, expected: object, actual: objects.Object
 ) -> None:
     with tc.subTest("Testing expected object"):
         if isinstance(expected, int):
             return test_integer_object(tc, expected, actual)
+        elif isinstance(expected, bool):
+            return test_boolean_object(tc, expected, actual)
 
 
 def run_vm_tests(
@@ -65,5 +76,14 @@ class TestArithmetic(unittest.TestCase):
                 ("5 * 2 + 10", 20),
                 ("5 + 2 * 10", 25),
                 ("5 * (2 + 10)", 60),
+            ),
+        )
+
+    def test_booleans(self) -> None:
+        run_vm_tests(
+            self,
+            (
+                ("true", True),
+                ("false", False),
             ),
         )
