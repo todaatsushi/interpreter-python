@@ -14,6 +14,9 @@ if TYPE_CHECKING:
 
 STACK_SIZE: Final = 2048
 
+TRUE = objects.Boolean(value=True)
+FALSE = objects.Boolean(value=False)
+
 
 class VMError(Exception):
     pass
