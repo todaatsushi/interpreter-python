@@ -84,7 +84,7 @@ class VM:
                 case code.OpCodes.POP:
                     self.pop()
                 case code.OpCodes.TRUE | code.OpCodes.FALSE:
-                    self.execute_binary_boolean_operation(op_code)
+                    self.push(TRUE if op_code == code.OpCodes.TRUE else FALSE)
                 case _:
                     raise NotImplementedError(op_code)
 
@@ -138,6 +138,3 @@ class VM:
             case _:
                 raise Unhandled(op)
         self.push(objects.Integer(value=result))
-
-    def execute_binary_boolean_operation(self, op_code: code.OpCodes) -> None:
-        assert op_code in [code.OpCodes.TRUE, code.OpCodes.FALSE]

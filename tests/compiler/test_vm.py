@@ -27,10 +27,10 @@ def test_expected_object(
     tc: unittest.TestCase, expected: object, actual: objects.Object
 ) -> None:
     with tc.subTest("Testing expected object"):
+        if isinstance(expected, bool):
+            return test_boolean_object(tc, expected, actual)
         if isinstance(expected, int):
             return test_integer_object(tc, expected, actual)
-        elif isinstance(expected, bool):
-            return test_boolean_object(tc, expected, actual)
 
 
 def run_vm_tests(
