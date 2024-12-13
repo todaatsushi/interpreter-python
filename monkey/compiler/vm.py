@@ -85,6 +85,12 @@ class VM:
                     self.pop()
                 case code.OpCodes.TRUE | code.OpCodes.FALSE:
                     self.push(TRUE if op_code == code.OpCodes.TRUE else FALSE)
+                case (
+                    code.OpCodes.GREATER_THAN
+                    | code.OpCodes.EQUAL
+                    | code.OpCodes.NOT_EQUAL
+                ):
+                    self.execute_comparison(op_code)
                 case _:
                     raise NotImplementedError(op_code)
 
@@ -138,3 +144,45 @@ class VM:
             case _:
                 raise Unhandled(op)
         self.push(objects.Integer(value=result))
+
+    def execute_comparison(self, op: code.OpCodes) -> None:
+        right = self.pop()
+        left = self.pop()
+
+        if isinstance(left, objects.Integer) and isinstance(right, objects.Integer):
+            return self.execute_integer_comparison(op, left, right)
+        if isinstance(left, objects.Boolean) and isinstance(right, objects.Boolean):
+            return self.execute_boolean_comparison(op, left, right)
+
+        raise Unhandled(f"{op} between {type(left)} and {type(right)}")
+
+    def execute_integer_comparison(
+        self, op: code.OpCodes, left: objects.Integer, right: objects.Integer
+    ) -> None:
+        result: bool
+        match op:
+            case code.OpCodes.EQUAL:
+                result = left.value == right.value
+            case code.OpCodes.GREATER_THAN:
+                result = left.value > right.value
+            case code.OpCodes.NOT_EQUAL:
+                result = left.value != right.value
+            case _:
+                raise Unhandled(f"{op} not handled for integer comparisons.")
+        self.push(objects.Boolean(value=result))
+
+    def execute_boolean_comparison(
+        self, op: code.OpCodes, left: objects.Boolean, right: objects.Boolean
+    ) -> None:
+        result: bool
+        left = TRUE if left.value else FALSE
+        right = TRUE if right.value else FALSE
+
+        match op:
+            case code.OpCodes.EQUAL:
+                result = left is right
+            case code.OpCodes.NOT_EQUAL:
+                result = left is not right
+            case _:
+                raise Unhandled(f"{op} not handled for boolean comparisons.")
+        self.push(TRUE if result else FALSE)
