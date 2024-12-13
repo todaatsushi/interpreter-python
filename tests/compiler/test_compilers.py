@@ -113,6 +113,15 @@ class TestCompiler(unittest.TestCase):
                         code.make(code.OpCodes.POP),
                     ],
                 ),
+                (
+                    "-1",
+                    [1],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.MINUS),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
             ),
         )
 
@@ -210,6 +219,15 @@ class TestCompiler(unittest.TestCase):
                         code.make(code.OpCodes.TRUE),
                         code.make(code.OpCodes.FALSE),
                         code.make(code.OpCodes.NOT_EQUAL),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+                (
+                    "!true",
+                    [],
+                    [
+                        code.make(code.OpCodes.TRUE),
+                        code.make(code.OpCodes.EXCLAIMATION_MARK),
                         code.make(code.OpCodes.POP),
                     ],
                 ),
