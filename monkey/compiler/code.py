@@ -60,6 +60,8 @@ class OpCodes(bytes, enum.Enum):
     SUBTRACT = bytes([3])
     MULTIPLY = bytes([4])
     DIVIDE = bytes([5])
+    TRUE = bytes([6])
+    FALSE = bytes([7])
 
     def as_int(self) -> int:
         return int.from_bytes(self)
@@ -78,6 +80,8 @@ DEFINITIONS: dict[OpCodes, Definition] = {
     OpCodes.SUBTRACT: Definition(name="OpSub", operand_widths=[]),
     OpCodes.MULTIPLY: Definition(name="OpMul", operand_widths=[]),
     OpCodes.DIVIDE: Definition(name="OpDiv", operand_widths=[]),
+    OpCodes.TRUE: Definition(name="OpTrue", operand_widths=[]),
+    OpCodes.FALSE: Definition(name="OpFalse", operand_widths=[]),
 }
 
 
