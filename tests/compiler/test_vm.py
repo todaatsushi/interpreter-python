@@ -58,6 +58,10 @@ class TestArithmetic(unittest.TestCase):
             (
                 ("1", 1),
                 ("2", 2),
+                ("-5", -5),
+                ("-10", -10),
+                ("-50 + 100 + -50", 0),
+                ("(5 + 10 * 2 + 15 / 3) * 2 + -10", 50),
             ),
         )
 
@@ -101,5 +105,11 @@ class TestArithmetic(unittest.TestCase):
                 ("(1 < 2) == false", False),
                 ("(1 > 2) == true", False),
                 ("(1 > 2) == false", True),
+                ("!true", False),
+                ("!false", True),
+                ("!5", False),
+                ("!!true", True),
+                ("!!false", False),
+                ("!!5", True),
             ),
         )
