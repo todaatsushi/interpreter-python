@@ -55,13 +55,16 @@ class NotFound(OpCodeException):
 
 class OpCodes(bytes, enum.Enum):
     CONSTANT = bytes([0])
-    ADD = bytes([1])
     POP = bytes([2])
+
+    ADD = bytes([1])
     SUBTRACT = bytes([3])
     MULTIPLY = bytes([4])
     DIVIDE = bytes([5])
+
     TRUE = bytes([6])
     FALSE = bytes([7])
+
     EQUAL = bytes([8])
     NOT_EQUAL = bytes([9])
     GREATER_THAN = bytes([10])

@@ -33,7 +33,11 @@ def run_compiler_tests(
 def test_constants(
     tc: unittest.TestCase, expected: list[object], actual: list[objects.Object]
 ) -> None:
-    tc.assertEqual(len(expected), len(actual))
+    tc.assertEqual(
+        len(expected),
+        len(actual),
+        f"Expected {len(expected)} bytes, got:\n\n{expected}\n\nvs\n\n{actual}",
+    )
 
     for i, exp in enumerate(expected):
         if isinstance(exp, int):
