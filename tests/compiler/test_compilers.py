@@ -5,6 +5,31 @@ from monkey.interpreter import objects
 from tests import utils
 
 
+def run_compiler_tests(
+    tc: unittest.TestCase,
+    test_cases: tuple[tuple[str, list[object], list[code.Instructions]], ...],
+) -> None:
+    for input_, expected_constants, expected_instructions in test_cases:
+        with tc.subTest(input_):
+            program = utils.parse(input_)
+            compiler = compilers.Compiler.new()
+
+            try:
+                compiler.compile(program)
+            except compilers.CouldntCompile as exc:
+                tc.fail(
+                    f"Couldn't compile program{': ' + str(exc) if str(exc) else '.'}"
+                )
+
+            bytecode = compiler.bytecode()
+
+            with tc.subTest("Instructions"):
+                test_instructions(tc, expected_instructions, bytecode.instructions)
+
+            with tc.subTest("Constants"):
+                test_constants(tc, expected_constants, bytecode.constants)
+
+
 def test_constants(
     tc: unittest.TestCase, expected: list[object], actual: list[objects.Object]
 ) -> None:
@@ -42,134 +67,87 @@ def test_instructions(
 
 class TestCompiler(unittest.TestCase):
     def test_integers_arithmetic(self) -> None:
-        test_cases: tuple[tuple[str, list[object], list[code.Instructions]], ...] = (
+        run_compiler_tests(
+            self,
             (
-                "1 + 2",
-                [1, 2],
-                [
-                    *[code.make(code.OpCodes.CONSTANT, i) for i in range(2)],
-                    code.make(code.OpCodes.ADD),
-                    code.make(code.OpCodes.POP),
-                ],
-            ),
-            (
-                "1 - 2",
-                [1, 2],
-                [
-                    code.make(code.OpCodes.CONSTANT, 0),
-                    code.make(code.OpCodes.CONSTANT, 1),
-                    code.make(code.OpCodes.SUBTRACT),
-                    code.make(code.OpCodes.POP),
-                ],
-            ),
-            (
-                "1 * 2",
-                [1, 2],
-                [
-                    code.make(code.OpCodes.CONSTANT, 0),
-                    code.make(code.OpCodes.CONSTANT, 1),
-                    code.make(code.OpCodes.MULTIPLY),
-                    code.make(code.OpCodes.POP),
-                ],
-            ),
-            (
-                "1 / 2",
-                [1, 2],
-                [
-                    code.make(code.OpCodes.CONSTANT, 0),
-                    code.make(code.OpCodes.CONSTANT, 1),
-                    code.make(code.OpCodes.DIVIDE),
-                    code.make(code.OpCodes.POP),
-                ],
+                (
+                    "1 + 2",
+                    [1, 2],
+                    [
+                        *[code.make(code.OpCodes.CONSTANT, i) for i in range(2)],
+                        code.make(code.OpCodes.ADD),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+                (
+                    "1 - 2",
+                    [1, 2],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.CONSTANT, 1),
+                        code.make(code.OpCodes.SUBTRACT),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+                (
+                    "1 * 2",
+                    [1, 2],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.CONSTANT, 1),
+                        code.make(code.OpCodes.MULTIPLY),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+                (
+                    "1 / 2",
+                    [1, 2],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.CONSTANT, 1),
+                        code.make(code.OpCodes.DIVIDE),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
             ),
         )
-
-        for input_, expected_constants, expected_instructions in test_cases:
-            with self.subTest(input_):
-                program = utils.parse(input_)
-                compiler = compilers.Compiler.new()
-
-                try:
-                    compiler.compile(program)
-                except compilers.CouldntCompile as exc:
-                    self.fail(
-                        f"Couldn't compile program{': ' + str(exc) if str(exc) else '.'}"
-                    )
-
-                bytecode = compiler.bytecode()
-
-                with self.subTest("Instructions"):
-                    test_instructions(
-                        self, expected_instructions, bytecode.instructions
-                    )
-
-                with self.subTest("Constants"):
-                    test_constants(self, expected_constants, bytecode.constants)
 
     def test_expression_pops(self) -> None:
-        program = utils.parse("1; 2")
-        compiler = compilers.Compiler.new()
-
-        try:
-            compiler.compile(program)
-        except compilers.CouldntCompile as exc:
-            self.fail(f"Couldn't compile program{': ' + str(exc) if str(exc) else '.'}")
-
-        bytecode = compiler.bytecode()
-
-        with self.subTest("Instructions"):
-            test_instructions(
-                self,
-                [
-                    code.make(code.OpCodes.CONSTANT, 0),
-                    code.make(code.OpCodes.POP),
-                    code.make(code.OpCodes.CONSTANT, 1),
-                    code.make(code.OpCodes.POP),
-                ],
-                bytecode.instructions,
-            )
-
-        with self.subTest("Constants"):
-            test_constants(self, [1, 2], bytecode.constants)
-
-    def test_boolean_expressions(self) -> None:
-        test_cases: tuple[tuple[str, list[object], list[code.Instructions]], ...] = (
+        run_compiler_tests(
+            self,
             (
-                "true",
-                [],
-                [
-                    code.make(code.OpCodes.TRUE),
-                    code.make(code.OpCodes.POP),
-                ],
-            ),
-            (
-                "false",
-                [],
-                [
-                    code.make(code.OpCodes.FALSE),
-                    code.make(code.OpCodes.POP),
-                ],
+                (
+                    ("1; 2"),
+                    [1, 2],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.POP),
+                        code.make(code.OpCodes.CONSTANT, 1),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
             ),
         )
 
-        for input_, expected_constants, expected_instructions in test_cases:
-            with self.subTest(input_):
-                program = utils.parse(input_)
-                compiler = compilers.Compiler.new()
-
-                try:
-                    compiler.compile(program)
-                except compilers.CouldntCompile as exc:
-                    self.fail(
-                        f"Couldn't compile program{': ' + str(exc) if str(exc) else '.'}"
-                    )
-
-                bytecode = compiler.bytecode()
-
-                with self.subTest("Instructions"):
-                    test_instructions(
-                        self, expected_instructions, bytecode.instructions
-                    )
-
-                with self.subTest("Constants"):
-                    test_constants(self, expected_constants, bytecode.constants)
+    def test_boolean_expressions(self) -> None:
+        run_compiler_tests(
+            self,
+            (
+                (
+                    "true",
+                    [],
+                    [
+                        code.make(code.OpCodes.TRUE),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+                (
+                    "false",
+                    [],
+                    [
+                        code.make(code.OpCodes.FALSE),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+            ),
+        )
