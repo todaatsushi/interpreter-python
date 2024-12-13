@@ -62,6 +62,9 @@ class OpCodes(bytes, enum.Enum):
     DIVIDE = bytes([5])
     TRUE = bytes([6])
     FALSE = bytes([7])
+    EQUAL = bytes([8])
+    NOT_EQUAL = bytes([9])
+    GREATER_THAN = bytes([10])
 
     def as_int(self) -> int:
         return int.from_bytes(self)
@@ -82,6 +85,9 @@ DEFINITIONS: dict[OpCodes, Definition] = {
     OpCodes.DIVIDE: Definition(name="OpDiv", operand_widths=[]),
     OpCodes.TRUE: Definition(name="OpTrue", operand_widths=[]),
     OpCodes.FALSE: Definition(name="OpFalse", operand_widths=[]),
+    OpCodes.EQUAL: Definition(name="OpEqual", operand_widths=[]),
+    OpCodes.NOT_EQUAL: Definition(name="OpNotEqual", operand_widths=[]),
+    OpCodes.GREATER_THAN: Definition(name="OpGreaterThan", operand_widths=[]),
 }
 
 
