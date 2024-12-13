@@ -149,5 +149,65 @@ class TestCompiler(unittest.TestCase):
                         code.make(code.OpCodes.POP),
                     ],
                 ),
+                (
+                    "1 > 2",
+                    [1, 2],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.CONSTANT, 1),
+                        code.make(code.OpCodes.GREATER_THAN),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+                (
+                    "1 < 2",
+                    [2, 1],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.CONSTANT, 1),
+                        code.make(code.OpCodes.GREATER_THAN),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+                (
+                    "1 == 2",
+                    [1, 2],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.CONSTANT, 1),
+                        code.make(code.OpCodes.EQUAL),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+                (
+                    "1 != 2",
+                    [1, 2],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.CONSTANT, 1),
+                        code.make(code.OpCodes.NOT_EQUAL),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+                (
+                    "true == false",
+                    [],
+                    [
+                        code.make(code.OpCodes.TRUE),
+                        code.make(code.OpCodes.FALSE),
+                        code.make(code.OpCodes.EQUAL),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+                (
+                    "true != false",
+                    [],
+                    [
+                        code.make(code.OpCodes.TRUE),
+                        code.make(code.OpCodes.FALSE),
+                        code.make(code.OpCodes.NOT_EQUAL),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
             ),
         )
