@@ -69,6 +69,9 @@ class OpCodes(bytes, enum.Enum):
     NOT_EQUAL = bytes([9])
     GREATER_THAN = bytes([10])
 
+    MINUS = bytes([11])
+    EXCLAIMATION_MARK = bytes([12])
+
     def as_int(self) -> int:
         return int.from_bytes(self)
 
@@ -91,6 +94,8 @@ DEFINITIONS: dict[OpCodes, Definition] = {
     OpCodes.EQUAL: Definition(name="OpEqual", operand_widths=[]),
     OpCodes.NOT_EQUAL: Definition(name="OpNotEqual", operand_widths=[]),
     OpCodes.GREATER_THAN: Definition(name="OpGreaterThan", operand_widths=[]),
+    OpCodes.MINUS: Definition(name="OpMinus", operand_widths=[]),
+    OpCodes.EXCLAIMATION_MARK: Definition(name="OpExclaimationMark", operand_widths=[]),
 }
 
 
