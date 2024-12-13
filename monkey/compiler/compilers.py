@@ -86,6 +86,17 @@ class Compiler:
                             self.emit(code.OpCodes.NOT_EQUAL)
                         case _:
                             raise NotImplementedError(node.operator)
+                case ast.Prefix:
+                    assert isinstance(node, ast.Prefix) and node.right
+                    self.compile(node.right)
+
+                    match node.operator:
+                        case "!":
+                            self.emit(code.OpCodes.EXCLAIMATION_MARK)
+                        case "-":
+                            self.emit(code.OpCodes.MINUS)
+                        case _:
+                            raise NotImplementedError
                 case ast.IntegerLiteral:
                     assert isinstance(node, ast.IntegerLiteral)
                     integer = objects.Integer(value=node.value)
