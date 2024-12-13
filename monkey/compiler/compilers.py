@@ -78,6 +78,10 @@ class Compiler:
                     assert isinstance(node, ast.IntegerLiteral)
                     integer = objects.Integer(value=node.value)
                     self.emit(code.OpCodes.CONSTANT, self._add_constant(integer))
+                case ast.BooleanLiteral:
+                    assert isinstance(node, ast.BooleanLiteral)
+                    op_code = code.OpCodes.TRUE if node.value else code.OpCodes.FALSE
+                    self.emit(op_code)
                 case _:
                     raise NotImplementedError
         except Exception as exc:
