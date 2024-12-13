@@ -60,6 +60,12 @@ class Compiler:
                     self.emit(code.OpCodes.POP)
                 case ast.Infix:
                     assert isinstance(node, ast.Infix) and node.right
+                    if node.operator == "<":
+                        self.compile(node.right)
+                        self.compile(node.left)
+                        self.emit(code.OpCodes.GREATER_THAN)
+                        return
+
                     self.compile(node.left)
                     self.compile(node.right)
 
@@ -72,6 +78,12 @@ class Compiler:
                             self.emit(code.OpCodes.DIVIDE)
                         case "*":
                             self.emit(code.OpCodes.MULTIPLY)
+                        case ">":
+                            self.emit(code.OpCodes.GREATER_THAN)
+                        case "==":
+                            self.emit(code.OpCodes.EQUAL)
+                        case "!=":
+                            self.emit(code.OpCodes.NOT_EQUAL)
                         case _:
                             raise NotImplementedError(node.operator)
                 case ast.IntegerLiteral:
