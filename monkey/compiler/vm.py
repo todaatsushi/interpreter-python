@@ -91,6 +91,8 @@ class VM:
                     | code.OpCodes.NOT_EQUAL
                 ):
                     self.execute_comparison(op_code)
+                case code.OpCodes.MINUS | code.OpCodes.EXCLAIMATION_MARK:
+                    self.execute_operator(op_code)
                 case _:
                     raise NotImplementedError(op_code)
 
@@ -144,6 +146,33 @@ class VM:
             case _:
                 raise Unhandled(op)
         self.push(objects.Integer(value=result))
+
+    def execute_operator(self, op: code.OpCodes) -> None:
+        match op:
+            case code.OpCodes.MINUS:
+                return self.execute_minus_operator()
+            case code.OpCodes.EXCLAIMATION_MARK:
+                return self.execute_exclaimation_mark_operator()
+            case _:
+                raise Unhandled(f"Not a valid prefix operator: {str(op)}")
+
+    def execute_exclaimation_mark_operator(self) -> None:
+        operand = self.pop()
+
+        if operand is TRUE:
+            self.push(FALSE)
+        elif operand is FALSE:
+            self.push(TRUE)
+        else:
+            self.push(FALSE)
+
+    def execute_minus_operator(self) -> None:
+        operand = self.pop()
+
+        if not isinstance(operand, objects.Integer):
+            raise Unhandled(operand)
+
+        self.push(objects.Integer(value=operand.value * -1))
 
     def execute_comparison(self, op: code.OpCodes) -> None:
         right = self.pop()
