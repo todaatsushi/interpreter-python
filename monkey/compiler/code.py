@@ -72,6 +72,9 @@ class OpCodes(bytes, enum.Enum):
     MINUS = bytes([11])
     EXCLAIMATION_MARK = bytes([12])
 
+    JUMP_NOT_TRUTHY = bytes([13])
+    JUMP = bytes([14])
+
     def as_int(self) -> int:
         return int.from_bytes(self)
 
@@ -96,6 +99,8 @@ DEFINITIONS: dict[OpCodes, Definition] = {
     OpCodes.GREATER_THAN: Definition(name="OpGreaterThan", operand_widths=[]),
     OpCodes.MINUS: Definition(name="OpMinus", operand_widths=[]),
     OpCodes.EXCLAIMATION_MARK: Definition(name="OpExclaimationMark", operand_widths=[]),
+    OpCodes.JUMP_NOT_TRUTHY: Definition(name="OpJumpNotTruthy", operand_widths=[2]),
+    OpCodes.JUMP: Definition(name="OpJump", operand_widths=[2]),
 }
 
 
