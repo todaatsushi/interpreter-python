@@ -144,7 +144,7 @@ class Compiler:
                     assert isinstance(node, ast.If)
                     self.compile(node.condition)
 
-                    jump_position = self.emit(
+                    jump_position_non_truthy = self.emit(
                         code.OpCodes.JUMP_NOT_TRUTHY, FAKE_JUMP_VALUE
                     )
 
@@ -160,8 +160,32 @@ class Compiler:
                         )
                         self.last_instruction = self.previous_instruction
 
-                    after_consequence_position = len(self.instructions)
-                    self._change_operand(jump_position, after_consequence_position)
+                    if node.alternative is None:
+                        after_consequence_position = len(self.instructions)
+                        self._change_operand(
+                            jump_position_non_truthy, after_consequence_position
+                        )
+                    else:
+                        jump_position = self.emit(code.OpCodes.JUMP, FAKE_JUMP_VALUE)
+
+                        after_consequence_position = len(self.instructions)
+                        self._change_operand(
+                            jump_position_non_truthy, after_consequence_position
+                        )
+
+                        self.compile(node.alternative)
+
+                        if (
+                            self.last_instruction
+                            and self.last_instruction.op_code == code.OpCodes.POP
+                        ):
+                            self.instructions = code.Instructions(
+                                self.instructions[: self.last_instruction.position]
+                            )
+                            self.last_instruction = self.previous_instruction
+
+                        after_consequence_position = len(self.instructions)
+                        self._change_operand(jump_position, after_consequence_position)
                 case _:
                     raise NotImplementedError
         except Exception as exc:

@@ -250,5 +250,19 @@ class TestCompiler(unittest.TestCase):
                         code.make(code.OpCodes.POP),
                     ],
                 ),
+                (
+                    "if (true) { 10 } else {20}; 3333;",
+                    [10, 20, 3333],
+                    [
+                        code.make(code.OpCodes.TRUE),
+                        code.make(code.OpCodes.JUMP_NOT_TRUTHY, 10),
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.JUMP, 13),
+                        code.make(code.OpCodes.CONSTANT, 1),
+                        code.make(code.OpCodes.POP),
+                        code.make(code.OpCodes.CONSTANT, 2),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
             ),
         )
