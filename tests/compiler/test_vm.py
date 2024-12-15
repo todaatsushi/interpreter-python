@@ -51,7 +51,7 @@ def run_vm_tests(
             test_expected_object(tc, expected, virtual_machine.last_popped_stack_elem)
 
 
-class TestArithmetic(unittest.TestCase):
+class TestVM(unittest.TestCase):
     def test_integers(self) -> None:
         run_vm_tests(
             self,
