@@ -282,7 +282,7 @@ class Push(F):
 
 
 class Puts(F):
-    def __call__(self, *args: Object, **kwargs: Object) -> Object:
+    def __call__(self, *args: Object, **kwargs: Object) -> None:
         for arg in args:
             print(arg.inspect())
 
