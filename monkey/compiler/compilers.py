@@ -15,6 +15,12 @@ class CouldntCompile(CompilerError):
     pass
 
 
+@dc.dataclass(kw_only=True, frozen=True)
+class EmittedInstruction:
+    op_code: code.OpCodes
+    position: int
+
+
 @dc.dataclass
 class Bytecode:
     instructions: code.Instructions = dc.field(default_factory=code.Instructions)
@@ -25,6 +31,9 @@ class Bytecode:
 class Compiler:
     instructions: code.Instructions = dc.field(default_factory=code.Instructions)
     constants: list[objects.Object] = dc.field(init=False, default_factory=list)
+
+    last_instruction: EmittedInstruction | None = None
+    previous_instruction: EmittedInstruction | None = None
 
     @classmethod
     def new(cls) -> Compiler:
@@ -43,9 +52,19 @@ class Compiler:
         )
         return num_instructions
 
+    def _set_last_instruction(self, op_code: code.OpCodes, position: int) -> None:
+        previous = self.last_instruction
+        last = EmittedInstruction(op_code=op_code, position=position)
+
+        self.previous_instruction = previous
+        self.last_instruction = last
+
     def emit(self, op_code: code.OpCodes, *operands: int) -> int:
         instruction = code.make(op_code, *operands)
-        return self._add_instruction(instruction)
+        postion = self._add_instruction(instruction)
+
+        self._set_last_instruction(op_code, postion)
+        return postion
 
     def compile(self, node: ast.Node) -> None:
         try:
