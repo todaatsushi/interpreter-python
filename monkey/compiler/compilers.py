@@ -7,6 +7,9 @@ from monkey.interpreter import ast
 from monkey.interpreter import objects
 
 
+FAKE_JUMP_VALUE = 9999
+
+
 class CompilerError(Exception):
     pass
 
@@ -59,6 +62,17 @@ class Compiler:
         self.previous_instruction = previous
         self.last_instruction = last
 
+    def _replace_instruction(
+        self, position: int, new_instruction: code.Instructions
+    ) -> None:
+        self.instructions[position : position + len(new_instruction)] = new_instruction
+
+    def _change_operand(self, position: int, operand: int) -> None:
+        op_code = self.instructions[position]
+        op = code.OpCodes(bytes([op_code]))
+        new_instruction = code.make(op, operand)
+        self._replace_instruction(position, new_instruction)
+
     def emit(self, op_code: code.OpCodes, *operands: int) -> int:
         instruction = code.make(op_code, *operands)
         postion = self._add_instruction(instruction)
@@ -69,8 +83,10 @@ class Compiler:
     def compile(self, node: ast.Node) -> None:
         try:
             match type(node):
-                case ast.Program:
-                    assert isinstance(node, ast.Program)
+                case ast.Program | ast.BlockStatement:
+                    assert isinstance(node, ast.Program) or isinstance(
+                        node, ast.BlockStatement
+                    )
                     for statement in node.statements:
                         self.compile(statement)
                 case ast.ExpressionStatement:
@@ -124,6 +140,28 @@ class Compiler:
                     assert isinstance(node, ast.BooleanLiteral)
                     op_code = code.OpCodes.TRUE if node.value else code.OpCodes.FALSE
                     self.emit(op_code)
+                case ast.If:
+                    assert isinstance(node, ast.If)
+                    self.compile(node.condition)
+
+                    jump_position = self.emit(
+                        code.OpCodes.JUMP_NOT_TRUTHY, FAKE_JUMP_VALUE
+                    )
+
+                    assert node.consequence
+                    self.compile(node.consequence)
+
+                    if (
+                        self.last_instruction
+                        and self.last_instruction.op_code == code.OpCodes.POP
+                    ):
+                        self.instructions = code.Instructions(
+                            self.instructions[: self.last_instruction.position]
+                        )
+                        self.last_instruction = self.previous_instruction
+
+                    after_consequence_position = len(self.instructions)
+                    self._change_operand(jump_position, after_consequence_position)
                 case _:
                     raise NotImplementedError
         except Exception as exc:

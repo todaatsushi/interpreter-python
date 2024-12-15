@@ -233,3 +233,22 @@ class TestCompiler(unittest.TestCase):
                 ),
             ),
         )
+
+    def test_conditionals(self) -> None:
+        run_compiler_tests(
+            self,
+            (
+                (
+                    "if (true) { 10 }; 3333;",
+                    [10, 3333],
+                    [
+                        code.make(code.OpCodes.TRUE),
+                        code.make(code.OpCodes.JUMP_NOT_TRUTHY, 7),
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.POP),
+                        code.make(code.OpCodes.CONSTANT, 1),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+            ),
+        )
