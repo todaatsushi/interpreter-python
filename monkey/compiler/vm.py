@@ -42,6 +42,12 @@ class Overflow(StackError):
     pass
 
 
+def is_truthy(obj: objects.Object) -> bool:
+    if isinstance(obj, objects.Boolean):
+        return obj.value
+    return True
+
+
 @dc.dataclass
 class VM:
     stack_pointer: int
@@ -93,6 +99,21 @@ class VM:
                     self.execute_comparison(op_code)
                 case code.OpCodes.MINUS | code.OpCodes.EXCLAIMATION_MARK:
                     self.execute_operator(op_code)
+                case code.OpCodes.JUMP:
+                    left = instruction_pointer + 1
+                    right = left + 2
+                    position = int.from_bytes(self.instructions[left:right])
+                    instruction_pointer = position - 1
+                case code.OpCodes.JUMP_NOT_TRUTHY:
+                    left = instruction_pointer + 1
+                    right = left + 2
+                    position = int.from_bytes(self.instructions[left:right])
+
+                    instruction_pointer += 2
+
+                    cond = self.pop()
+                    if not is_truthy(cond):
+                        instruction_pointer = position - 1
                 case _:
                     raise NotImplementedError(op_code)
 
