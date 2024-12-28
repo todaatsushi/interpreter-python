@@ -45,7 +45,8 @@ def run_vm_tests(
             except compilers.CouldntCompile as exc:
                 tc.fail(str(exc))
 
-            virtual_machine = vm.VM.from_bytecode(compiler.bytecode())
+            bc = compiler.bytecode()
+            virtual_machine = vm.VM.from_bytecode(bc)
             virtual_machine.run()
 
             test_expected_object(tc, expected, virtual_machine.last_popped_stack_elem)
