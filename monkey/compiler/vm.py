@@ -115,6 +115,8 @@ class VM:
                     cond = self.pop()
                     if not is_truthy(cond):
                         instruction_pointer = position - 1
+                case code.OpCodes.NULL:
+                    self.push(NULL)
                 case _:
                     raise NotImplementedError(op_code)
 
