@@ -187,6 +187,8 @@ class VM:
             self.push(FALSE)
         elif operand is FALSE:
             self.push(TRUE)
+        elif operand is NULL:
+            self.push(TRUE)
         else:
             self.push(FALSE)
 
