@@ -170,20 +170,20 @@ class Compiler:
                     if self._last_instruction_is_pop():
                         self._remove_pop()
 
+                    jump_position = self.emit(code.OpCodes.JUMP, FAKE_JUMP_VALUE)
+                    self._change_jump_location_after_consequence(
+                        jump_position_non_truthy
+                    )
+
                     if node.alternative is None:
-                        pass
+                        self.emit(code.OpCodes.NULL)
                     else:
-                        jump_position = self.emit(code.OpCodes.JUMP, FAKE_JUMP_VALUE)
                         self.compile(node.alternative)
 
                         if self._last_instruction_is_pop():
                             self._remove_pop()
 
-                        self._change_jump_location_after_consequence(jump_position)
-
-                    self._change_jump_location_after_consequence(
-                        jump_position_non_truthy
-                    )
+                    self._change_jump_location_after_consequence(jump_position)
                 case _:
                     raise NotImplementedError
         except Exception as exc:
