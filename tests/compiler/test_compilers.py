@@ -58,7 +58,7 @@ def test_instructions(
     tc.assertEqual(
         len(actual),
         len(all_instructions),
-        f"Expected {len(all_instructions)} bytes, got:\n\n{all_instructions}\n\nvs\n\n{actual}",
+        f"Expected {len(all_instructions)} bytes, expected:\n\n{all_instructions}\n\nvs\n\n{actual}",
     )
 
     for i, instruction in enumerate(all_instructions):
