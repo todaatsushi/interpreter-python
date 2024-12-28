@@ -73,6 +73,10 @@ class Compiler:
         new_instruction = code.make(op, operand)
         self._replace_instruction(position, new_instruction)
 
+    def _change_after_consequence(self, position: int) -> None:
+        after_consequence_position = len(self.instructions)
+        self._change_operand(position, after_consequence_position)
+
     def _last_instruction_is_pop(self) -> bool:
         return bool(
             self.last_instruction and self.last_instruction.op_code == code.OpCodes.POP
@@ -167,25 +171,18 @@ class Compiler:
                         self._remove_pop()
 
                     if node.alternative is None:
-                        after_consequence_position = len(self.instructions)
-                        self._change_operand(
-                            jump_position_non_truthy, after_consequence_position
-                        )
+                        self._change_after_consequence(jump_position_non_truthy)
                     else:
                         jump_position = self.emit(code.OpCodes.JUMP, FAKE_JUMP_VALUE)
 
-                        after_consequence_position = len(self.instructions)
-                        self._change_operand(
-                            jump_position_non_truthy, after_consequence_position
-                        )
+                        self._change_after_consequence(jump_position_non_truthy)
 
                         self.compile(node.alternative)
 
                         if self._last_instruction_is_pop():
                             self._remove_pop()
 
-                        after_consequence_position = len(self.instructions)
-                        self._change_operand(jump_position, after_consequence_position)
+                        self._change_after_consequence(jump_position)
                 case _:
                     raise NotImplementedError
         except Exception as exc:
