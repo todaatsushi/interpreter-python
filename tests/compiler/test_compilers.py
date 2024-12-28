@@ -243,8 +243,10 @@ class TestCompiler(unittest.TestCase):
                     [10, 3333],
                     [
                         code.make(code.OpCodes.TRUE),
-                        code.make(code.OpCodes.JUMP_NOT_TRUTHY, 7),
+                        code.make(code.OpCodes.JUMP_NOT_TRUTHY, 10),
                         code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.JUMP, 11),
+                        code.make(code.OpCodes.NULL),
                         code.make(code.OpCodes.POP),
                         code.make(code.OpCodes.CONSTANT, 1),
                         code.make(code.OpCodes.POP),
