@@ -118,6 +118,7 @@ class TestVM(unittest.TestCase):
                 ("!!true", True),
                 ("!!false", False),
                 ("!!5", True),
+                ("!(if (false) { 5; })", True),
             ),
         )
 
