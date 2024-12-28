@@ -16,6 +16,7 @@ STACK_SIZE: Final = 2048
 
 TRUE = objects.Boolean(value=True)
 FALSE = objects.Boolean(value=False)
+NULL = objects.Null()
 
 
 class VMError(Exception):

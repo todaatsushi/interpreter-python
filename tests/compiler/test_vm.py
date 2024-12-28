@@ -23,6 +23,10 @@ def test_boolean_object(
     tc.assertEqual(expected, actual.value)
 
 
+def test_null_object(tc: unittest.TestCase, actual: objects.Object) -> None:
+    tc.assertIs(actual, vm.NULL)
+
+
 def test_expected_object(
     tc: unittest.TestCase, expected: object, actual: objects.Object
 ) -> None:
@@ -30,6 +34,8 @@ def test_expected_object(
         return test_boolean_object(tc, expected, actual)
     if isinstance(expected, int):
         return test_integer_object(tc, expected, actual)
+    if expected is None:
+        return test_null_object(tc, actual)
 
 
 def run_vm_tests(
@@ -126,5 +132,7 @@ class TestVM(unittest.TestCase):
                 ("if (1 < 2) { 10 }", 10),
                 ("if (1 < 2) { 10 } else { 20 }", 10),
                 ("if (1 > 2) { 10 } else { 20 }", 20),
+                ("if (1 > 2) { 10 }", None),
+                ("if (false) { 10 }", None),
             ),
         )
