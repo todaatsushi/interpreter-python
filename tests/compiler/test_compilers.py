@@ -23,10 +23,10 @@ def run_compiler_tests(
 
             bytecode = compiler.bytecode()
 
-            with tc.subTest("Instructions"):
+            with tc.subTest(f"{input_}: instructions"):
                 test_instructions(tc, expected_instructions, bytecode.instructions)
 
-            with tc.subTest("Constants"):
+            with tc.subTest(f"{input_}: constants"):
                 test_constants(tc, expected_constants, bytecode.constants)
 
 
