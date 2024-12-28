@@ -7,5 +7,5 @@ test match: venv
 tests: venv
     LOGLEVEL=CRITICAL uv run -m unittest discover -v
 
-shell:
-    uv run main.py repl
+shell vm_or_interpreter: venv
+    uv run main.py repl {{ vm_or_interpreter }}
