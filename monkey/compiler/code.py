@@ -26,9 +26,6 @@ class Instructions(bytearray):
                 return f"{definition.name} {operands[0]}"
         return f"ERROR: unhandled num_operands for {definition.name}"
 
-    def __repr__(self) -> str:
-        return str(self)
-
     def __str__(self) -> str:
         string = ""
         index = 0
