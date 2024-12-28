@@ -73,6 +73,18 @@ class Compiler:
         new_instruction = code.make(op, operand)
         self._replace_instruction(position, new_instruction)
 
+    def _last_instruction_is_pop(self) -> bool:
+        return bool(
+            self.last_instruction and self.last_instruction.op_code == code.OpCodes.POP
+        )
+
+    def _remove_pop(self) -> None:
+        assert self.last_instruction
+        self.instructions = code.Instructions(
+            self.instructions[: self.last_instruction.position]
+        )
+        self.last_instruction = self.previous_instruction
+
     def emit(self, op_code: code.OpCodes, *operands: int) -> int:
         instruction = code.make(op_code, *operands)
         postion = self._add_instruction(instruction)
@@ -151,14 +163,8 @@ class Compiler:
                     assert node.consequence
                     self.compile(node.consequence)
 
-                    if (
-                        self.last_instruction
-                        and self.last_instruction.op_code == code.OpCodes.POP
-                    ):
-                        self.instructions = code.Instructions(
-                            self.instructions[: self.last_instruction.position]
-                        )
-                        self.last_instruction = self.previous_instruction
+                    if self._last_instruction_is_pop():
+                        self._remove_pop()
 
                     if node.alternative is None:
                         after_consequence_position = len(self.instructions)
@@ -175,14 +181,8 @@ class Compiler:
 
                         self.compile(node.alternative)
 
-                        if (
-                            self.last_instruction
-                            and self.last_instruction.op_code == code.OpCodes.POP
-                        ):
-                            self.instructions = code.Instructions(
-                                self.instructions[: self.last_instruction.position]
-                            )
-                            self.last_instruction = self.previous_instruction
+                        if self._last_instruction_is_pop():
+                            self._remove_pop()
 
                         after_consequence_position = len(self.instructions)
                         self._change_operand(jump_position, after_consequence_position)
