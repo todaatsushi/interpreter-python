@@ -4,6 +4,14 @@ import enum
 import dataclasses as dc
 
 
+class SymbolError(Exception):
+    pass
+
+
+class MissingDefinition(SymbolError):
+    pass
+
+
 class Scope(enum.StrEnum):
     GLOBAL = "GLOBAL"
 
@@ -25,7 +33,15 @@ class SymbolTable:
         return cls({}, 0)
 
     def define(self, identifier: str) -> Symbol:
-        raise NotImplementedError
+        symbol = Symbol(identifier, Scope.GLOBAL, self.num_definitions)
+
+        self.store[identifier] = symbol
+        self.num_definitions += 1
+
+        return symbol
 
     def resolve(self, identifier: str) -> Symbol:
-        raise NotImplementedError
+        try:
+            return self.store[identifier]
+        except KeyError as exc:
+            raise MissingDefinition(identifier) from exc
