@@ -137,3 +137,13 @@ class TestVM(unittest.TestCase):
                 ("if (false) { 10 }", None),
             ),
         )
+
+    def test_global_let_statements(self) -> None:
+        run_vm_tests(
+            self,
+            (
+                ("let one = 1; one", 1),
+                ("let one = 1; let two = 2; one + two", 3),
+                ("let one= 1; let two = one + one; one + two", 3),
+            ),
+        )

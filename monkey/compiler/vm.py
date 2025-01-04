@@ -119,6 +119,21 @@ class VM:
                         instruction_pointer = position - 1
                 case code.OpCodes.NULL:
                     self.push(NULL)
+                case code.OpCodes.SET_GLOBAL:
+                    global_index = code.read_int16(
+                        self.instructions, instruction_pointer + 1
+                    )
+                    instruction_pointer += 2
+                    self.globals[global_index] = self.pop()
+                case code.OpCodes.GET_GLOBAL:
+                    global_index = code.read_int16(
+                        self.instructions, instruction_pointer + 1
+                    )
+                    instruction_pointer += 2
+
+                    obj = self.globals[global_index]
+                    assert obj
+                    self.push(obj)
                 case _:
                     raise NotImplementedError(op_code)
 
