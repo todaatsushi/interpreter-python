@@ -185,7 +185,7 @@ class Compiler:
 
                     self._change_jump_location_after_consequence(jump_position)
                 case _:
-                    raise NotImplementedError
+                    raise NotImplementedError(type(node))
         except Exception as exc:
             raise CouldntCompile(str(exc)) from exc
 
