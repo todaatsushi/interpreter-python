@@ -77,6 +77,9 @@ class OpCodes(bytes, enum.Enum):
 
     NULL = bytes([15])
 
+    SET_GLOBAL = bytes([16])
+    GET_GLOBAL = bytes([17])
+
     def as_int(self) -> int:
         return int.from_bytes(self)
 
@@ -104,6 +107,8 @@ DEFINITIONS: dict[OpCodes, Definition] = {
     OpCodes.JUMP_NOT_TRUTHY: Definition(name="OpJumpNotTruthy", operand_widths=[2]),
     OpCodes.JUMP: Definition(name="OpJump", operand_widths=[2]),
     OpCodes.NULL: Definition(name="OpNull", operand_widths=[]),
+    OpCodes.SET_GLOBAL: Definition(name="OpSetGlobal", operand_widths=[2]),
+    OpCodes.GET_GLOBAL: Definition(name="OpGetGlobal", operand_widths=[2]),
 }
 
 
