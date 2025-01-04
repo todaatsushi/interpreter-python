@@ -164,3 +164,8 @@ def read_operands(
                 raise NotImplementedError(width)
         offset += width
     return operands, offset
+
+
+def read_int16(bytes_: Instructions, left: int) -> int:
+    right = left + 2
+    return int.from_bytes(bytes_[left:right])
