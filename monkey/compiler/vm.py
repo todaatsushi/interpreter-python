@@ -77,9 +77,9 @@ class VM:
 
             match op_code:
                 case code.OpCodes.CONSTANT:
-                    left = instruction_pointer + 1
-                    right = left + 2
-                    const_index = int.from_bytes(self.instructions[left:right])
+                    const_index = code.read_int16(
+                        self.instructions, instruction_pointer + 1
+                    )
 
                     to_add = self.constants[const_index]
                     self.push(to_add)
@@ -104,15 +104,14 @@ class VM:
                 case code.OpCodes.MINUS | code.OpCodes.EXCLAIMATION_MARK:
                     self.execute_operator(op_code)
                 case code.OpCodes.JUMP:
-                    left = instruction_pointer + 1
-                    right = left + 2
-                    position = int.from_bytes(self.instructions[left:right])
+                    position = code.read_int16(
+                        self.instructions, instruction_pointer + 1
+                    )
                     instruction_pointer = position - 1
                 case code.OpCodes.JUMP_NOT_TRUTHY:
-                    left = instruction_pointer + 1
-                    right = left + 2
-                    position = int.from_bytes(self.instructions[left:right])
-
+                    position = code.read_int16(
+                        self.instructions, instruction_pointer + 1
+                    )
                     instruction_pointer += 2
 
                     cond = self.pop()
