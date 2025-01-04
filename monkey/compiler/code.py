@@ -83,6 +83,8 @@ class OpCodes(bytes, enum.Enum):
     ARRAY = bytes([18])
     HASH = bytes([19])
 
+    INDEX = bytes([20])
+
     def as_int(self) -> int:
         return int.from_bytes(self)
 
@@ -114,6 +116,7 @@ DEFINITIONS: dict[OpCodes, Definition] = {
     OpCodes.GET_GLOBAL: Definition(name="OpGetGlobal", operand_widths=[2]),
     OpCodes.ARRAY: Definition(name="OpArray", operand_widths=[2]),
     OpCodes.HASH: Definition(name="OpHash", operand_widths=[2]),
+    OpCodes.INDEX: Definition(name="OpIndex", operand_widths=[]),
 }
 
 
