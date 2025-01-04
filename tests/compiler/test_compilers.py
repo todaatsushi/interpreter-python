@@ -45,6 +45,11 @@ def test_constants(
             assert isinstance(actual[i], objects.Integer)
 
             tc.assertEqual(actual[i].value, exp)
+        elif isinstance(exp, str):
+            tc.assertIsInstance(actual[i], objects.String)
+            assert isinstance(actual[i], objects.String)
+
+            tc.assertEqual(actual[i].value, exp)
         else:
             tc.fail(f"{type(exp)} not supported")
 
@@ -302,6 +307,31 @@ class TestCompiler(unittest.TestCase):
                         code.make(code.OpCodes.GET_GLOBAL, 0),
                         code.make(code.OpCodes.SET_GLOBAL, 1),
                         code.make(code.OpCodes.GET_GLOBAL, 1),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+            ),
+        )
+
+    def test_string(self) -> None:
+        run_compiler_tests(
+            self,
+            (
+                (
+                    '"monkey"',
+                    ["monkey"],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+                (
+                    '"mon" + "key"',
+                    ["mon", "key"],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.CONSTANT, 1),
+                        code.make(code.OpCodes.ADD),
                         code.make(code.OpCodes.POP),
                     ],
                 ),

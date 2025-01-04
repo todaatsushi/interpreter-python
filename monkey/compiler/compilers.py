@@ -199,6 +199,10 @@ class Compiler:
                     except st.MissingDefinition:
                         # TODO - handle this
                         raise
+                case ast.StringLiteral:
+                    assert isinstance(node, ast.StringLiteral)
+                    string = objects.String(value=node.value)
+                    self.emit(code.OpCodes.CONSTANT, self._add_constant(string))
                 case _:
                     raise NotImplementedError(type(node))
         except Exception as exc:
@@ -206,4 +210,3 @@ class Compiler:
 
     def bytecode(self) -> Bytecode:
         return Bytecode(instructions=self.instructions, constants=self.constants)
-
