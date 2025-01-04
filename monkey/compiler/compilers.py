@@ -184,6 +184,9 @@ class Compiler:
                             self._remove_pop()
 
                     self._change_jump_location_after_consequence(jump_position)
+                case ast.Let:
+                    assert isinstance(node, ast.Let)
+                    self.compile(node.value)
                 case _:
                     raise NotImplementedError(type(node))
         except Exception as exc:

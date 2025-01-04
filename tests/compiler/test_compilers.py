@@ -285,7 +285,7 @@ class TestCompiler(unittest.TestCase):
                 ),
                 (
                     "let one = 1;\n one;",
-                    [1, 2],
+                    [1],
                     [
                         code.make(code.OpCodes.CONSTANT, 0),
                         code.make(code.OpCodes.SET_GLOBAL, 0),
@@ -295,7 +295,7 @@ class TestCompiler(unittest.TestCase):
                 ),
                 (
                     "let one = 1;\nlet two = one;\ntwo;",
-                    [1, 2],
+                    [1],
                     [
                         code.make(code.OpCodes.CONSTANT, 0),
                         code.make(code.OpCodes.SET_GLOBAL, 0),
