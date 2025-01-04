@@ -176,7 +176,7 @@ class VM:
         self.stack_pointer -= 1
         return o
 
-    def build_array(self, start: int, end: int) -> objects.Object:
+    def build_array(self, start: int, end: int) -> objects.Array:
         elements: list[objects.Object | None] = [None] * (end - start)
 
         for i in range(start, end):
