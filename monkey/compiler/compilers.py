@@ -41,8 +41,8 @@ class Compiler:
     previous_instruction: EmittedInstruction | None = None
 
     @classmethod
-    def new(cls) -> Compiler:
-        return cls(st.SymbolTable.new())
+    def new(cls, symbol_table: st.SymbolTable | None = None) -> Compiler:
+        return cls(symbol_table or st.SymbolTable.new())
 
     def _add_constant(self, o: objects.Object) -> int:
         """Returns position"""
@@ -206,3 +206,4 @@ class Compiler:
 
     def bytecode(self) -> Bytecode:
         return Bytecode(instructions=self.instructions, constants=self.constants)
+

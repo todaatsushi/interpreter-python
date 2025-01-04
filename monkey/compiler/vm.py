@@ -61,9 +61,13 @@ class VM:
     instructions: code.Instructions
 
     @classmethod
-    def from_bytecode(cls, bytecode: compilers.Bytecode) -> VM:
+    def from_bytecode(
+        cls,
+        bytecode: compilers.Bytecode,
+        state: list[objects.Object | None] | None = None,
+    ) -> VM:
         return cls(
-            globals=[None] * GLOBALS_SIZE,
+            globals=state or ([None] * GLOBALS_SIZE),
             constants=bytecode.constants,
             instructions=bytecode.instructions,
             stack_pointer=0,
