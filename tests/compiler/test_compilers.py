@@ -380,3 +380,48 @@ class TestCompiler(unittest.TestCase):
                 ),
             ),
         )
+
+    def test_hash_map(self) -> None:
+        run_compiler_tests(
+            self,
+            (
+                (
+                    "{}",
+                    [],
+                    [
+                        code.make(code.OpCodes.HASH, 0),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+                (
+                    "{1: 2, 3: 4, 5: 6}",
+                    [1, 2, 3, 4, 5, 6],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.CONSTANT, 1),
+                        code.make(code.OpCodes.CONSTANT, 2),
+                        code.make(code.OpCodes.CONSTANT, 3),
+                        code.make(code.OpCodes.CONSTANT, 4),
+                        code.make(code.OpCodes.CONSTANT, 5),
+                        code.make(code.OpCodes.HASH, 6),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+                (
+                    "{1: 2 + 3, 4: 5 * 6}",
+                    [1, 2, 3, 4, 5, 6],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.CONSTANT, 1),
+                        code.make(code.OpCodes.CONSTANT, 2),
+                        code.make(code.OpCodes.ADD),
+                        code.make(code.OpCodes.CONSTANT, 3),
+                        code.make(code.OpCodes.CONSTANT, 4),
+                        code.make(code.OpCodes.CONSTANT, 5),
+                        code.make(code.OpCodes.MULTIPLY),
+                        code.make(code.OpCodes.HASH, 4),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+            ),
+        )
