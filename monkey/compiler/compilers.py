@@ -212,8 +212,9 @@ class Compiler:
                 case ast.Map:
                     assert isinstance(node, ast.Map)
 
-                    # Can this be multiple types?
-                    keys = sorted(list(node.pairs.keys()), key=lambda x: x.value)  # type: ignore
+                    keys: list[ast.Expression] = sorted(
+                        list(node.pairs.keys()), key=lambda k: str(k)
+                    )
                     for key in keys:
                         value = node.pairs[key]
                         self.compile(key)
