@@ -268,3 +268,42 @@ class TestCompiler(unittest.TestCase):
                 ),
             ),
         )
+
+    def test_global_let_statements(self) -> None:
+        run_compiler_tests(
+            self,
+            (
+                (
+                    ("let one = 1;\nlet two = 2;"),
+                    [1, 2],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.SET_GLOBAL, 0),
+                        code.make(code.OpCodes.CONSTANT, 1),
+                        code.make(code.OpCodes.SET_GLOBAL, 1),
+                    ],
+                ),
+                (
+                    "let one = 1;\n one;",
+                    [1, 2],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.SET_GLOBAL, 0),
+                        code.make(code.OpCodes.GET_GLOBAL, 0),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+                (
+                    "let one = 1;\nlet two = one;\ntwo;",
+                    [1, 2],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.SET_GLOBAL, 0),
+                        code.make(code.OpCodes.GET_GLOBAL, 0),
+                        code.make(code.OpCodes.SET_GLOBAL, 1),
+                        code.make(code.OpCodes.GET_GLOBAL, 1),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+            ),
+        )
