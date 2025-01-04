@@ -203,6 +203,12 @@ class Compiler:
                     assert isinstance(node, ast.StringLiteral)
                     string = objects.String(value=node.value)
                     self.emit(code.OpCodes.CONSTANT, self._add_constant(string))
+                case ast.ArrayLiteral:
+                    assert isinstance(node, ast.ArrayLiteral)
+
+                    for item in node.items:
+                        self.compile(item)
+                    self.emit(code.OpCodes.ARRAY, len(node.items))
                 case _:
                     raise NotImplementedError(type(node))
         except Exception as exc:
