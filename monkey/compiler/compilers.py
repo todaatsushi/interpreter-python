@@ -189,6 +189,8 @@ class Compiler:
                 case ast.Let:
                     assert isinstance(node, ast.Let)
                     self.compile(node.value)
+                    symbol = self.symbol_table.define(node.name.value)
+                    self.emit(code.OpCodes.SET_GLOBAL, symbol.index)
                 case _:
                     raise NotImplementedError(type(node))
         except Exception as exc:
