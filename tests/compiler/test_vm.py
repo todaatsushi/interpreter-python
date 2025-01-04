@@ -23,6 +23,13 @@ def test_boolean_object(
     tc.assertEqual(expected, actual.value)
 
 
+def test_string_object(tc: unittest.TestCase, expected: str, actual: objects.Object):
+    tc.assertIsInstance(actual, objects.String)
+    assert isinstance(actual, objects.String)
+
+    tc.assertEqual(expected, actual.value)
+
+
 def test_null_object(tc: unittest.TestCase, actual: objects.Object) -> None:
     assert actual == vm.NULL
 
@@ -32,10 +39,14 @@ def test_expected_object(
 ) -> None:
     if isinstance(expected, bool):
         return test_boolean_object(tc, expected, actual)
-    if isinstance(expected, int):
+    elif isinstance(expected, int):
         return test_integer_object(tc, expected, actual)
-    if expected is None:
+    elif isinstance(expected, str):
+        return test_string_object(tc, expected, actual)
+    elif expected is None:
         return test_null_object(tc, actual)
+    else:
+        raise NotImplementedError(type(expected))
 
 
 def run_vm_tests(
