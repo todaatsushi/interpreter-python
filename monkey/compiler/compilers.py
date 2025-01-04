@@ -191,6 +191,14 @@ class Compiler:
                     self.compile(node.value)
                     symbol = self.symbol_table.define(node.name.value)
                     self.emit(code.OpCodes.SET_GLOBAL, symbol.index)
+                case ast.Identifier:
+                    assert isinstance(node, ast.Identifier)
+                    try:
+                        symbol = self.symbol_table.resolve(node.value)
+                        self.emit(code.OpCodes.GET_GLOBAL, symbol.index)
+                    except st.MissingDefinition:
+                        # TODO - handle this
+                        raise
                 case _:
                     raise NotImplementedError(type(node))
         except Exception as exc:
