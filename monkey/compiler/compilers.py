@@ -220,6 +220,12 @@ class Compiler:
                         self.compile(key)
                         self.compile(value)
                     self.emit(code.OpCodes.HASH, len(keys) * 2)
+                case ast.Index:
+                    assert isinstance(node, ast.Index)
+
+                    self.compile(node.left)
+                    self.compile(node.index)
+                    self.emit(code.OpCodes.INDEX)
                 case _:
                     raise NotImplementedError(type(node))
         except Exception as exc:

@@ -425,3 +425,39 @@ class TestCompiler(unittest.TestCase):
                 ),
             ),
         )
+
+    def test_index_expressions(self) -> None:
+        run_compiler_tests(
+            self,
+            (
+                (
+                    "[1, 2, 3][1 + 1]",
+                    [1, 2, 3, 1, 1],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.CONSTANT, 1),
+                        code.make(code.OpCodes.CONSTANT, 2),
+                        code.make(code.OpCodes.ARRAY, 3),
+                        code.make(code.OpCodes.CONSTANT, 3),
+                        code.make(code.OpCodes.CONSTANT, 4),
+                        code.make(code.OpCodes.ADD),
+                        code.make(code.OpCodes.INDEX),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+                (
+                    "{1: 2}[2 - 1]",
+                    [1, 2, 2, 1],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.CONSTANT, 1),
+                        code.make(code.OpCodes.HASH, 2),
+                        code.make(code.OpCodes.CONSTANT, 2),
+                        code.make(code.OpCodes.CONSTANT, 3),
+                        code.make(code.OpCodes.SUBTRACT),
+                        code.make(code.OpCodes.INDEX),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+            ),
+        )
