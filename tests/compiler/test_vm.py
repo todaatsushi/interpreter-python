@@ -32,7 +32,7 @@ def test_string_object(tc: unittest.TestCase, expected: str, actual: objects.Obj
 
 
 def test_null_object(tc: unittest.TestCase, actual: objects.Object) -> None:
-    assert actual == vm.NULL
+    tc.assertIs(actual, vm.NULL)
 
 
 def test_hash_map_object(
