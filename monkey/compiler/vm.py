@@ -147,6 +147,15 @@ class VM:
                     start = self.stack_pointer - num_elements
                     array = self.build_array(start, self.stack_pointer)
                     self.push(array)
+                case code.OpCodes.HASH:
+                    num_elements = code.read_int16(
+                        self.instructions, instruction_pointer + 1
+                    )
+                    instruction_pointer += 2
+
+                    start = self.stack_pointer - num_elements
+                    map = self.build_hash_map(start, self.stack_pointer)
+                    self.push(map)
                 case _:
                     raise NotImplementedError(op_code)
 
@@ -175,6 +184,21 @@ class VM:
 
         self.stack_pointer -= 1
         return o
+
+    def build_hash_map(self, start: int, end: int) -> objects.Hash:
+        map: dict[objects.HashKey, objects.HashPair] = {}
+
+        for i in range(start, end, 2):
+            key = self.stack[i]
+            value = self.stack[i + 1]
+
+            assert key and value, f"Key: {key}, Value: {value}"
+            assert isinstance(key, objects.Hashable)
+
+            pair = objects.HashPair(key, value)
+            map[key.hash_key()] = pair
+
+        return objects.Hash(map)
 
     def build_array(self, start: int, end: int) -> objects.Array:
         elements: list[objects.Object | None] = [None] * (end - start)
