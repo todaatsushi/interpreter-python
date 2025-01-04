@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 
 
 STACK_SIZE: Final = 2048
+GLOBALS_SIZE: Final = 65536
 
 TRUE = objects.Boolean(value=True)
 FALSE = objects.Boolean(value=False)
@@ -52,15 +53,17 @@ def is_truthy(obj: objects.Object) -> bool:
 @dc.dataclass
 class VM:
     stack_pointer: int
+    stack: list[objects.Object | None]
+
+    globals: list[objects.Object | None]
 
     constants: list[objects.Object]
     instructions: code.Instructions
 
-    stack: list[objects.Object | None] = dc.field(default_factory=list)
-
     @classmethod
     def from_bytecode(cls, bytecode: compilers.Bytecode) -> VM:
         return cls(
+            globals=[None] * GLOBALS_SIZE,
             constants=bytecode.constants,
             instructions=bytecode.instructions,
             stack_pointer=0,
