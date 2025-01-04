@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses as dc
 
-from monkey.compiler import code
+from monkey.compiler import code, symbol_table as st
 from monkey.interpreter import ast
 from monkey.interpreter import objects
 
@@ -32,6 +32,8 @@ class Bytecode:
 
 @dc.dataclass
 class Compiler:
+    symbol_table: st.SymbolTable
+
     instructions: code.Instructions = dc.field(default_factory=code.Instructions)
     constants: list[objects.Object] = dc.field(init=False, default_factory=list)
 
@@ -40,7 +42,7 @@ class Compiler:
 
     @classmethod
     def new(cls) -> Compiler:
-        return cls()
+        return cls(st.SymbolTable.new())
 
     def _add_constant(self, o: objects.Object) -> int:
         """Returns position"""
