@@ -234,3 +234,21 @@ class TestVM(unittest.TestCase):
                 ),
             ),
         )
+
+    def test_index_expressions(self) -> None:
+        run_vm_tests(
+            self,
+            (
+                ("[1, 2, 3][1]", 2),
+                ("[1, 2, 3][0 + 2]", 3),
+                ("[[1, 2, 3]][0][0]", 1),
+                ("{1: 1, 2: 2}[1]", 1),
+                ("{1: 1, 2: 2}[2]", 2),
+                # Do I want this??
+                # ("[1, 2, 3][99]", None),
+                # ("[1][-1]", None),
+                # ("{1: 1}[0]", None),
+                # ("[][0]", None),
+                # ("{}[0]", None),
+            ),
+        )
