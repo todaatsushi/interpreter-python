@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 import unittest
 from monkey.compiler import compilers, vm
 
@@ -34,6 +35,23 @@ def test_null_object(tc: unittest.TestCase, actual: objects.Object) -> None:
     tc.assertIs(actual, vm.NULL)
 
 
+def test_hash_map_object(
+    tc: unittest.TestCase,
+    expected: Mapping[objects.HashKey, objects.HashPair],
+    actual: objects.Object,
+) -> None:
+    tc.assertIsInstance(actual, objects.Hash)
+    assert isinstance(actual, objects.Hash)
+
+    tc.assertEqual(len(actual.pairs), len(expected))
+
+    for k, v in expected.items():
+        tc.assertIn(k, actual.pairs)
+
+        pair = actual.pairs[k]
+        test_expected_object(tc, v, pair.value)
+
+
 def test_array_object(
     tc: unittest.TestCase, expected: list[objects.Object], actual: objects.Object
 ) -> None:
@@ -57,6 +75,8 @@ def test_expected_object(
         return test_string_object(tc, expected, actual)
     elif isinstance(expected, list):
         return test_array_object(tc, expected, actual)
+    elif isinstance(expected, Mapping):
+        return test_hash_map_object(tc, expected, actual)
     elif expected is None:
         return test_null_object(tc, actual)
     else:
@@ -190,5 +210,27 @@ class TestVM(unittest.TestCase):
                 ("[]", []),
                 ("[1, 2, 3]", [1, 2, 3]),
                 ("[1 + 2, 3 * 4, 5 + 6]", [3, 12, 11]),
+            ),
+        )
+
+    def test_hash(self) -> None:
+        run_vm_tests(
+            self,
+            (
+                ("{}", {}),
+                (
+                    "{1: 2, 2: 3}",
+                    {
+                        objects.Integer(value=1).hash_key(): 2,
+                        objects.Integer(value=2).hash_key(): 3,
+                    },
+                ),
+                (
+                    "{1 + 1: 2 * 2, 3 + 3: 4 * 4}",
+                    {
+                        objects.Integer(value=2).hash_key(): 4,
+                        objects.Integer(value=6).hash_key(): 16,
+                    },
+                ),
             ),
         )
