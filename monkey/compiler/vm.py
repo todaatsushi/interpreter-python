@@ -28,6 +28,10 @@ class Unhandled(VMError):
     pass
 
 
+class BadIndex(VMError):
+    pass
+
+
 class StackError(VMError):
     pass
 
@@ -156,6 +160,11 @@ class VM:
                     start = self.stack_pointer - num_elements
                     map = self.build_hash_map(start, self.stack_pointer)
                     self.push(map)
+                case code.OpCodes.INDEX:
+                    index = self.pop()
+                    left = self.pop()
+                    self.execute_index_operation(left, index)
+
                 case _:
                     raise NotImplementedError(op_code)
 
@@ -319,3 +328,31 @@ class VM:
             case _:
                 raise Unhandled(f"{op} not handled for boolean comparisons.")
         self.push(TRUE if result else FALSE)
+
+    def execute_index_operation(
+        self, left: objects.Object, index: objects.Object
+    ) -> None:
+        if isinstance(left, objects.Array) and isinstance(index, objects.Integer):
+            return self.execute_array_index(left, index)
+        if isinstance(left, objects.Hash) and isinstance(index, objects.Hashable):
+            return self.execute_hash_map_index(left, index)
+
+        raise Unhandled(f"Indexing not on {type(left)} with {type(index)}")
+
+    def execute_array_index(self, array: objects.Array, index: objects.Integer) -> None:
+        num_objects = len(array.items)
+        if index.value > num_objects or index.value < 0:
+            raise BadIndex(f"{index.value} on {type(array)} ({num_objects} objects)")
+        try:
+            self.push(array.items[index.value])
+        except IndexError as exc:
+            raise Missing from exc
+
+    def execute_hash_map_index(
+        self, map: objects.Hash, index: objects.Hashable
+    ) -> None:
+        key = index.hash_key()
+        try:
+            self.push(map.pairs[key].value)
+        except KeyError as exc:
+            raise Missing from exc
