@@ -80,6 +80,8 @@ class OpCodes(bytes, enum.Enum):
     SET_GLOBAL = bytes([16])
     GET_GLOBAL = bytes([17])
 
+    ARRAY = bytes([18])
+
     def as_int(self) -> int:
         return int.from_bytes(self)
 
@@ -109,6 +111,7 @@ DEFINITIONS: dict[OpCodes, Definition] = {
     OpCodes.NULL: Definition(name="OpNull", operand_widths=[]),
     OpCodes.SET_GLOBAL: Definition(name="OpSetGlobal", operand_widths=[2]),
     OpCodes.GET_GLOBAL: Definition(name="OpGetGlobal", operand_widths=[2]),
+    OpCodes.ARRAY: Definition(name="OpArray", operand_widths=[2]),
 }
 
 
