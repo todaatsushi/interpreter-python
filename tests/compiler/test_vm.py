@@ -34,6 +34,18 @@ def test_null_object(tc: unittest.TestCase, actual: objects.Object) -> None:
     tc.assertIs(actual, vm.NULL)
 
 
+def test_array_object(
+    tc: unittest.TestCase, expected: list[objects.Object], actual: objects.Object
+) -> None:
+    tc.assertIsInstance(actual, objects.Array)
+    assert isinstance(actual, objects.Array)
+
+    tc.assertEqual(len(expected), len(actual.items))
+
+    for i, ex in enumerate(expected):
+        test_expected_object(tc, ex, actual.items[i])
+
+
 def test_expected_object(
     tc: unittest.TestCase, expected: object, actual: objects.Object
 ) -> None:
@@ -43,6 +55,8 @@ def test_expected_object(
         return test_integer_object(tc, expected, actual)
     elif isinstance(expected, str):
         return test_string_object(tc, expected, actual)
+    elif isinstance(expected, list):
+        return test_array_object(tc, expected, actual)
     elif expected is None:
         return test_null_object(tc, actual)
     else:
@@ -166,5 +180,15 @@ class TestVM(unittest.TestCase):
                 ('"monkey"', "monkey"),
                 ('"mon" + "key"', "monkey"),
                 ('"mon" + "key" + "banana"', "monkeybanana"),
+            ),
+        )
+
+    def test_array(self) -> None:
+        run_vm_tests(
+            self,
+            (
+                ("[]", []),
+                ("[1, 2, 3]", [1, 2, 3]),
+                ("[1 + 2, 3 * 4, 5 + 6]", [3, 12, 11]),
             ),
         )
