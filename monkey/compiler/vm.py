@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import dataclasses as dc
 
@@ -138,6 +138,15 @@ class VM:
                     obj = self.globals[global_index]
                     assert obj
                     self.push(obj)
+                case code.OpCodes.ARRAY:
+                    num_elements = code.read_int16(
+                        self.instructions, instruction_pointer + 1
+                    )
+                    instruction_pointer += 2
+
+                    start = self.stack_pointer - num_elements
+                    array = self.build_array(start, self.stack_pointer)
+                    self.push(array)
                 case _:
                     raise NotImplementedError(op_code)
 
@@ -166,6 +175,15 @@ class VM:
 
         self.stack_pointer -= 1
         return o
+
+    def build_array(self, start: int, end: int) -> objects.Object:
+        elements: list[objects.Object | None] = [None] * (end - start)
+
+        for i in range(start, end):
+            elements[i - start] = self.stack[i]
+
+        assert None not in elements
+        return objects.Array(items=cast(list[objects.Object], elements))
 
     # Operations
     def execute_binary_operation(self, op: code.OpCodes) -> None:
