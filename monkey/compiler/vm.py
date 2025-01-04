@@ -174,6 +174,8 @@ class VM:
 
         if isinstance(left, objects.Integer) and isinstance(right, objects.Integer):
             return self.execute_binary_integer_operation(op, left, right)
+        elif isinstance(left, objects.String) and isinstance(right, objects.String):
+            return self.execute_binary_string_operation(op, left, right)
         raise NotImplementedError(op, left, right)
 
     def execute_binary_integer_operation(
@@ -246,6 +248,19 @@ class VM:
             case _:
                 raise Unhandled(f"{op} not handled for integer comparisons.")
         self.push(objects.Boolean(value=result))
+
+    def execute_binary_string_operation(
+        self, op: code.OpCodes, left: objects.String, right: objects.String
+    ) -> None:
+        result: str
+
+        match op:
+            case code.OpCodes.ADD:
+                result = left.value + right.value
+            case _:
+                raise Unhandled(op)
+
+        self.push(objects.String(value=result))
 
     def execute_boolean_comparison(
         self, op: code.OpCodes, left: objects.Boolean, right: objects.Boolean

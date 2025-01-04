@@ -147,3 +147,13 @@ class TestVM(unittest.TestCase):
                 ("let one= 1; let two = one + one; one + two", 3),
             ),
         )
+
+    def test_string(self) -> None:
+        run_vm_tests(
+            self,
+            (
+                ('"monkey"', "monkey"),
+                ('"mon" + "key"', "monkey"),
+                ('"mon" + "key" + "banana"', "monkeybanana"),
+            ),
+        )
