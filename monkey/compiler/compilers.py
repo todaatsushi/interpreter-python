@@ -209,6 +209,17 @@ class Compiler:
                     for item in node.items:
                         self.compile(item)
                     self.emit(code.OpCodes.ARRAY, len(node.items))
+                case ast.Map:
+                    assert isinstance(node, ast.Map)
+
+                    keys: list[ast.Expression] = sorted(
+                        list(node.pairs.keys()), key=lambda k: str(k)
+                    )
+                    for key in keys:
+                        value = node.pairs[key]
+                        self.compile(key)
+                        self.compile(value)
+                    self.emit(code.OpCodes.HASH, len(keys) * 2)
                 case _:
                     raise NotImplementedError(type(node))
         except Exception as exc:
