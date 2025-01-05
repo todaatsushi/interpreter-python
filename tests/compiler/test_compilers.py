@@ -579,3 +579,46 @@ class TestCompiler(unittest.TestCase):
                 ),
             ),
         )
+
+    def test_function_calls(self) -> None:
+        run_compiler_tests(
+            self,
+            (
+                (
+                    "fn() { 24 }();",
+                    [
+                        24,
+                        code.Instructions.concat_bytes(
+                            [
+                                code.make(code.OpCodes.CONSTANT, 0),  # Function value
+                                code.make(code.OpCodes.RETURN_VALUE),
+                            ]
+                        ),
+                    ],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 1),  # Actual function
+                        code.make(code.OpCodes.CALL),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+                (
+                    "let noArg = fn() { 24 }; \nnoArg();",
+                    [
+                        24,
+                        code.Instructions.concat_bytes(
+                            [
+                                code.make(code.OpCodes.CONSTANT, 0),  # Function value
+                                code.make(code.OpCodes.RETURN_VALUE),
+                            ]
+                        ),
+                    ],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 1),  # Actual function
+                        code.make(code.OpCodes.SET_GLOBAL, 0),
+                        code.make(code.OpCodes.GET_GLOBAL, 0),
+                        code.make(code.OpCodes.CALL),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+            ),
+        )

@@ -295,6 +295,10 @@ class Compiler:
                     assert isinstance(node, ast.Return)
                     self.compile(node.value)
                     self.emit(code.OpCodes.RETURN_VALUE)
+                case ast.Call:
+                    assert isinstance(node, ast.Call)
+                    self.compile(node.function)
+                    self.emit(code.OpCodes.CALL)
                 case _:
                     raise NotImplementedError(type(node))
         except Exception as exc:
