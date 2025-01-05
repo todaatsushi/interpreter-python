@@ -85,6 +85,8 @@ class OpCodes(bytes, enum.Enum):
 
     INDEX = bytes([20])
 
+    CALL = bytes([21])
+
     def as_int(self) -> int:
         return int.from_bytes(self)
 
@@ -117,6 +119,7 @@ DEFINITIONS: dict[OpCodes, Definition] = {
     OpCodes.ARRAY: Definition(name="OpArray", operand_widths=[2]),
     OpCodes.HASH: Definition(name="OpHash", operand_widths=[2]),
     OpCodes.INDEX: Definition(name="OpIndex", operand_widths=[]),
+    OpCodes.CALL: Definition(name="OpCall", operand_widths=[]),
 }
 
 
