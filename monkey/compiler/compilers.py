@@ -116,10 +116,10 @@ class Compiler:
         after_consequence_position = len(self.current_scope.instructions)
         self._change_operand(position, after_consequence_position)
 
-    def _last_instruction_is_pop(self) -> bool:
+    def _last_instruction_is(self, op: code.OpCodes) -> bool:
         return bool(
             self.current_scope.last_instruction
-            and self.current_scope.last_instruction.op_code == code.OpCodes.POP
+            and self.current_scope.last_instruction.op_code == op
         )
 
     def _remove_pop(self) -> None:
@@ -209,7 +209,7 @@ class Compiler:
                     assert node.consequence
                     self.compile(node.consequence)
 
-                    if self._last_instruction_is_pop():
+                    if self._last_instruction_is(code.OpCodes.POP):
                         self._remove_pop()
 
                     jump_position = self.emit(code.OpCodes.JUMP, FAKE_JUMP_VALUE)
@@ -222,7 +222,7 @@ class Compiler:
                     else:
                         self.compile(node.alternative)
 
-                        if self._last_instruction_is_pop():
+                        if self._last_instruction_is(code.OpCodes.POP):
                             self._remove_pop()
 
                     self._change_jump_location_after_consequence(jump_position)
@@ -273,7 +273,7 @@ class Compiler:
                     if node.body:
                         self.compile(node.body)
 
-                    if self._last_instruction_is_pop():
+                    if self._last_instruction_is(code.OpCodes.POP):
                         assert self.current_scope.last_instruction
                         self._replace_instruction(
                             self.current_scope.last_instruction.position,
