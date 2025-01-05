@@ -44,11 +44,7 @@ class Compiler:
     scopes: list[CompilationScope]
     scope_index: int
 
-    instructions: code.Instructions = dc.field(default_factory=code.Instructions)
     constants: list[objects.Object] = dc.field(init=False, default_factory=list)
-
-    last_instruction: EmittedInstruction | None = None
-    previous_instruction: EmittedInstruction | None = None
 
     @classmethod
     def new(cls, symbol_table: st.SymbolTable | None = None) -> Compiler:
@@ -64,6 +60,7 @@ class Compiler:
     def current_scope(self) -> CompilationScope:
         return self.scopes[self.scope_index]
 
+    # Instructions
     def _add_constant(self, o: objects.Object) -> int:
         """Returns position"""
         self.constants.append(o)
@@ -71,45 +68,54 @@ class Compiler:
 
     def _add_instruction(self, instruction: code.Instructions) -> int:
         """Returns position"""
-        num_instructions = len(self.instructions)
-        self.instructions = code.Instructions.concat_bytes(
-            [self.instructions, instruction]
+        current_instructions = self.current_scope.instructions
+        new_instruction_position = len(current_instructions)
+
+        updated_instructions = current_instructions.concat_bytes(
+            [current_instructions, instruction]
         )
-        return num_instructions
+        self.current_scope.instructions = updated_instructions
+
+        return new_instruction_position
 
     def _set_last_instruction(self, op_code: code.OpCodes, position: int) -> None:
-        previous = self.last_instruction
+        previous = self.current_scope.last_instruction
         last = EmittedInstruction(op_code=op_code, position=position)
 
-        self.previous_instruction = previous
-        self.last_instruction = last
+        self.current_scope.previous_instruction = previous
+        self.current_scope.last_instruction = last
 
     def _replace_instruction(
         self, position: int, new_instruction: code.Instructions
     ) -> None:
-        self.instructions[position : position + len(new_instruction)] = new_instruction
+        self.current_scope.instructions[position : position + len(new_instruction)] = (
+            new_instruction
+        )
 
     def _change_operand(self, position: int, operand: int) -> None:
-        op_code = self.instructions[position]
+        op_code = self.current_scope.instructions[position]
         op = code.OpCodes(bytes([op_code]))
         new_instruction = code.make(op, operand)
         self._replace_instruction(position, new_instruction)
 
     def _change_jump_location_after_consequence(self, position: int) -> None:
-        after_consequence_position = len(self.instructions)
+        after_consequence_position = len(self.current_scope.instructions)
         self._change_operand(position, after_consequence_position)
 
     def _last_instruction_is_pop(self) -> bool:
         return bool(
-            self.last_instruction and self.last_instruction.op_code == code.OpCodes.POP
+            self.current_scope.last_instruction
+            and self.current_scope.last_instruction.op_code == code.OpCodes.POP
         )
 
     def _remove_pop(self) -> None:
-        assert self.last_instruction
-        self.instructions = code.Instructions(
-            self.instructions[: self.last_instruction.position]
+        assert self.current_scope.last_instruction
+        self.current_scope.instructions = code.Instructions(
+            self.current_scope.instructions[
+                : self.current_scope.last_instruction.position
+            ]
         )
-        self.last_instruction = self.previous_instruction
+        self.current_scope.last_instruction = self.current_scope.previous_instruction
 
     def emit(self, op_code: code.OpCodes, *operands: int) -> int:
         instruction = code.make(op_code, *operands)
@@ -252,4 +258,6 @@ class Compiler:
             raise CouldntCompile(str(exc)) from exc
 
     def bytecode(self) -> Bytecode:
-        return Bytecode(instructions=self.instructions, constants=self.constants)
+        return Bytecode(
+            instructions=self.current_scope.instructions, constants=self.constants
+        )
