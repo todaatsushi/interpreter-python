@@ -4,6 +4,7 @@ import abc
 from collections.abc import Mapping
 import enum
 import dataclasses as dc
+from monkey.compiler import code
 
 from monkey.interpreter import ast, environment
 
@@ -16,6 +17,7 @@ class ObjectType(enum.StrEnum):
     ERROR = "ERROR"
     BUILTIN_FUNCTION = "BUILTIN_FUNCTION"
     FUNCTION = "FUNCTION"
+    COMPILED_FUNCTION = "COMPILED_FUNCTION"
     STRING = "STRING"
     ARRAY = "ARRAY"
     HASH_KEY = "HASH_KEY"
@@ -295,6 +297,16 @@ class BuiltInFunction(Object):
 
     def inspect(self) -> str:
         return str(self.function)
+
+
+@dc.dataclass(frozen=True)
+class CompiledFunction(Object):
+    instructions: code.Instructions
+
+    type = ObjectType.COMPILED_FUNCTION
+
+    def inspect(self) -> str:
+        return str(self)
 
 
 BUILTIN_MAP: dict[str, BuiltInFunction] = {
