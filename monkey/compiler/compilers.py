@@ -25,6 +25,13 @@ class EmittedInstruction:
 
 
 @dc.dataclass
+class CompilationScope:
+    instructions: code.Instructions = dc.field(default_factory=code.Instructions)
+    last_instruction: EmittedInstruction | None = None
+    previous_instruction: EmittedInstruction | None = None
+
+
+@dc.dataclass
 class Bytecode:
     instructions: code.Instructions = dc.field(default_factory=code.Instructions)
     constants: list[objects.Object] = dc.field(default_factory=list)
