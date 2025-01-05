@@ -56,6 +56,20 @@ class Compiler:
             scope_index=0,
         )
 
+    # Scope
+    def enter_scope(self) -> None:
+        scope = CompilationScope()
+        self.scopes.append(scope)
+        self.scope_index += 1
+
+    def leave_scope(self) -> code.Instructions:
+        instructions = self.current_scope.instructions
+
+        self.scopes.pop()
+        self.scope_index -= 1
+
+        return instructions
+
     @property
     def current_scope(self) -> CompilationScope:
         return self.scopes[self.scope_index]

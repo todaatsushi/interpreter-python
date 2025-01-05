@@ -461,3 +461,39 @@ class TestCompiler(unittest.TestCase):
                 ),
             ),
         )
+
+    def test_compiler_scopes(self) -> None:
+        compiler = compilers.Compiler.new()
+        self.assertEqual(compiler.scope_index, 0)
+
+        compiler.emit(code.OpCodes.MULTIPLY)
+        self.assertEqual(len(compiler.scopes[compiler.scope_index].instructions), 1)
+
+        compiler.enter_scope()
+        self.assertEqual(compiler.scope_index, 1)
+
+        compiler.emit(code.OpCodes.SUBTRACT)
+        current_scope = compiler.scopes[compiler.scope_index]
+        self.assertEqual(len(current_scope.instructions), 1)
+
+        latest_instruction = current_scope.last_instruction
+        self.assertIsNotNone(latest_instruction)
+        assert latest_instruction is not None
+        self.assertEqual(latest_instruction.op_code, code.OpCodes.SUBTRACT)
+
+        compiler.leave_scope()
+        self.assertEqual(compiler.scope_index, 0)
+
+        compiler.emit(code.OpCodes.ADD)
+        current_scope = compiler.scopes[compiler.scope_index]
+        self.assertEqual(len(current_scope.instructions), 2)
+
+        latest_instruction = current_scope.last_instruction
+        self.assertIsNotNone(latest_instruction)
+        assert latest_instruction is not None
+        self.assertEqual(latest_instruction.op_code, code.OpCodes.ADD)
+
+        previous_instruction = current_scope.previous_instruction
+        self.assertIsNotNone(previous_instruction)
+        assert previous_instruction is not None
+        self.assertEqual(previous_instruction.op_code, code.OpCodes.MULTIPLY)
