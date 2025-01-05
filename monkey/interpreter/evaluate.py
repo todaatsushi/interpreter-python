@@ -340,7 +340,7 @@ def identifier(iden: ast.Identifier, env: environment.Environment) -> objects.Ob
 
     assert not ok
     return objects.Error(
-        message=f"{objects.ErrorTypes.MISSING_IDENTIFER}: {iden.value}"
+        message=f"{objects.ErrorTypes.MISSING_IDENTIFIER}: {iden.value}"
     )
 
 

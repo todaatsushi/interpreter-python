@@ -93,10 +93,10 @@ class Compiler:
 
     def emit(self, op_code: code.OpCodes, *operands: int) -> int:
         instruction = code.make(op_code, *operands)
-        postion = self._add_instruction(instruction)
+        position = self._add_instruction(instruction)
 
-        self._set_last_instruction(op_code, postion)
-        return postion
+        self._set_last_instruction(op_code, position)
+        return position
 
     def compile(self, node: ast.Node) -> None:
         try:
