@@ -105,6 +105,8 @@ class Compiler:
         self.current_scope.instructions[position : position + len(new_instruction)] = (
             new_instruction
         )
+        op_code = new_instruction[0]
+        self._set_last_instruction(code.OpCodes(bytes([op_code])), position)
 
     def _change_operand(self, position: int, operand: int) -> None:
         op_code = self.current_scope.instructions[position]
@@ -279,6 +281,8 @@ class Compiler:
                             self.current_scope.last_instruction.position,
                             code.make(code.OpCodes.RETURN_VALUE),
                         )
+                    if not self._last_instruction_is(code.OpCodes.RETURN_VALUE):
+                        self.emit(code.OpCodes.RETURN)
 
                     func_scope_instructions = self.leave_scope()
                     compiled_function = objects.CompiledFunction(

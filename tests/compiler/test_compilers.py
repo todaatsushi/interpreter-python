@@ -565,5 +565,17 @@ class TestCompiler(unittest.TestCase):
                         code.make(code.OpCodes.POP),
                     ],
                 ),
+                (
+                    "fn() {}",
+                    [
+                        code.Instructions.concat_bytes(
+                            [code.make(code.OpCodes.RETURN)]
+                        ),
+                    ],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
             ),
         )
