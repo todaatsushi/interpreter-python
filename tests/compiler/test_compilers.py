@@ -527,5 +527,43 @@ class TestCompiler(unittest.TestCase):
                         code.make(code.OpCodes.POP),
                     ],
                 ),
+                (
+                    "fn() { 5 + 10 }",
+                    [
+                        5,
+                        10,
+                        code.Instructions.concat_bytes(
+                            [
+                                code.make(code.OpCodes.CONSTANT, 0),
+                                code.make(code.OpCodes.CONSTANT, 1),
+                                code.make(code.OpCodes.ADD),
+                                code.make(code.OpCodes.RETURN_VALUE),
+                            ]
+                        ),
+                    ],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 2),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+                (
+                    "fn() { 1; 2 }",
+                    [
+                        1,
+                        2,
+                        code.Instructions.concat_bytes(
+                            [
+                                code.make(code.OpCodes.CONSTANT, 0),
+                                code.make(code.OpCodes.POP),
+                                code.make(code.OpCodes.CONSTANT, 1),
+                                code.make(code.OpCodes.RETURN_VALUE),
+                            ]
+                        ),
+                    ],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 2),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
             ),
         )

@@ -273,6 +273,13 @@ class Compiler:
                     if node.body:
                         self.compile(node.body)
 
+                    if self._last_instruction_is_pop():
+                        assert self.current_scope.last_instruction
+                        self._replace_instruction(
+                            self.current_scope.last_instruction.position,
+                            code.make(code.OpCodes.RETURN_VALUE),
+                        )
+
                     func_scope_instructions = self.leave_scope()
                     compiled_function = objects.CompiledFunction(
                         instructions=func_scope_instructions
