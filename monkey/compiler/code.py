@@ -87,6 +87,9 @@ class OpCodes(bytes, enum.Enum):
 
     CALL = bytes([21])
 
+    RETURN = bytes([22])
+    RETURN_VALUE = bytes([23])
+
     def as_int(self) -> int:
         return int.from_bytes(self)
 
@@ -120,6 +123,10 @@ DEFINITIONS: dict[OpCodes, Definition] = {
     OpCodes.HASH: Definition(name="OpHash", operand_widths=[2]),
     OpCodes.INDEX: Definition(name="OpIndex", operand_widths=[]),
     OpCodes.CALL: Definition(name="OpCall", operand_widths=[]),
+    OpCodes.RETURN: Definition(name="OpReturn", operand_widths=[]),  # Return null
+    OpCodes.RETURN_VALUE: Definition(
+        name="OpReturnValue", operand_widths=[]
+    ),  # Return stack
 }
 
 
