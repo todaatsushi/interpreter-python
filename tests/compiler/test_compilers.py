@@ -50,6 +50,12 @@ def test_constants(
             assert isinstance(actual[i], objects.String)
 
             tc.assertEqual(actual[i].value, exp)
+        elif isinstance(exp, code.Instructions):
+            func = actual[i]
+            tc.assertIsInstance(func, objects.CompiledFunction)
+            assert isinstance(func, objects.CompiledFunction)
+
+            test_instructions(tc, [exp], func.instructions)
         else:
             tc.fail(f"{type(exp)} not supported")
 
@@ -497,3 +503,29 @@ class TestCompiler(unittest.TestCase):
         self.assertIsNotNone(previous_instruction)
         assert previous_instruction is not None
         self.assertEqual(previous_instruction.op_code, code.OpCodes.MULTIPLY)
+
+    def test_functions(self) -> None:
+        run_compiler_tests(
+            self,
+            (
+                (
+                    "fn() { return 5 + 10 }",
+                    [
+                        5,
+                        10,
+                        code.Instructions.concat_bytes(
+                            [
+                                code.make(code.OpCodes.CONSTANT, 0),
+                                code.make(code.OpCodes.CONSTANT, 1),
+                                code.make(code.OpCodes.ADD),
+                                code.make(code.OpCodes.RETURN_VALUE),
+                            ]
+                        ),
+                    ],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 2),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+            ),
+        )

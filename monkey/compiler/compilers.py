@@ -266,6 +266,24 @@ class Compiler:
                     self.compile(node.left)
                     self.compile(node.index)
                     self.emit(code.OpCodes.INDEX)
+                case ast.FunctionLiteral:
+                    assert isinstance(node, ast.FunctionLiteral)
+
+                    self.enter_scope()
+                    if node.body:
+                        self.compile(node.body)
+
+                    func_scope_instructions = self.leave_scope()
+                    compiled_function = objects.CompiledFunction(
+                        instructions=func_scope_instructions
+                    )
+                    self.emit(
+                        code.OpCodes.CONSTANT, self._add_constant(compiled_function)
+                    )
+                case ast.Return:
+                    assert isinstance(node, ast.Return)
+                    self.compile(node.value)
+                    self.emit(code.OpCodes.RETURN_VALUE)
                 case _:
                     raise NotImplementedError(type(node))
         except Exception as exc:
