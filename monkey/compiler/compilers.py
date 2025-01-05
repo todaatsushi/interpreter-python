@@ -41,6 +41,9 @@ class Bytecode:
 class Compiler:
     symbol_table: st.SymbolTable
 
+    scopes: list[CompilationScope]
+    scope_index: int
+
     instructions: code.Instructions = dc.field(default_factory=code.Instructions)
     constants: list[objects.Object] = dc.field(init=False, default_factory=list)
 
@@ -49,7 +52,17 @@ class Compiler:
 
     @classmethod
     def new(cls, symbol_table: st.SymbolTable | None = None) -> Compiler:
-        return cls(symbol_table or st.SymbolTable.new())
+        main_scope = CompilationScope()
+        _symbol_table = symbol_table or st.SymbolTable.new()
+        return cls(
+            symbol_table=_symbol_table,
+            scopes=[main_scope],
+            scope_index=0,
+        )
+
+    @property
+    def current_scope(self) -> CompilationScope:
+        return self.scopes[self.scope_index]
 
     def _add_constant(self, o: objects.Object) -> int:
         """Returns position"""
