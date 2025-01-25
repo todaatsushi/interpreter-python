@@ -63,7 +63,6 @@ class VM:
     globals: list[objects.Object | None]
 
     constants: list[objects.Object]
-    instructions: code.Instructions
 
     frames: list[frames.Frame | None]
     frames_index: int
@@ -82,7 +81,6 @@ class VM:
         return cls(
             globals=state or ([None] * GLOBALS_SIZE),
             constants=bytecode.constants,
-            instructions=bytecode.instructions,
             stack_pointer=0,
             stack=[None] * STACK_SIZE,
             frames=frames_,
@@ -114,19 +112,28 @@ class VM:
         raise Missing
 
     def run(self) -> None:
-        instruction_pointer = 0
-        while instruction_pointer < len(self.instructions):
-            op_code = code.OpCodes(bytes([self.instructions[instruction_pointer]]))
+        instructions: code.Instructions
+        op_code: code.OpCodes
+
+        while self.current_frame().instruction_pointer < (
+            len(self.current_frame().instructions) - 1
+        ):
+            self.current_frame().instruction_pointer += 1
+
+            instructions = self.current_frame().instructions
+            op_code = code.OpCodes(
+                bytes([instructions[self.current_frame().instruction_pointer]])
+            )
 
             match op_code:
                 case code.OpCodes.CONSTANT:
                     const_index = code.read_int16(
-                        self.instructions, instruction_pointer + 1
+                        instructions, self.current_frame().instruction_pointer + 1
                     )
+                    self.current_frame().instruction_pointer += 2
 
                     to_add = self.constants[const_index]
                     self.push(to_add)
-                    instruction_pointer += 2
                 case (
                     code.OpCodes.ADD
                     | code.OpCodes.SUBTRACT
@@ -148,49 +155,49 @@ class VM:
                     self.execute_operator(op_code)
                 case code.OpCodes.JUMP:
                     position = code.read_int16(
-                        self.instructions, instruction_pointer + 1
+                        instructions, self.current_frame().instruction_pointer + 1
                     )
-                    instruction_pointer = position - 1
+                    self.current_frame().instruction_pointer = position - 1
                 case code.OpCodes.JUMP_NOT_TRUTHY:
                     position = code.read_int16(
-                        self.instructions, instruction_pointer + 1
+                        instructions, self.current_frame().instruction_pointer + 1
                     )
-                    instruction_pointer += 2
+                    self.current_frame().instruction_pointer += 2
 
                     cond = self.pop()
                     if not is_truthy(cond):
-                        instruction_pointer = position - 1
+                        self.current_frame().instruction_pointer = position - 1
                 case code.OpCodes.NULL:
                     self.push(NULL)
                 case code.OpCodes.SET_GLOBAL:
                     global_index = code.read_int16(
-                        self.instructions, instruction_pointer + 1
+                        instructions, self.current_frame().instruction_pointer + 1
                     )
-                    instruction_pointer += 2
+                    self.current_frame().instruction_pointer += 2
                     self.globals[global_index] = self.pop()
                 case code.OpCodes.GET_GLOBAL:
                     global_index = code.read_int16(
-                        self.instructions, instruction_pointer + 1
+                        instructions, self.current_frame().instruction_pointer + 1
                     )
-                    instruction_pointer += 2
+                    self.current_frame().instruction_pointer += 2
 
                     obj = self.globals[global_index]
                     assert obj
                     self.push(obj)
                 case code.OpCodes.ARRAY:
                     num_elements = code.read_int16(
-                        self.instructions, instruction_pointer + 1
+                        instructions, self.current_frame().instruction_pointer + 1
                     )
-                    instruction_pointer += 2
+                    self.current_frame().instruction_pointer += 2
 
                     start = self.stack_pointer - num_elements
                     array = self.build_array(start, self.stack_pointer)
                     self.push(array)
                 case code.OpCodes.HASH:
                     num_elements = code.read_int16(
-                        self.instructions, instruction_pointer + 1
+                        instructions, self.current_frame().instruction_pointer + 1
                     )
-                    instruction_pointer += 2
+                    self.current_frame().instruction_pointer += 2
 
                     start = self.stack_pointer - num_elements
                     map = self.build_hash_map(start, self.stack_pointer)
@@ -202,8 +209,6 @@ class VM:
 
                 case _:
                     raise NotImplementedError(op_code)
-
-            instruction_pointer += 1
 
     @property
     def last_popped_stack_elem(self) -> objects.Object:
