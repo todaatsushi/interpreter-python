@@ -221,6 +221,11 @@ class VM:
                     print(y, type(y))
 
                     self.push(value)
+                case code.OpCodes.RETURN:
+                    self.pop_frame()
+                    self.pop()
+
+                    self.push(NULL)
                 case _:
                     raise NotImplementedError(op_code)
 
