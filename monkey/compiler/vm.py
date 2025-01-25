@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, cast
 import dataclasses as dc
 
 from monkey.interpreter import objects
-from monkey.compiler import code, compilers
+from monkey.compiler import code, compilers, frames
 
 if TYPE_CHECKING:
     from typing import Final
@@ -64,6 +64,9 @@ class VM:
     constants: list[objects.Object]
     instructions: code.Instructions
 
+    frames: list[frames.Frame]
+    frames_index: int
+
     @classmethod
     def from_bytecode(
         cls,
@@ -76,7 +79,29 @@ class VM:
             instructions=bytecode.instructions,
             stack_pointer=0,
             stack=[None] * STACK_SIZE,
+            frames=[],
+            frames_index=0,
         )
+
+    def current_frame(self) -> frames.Frame:
+        try:
+            return self.frames[self.frames_index - 1]
+        except IndexError as exc:
+            raise Missing from exc
+
+    def push_frame(self, frame: frames.Frame) -> None:
+        assert self.frames_index == len(self.frames)
+
+        self.frames.append(frame)
+        self.frames_index += 1
+
+    def pop_frame(self) -> frames.Frame:
+        assert self.frames_index != len(self.frames)
+        if self.frames_index < 0:
+            raise Missing
+
+        self.frames_index -= 1
+        return self.frames.pop()
 
     def run(self) -> None:
         instruction_pointer = 0
