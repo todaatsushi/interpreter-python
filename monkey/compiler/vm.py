@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 
 STACK_SIZE: Final = 2048
 GLOBALS_SIZE: Final = 65536
+MAX_FRAMES: Final = 1024
 
 TRUE = objects.Boolean(value=True)
 FALSE = objects.Boolean(value=False)
@@ -64,7 +65,7 @@ class VM:
     constants: list[objects.Object]
     instructions: code.Instructions
 
-    frames: list[frames.Frame]
+    frames: list[frames.Frame | None]
     frames_index: int
 
     @classmethod
@@ -73,35 +74,44 @@ class VM:
         bytecode: compilers.Bytecode,
         state: list[objects.Object | None] | None = None,
     ) -> VM:
+        main_func = objects.CompiledFunction(instructions=bytecode.instructions)
+        main_frame = frames.Frame.new(main_func)
+        frames_: list[frames.Frame | None] = [None] * MAX_FRAMES
+        frames_[0] = main_frame
+
         return cls(
             globals=state or ([None] * GLOBALS_SIZE),
             constants=bytecode.constants,
             instructions=bytecode.instructions,
             stack_pointer=0,
             stack=[None] * STACK_SIZE,
-            frames=[],
-            frames_index=0,
+            frames=frames_,
+            frames_index=1,
         )
 
     def current_frame(self) -> frames.Frame:
         try:
-            return self.frames[self.frames_index - 1]
-        except IndexError as exc:
-            raise Missing from exc
+            if frame := self.frames[self.frames_index - 1]:
+                return frame
+        except IndexError:
+            pass
+
+        raise Missing
 
     def push_frame(self, frame: frames.Frame) -> None:
-        assert self.frames_index == len(self.frames)
-
-        self.frames.append(frame)
+        self.frames[self.frames_index] = frame
         self.frames_index += 1
 
     def pop_frame(self) -> frames.Frame:
-        assert self.frames_index != len(self.frames)
         if self.frames_index < 0:
             raise Missing
 
-        self.frames_index -= 1
-        return self.frames.pop()
+        if f := self.frames[self.frames_index - 1]:
+            self.frames[self.frames_index - 1] = None
+            self.frames_index -= 1
+            return f
+
+        raise Missing
 
     def run(self) -> None:
         instruction_pointer = 0
