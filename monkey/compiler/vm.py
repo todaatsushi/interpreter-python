@@ -206,7 +206,21 @@ class VM:
                     index = self.pop()
                     left = self.pop()
                     self.execute_index_operation(left, index)
+                case code.OpCodes.CALL:
+                    func = self.stack[self.stack_pointer - 1]
+                    assert isinstance(func, objects.CompiledFunction)
 
+                    frame = frames.Frame.new(func)
+                    self.push_frame(frame)
+                case code.OpCodes.RETURN_VALUE:
+                    value = self.pop()
+
+                    x = self.pop_frame()
+                    print(x, type(x))
+                    y = self.pop()
+                    print(y, type(y))
+
+                    self.push(value)
                 case _:
                     raise NotImplementedError(op_code)
 

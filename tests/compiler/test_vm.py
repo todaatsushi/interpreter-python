@@ -252,3 +252,45 @@ class TestVM(unittest.TestCase):
                 # ("{}[0]", None),
             ),
         )
+
+    def test_calling_functions(self) -> None:
+        run_vm_tests(
+            self,
+            (
+                ("let fivePlusTen = fn() { 5 + 10; };\n" "fivePlusTen()", 15),
+                (
+                    (
+                        "let fivePlusTen = fn() { 5 + 10; };\n let thenTimesTwo = fn() { fivePlusTen() * 2 }"
+                        "thenTimesTwo()"
+                    ),
+                    30,
+                ),
+                (
+                    (
+                        "let one = fn() { 1; };\n"
+                        "let two = fn() { 2; }\n"
+                        "one() + two()"
+                    ),
+                    3,
+                ),
+                (
+                    (
+                        "let a = fn() { 1 };\n"
+                        "let b = fn() { a() + 1 };\n"
+                        "let c = fn() { b() + 1 };\n"
+                        "c()"
+                    ),
+                    3,
+                ),
+            ),
+        )
+
+    def test_calling_functions_with_return(self) -> None:
+        run_vm_tests(
+            self,
+            (
+                ("let early = fn() { return 99; return 100; }" "early()", 99),
+                ("let early = fn() { return 99; 100; }" "early()", 99),
+                ("let regular = fn() { 99; return 100; }" "regular()", 100),
+            ),
+        )
