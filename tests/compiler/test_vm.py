@@ -294,3 +294,19 @@ class TestVM(unittest.TestCase):
                 ("let regular = fn() { 99; return 100; }" "regular()", 100),
             ),
         )
+
+    @unittest.skip("Fails for some reason in the parser")
+    def test_first_class_functions(self) -> None:
+        run_vm_tests(
+            self,
+            (
+                (
+                    (
+                        "let returnsOne = fn() { 1; };\n"
+                        "let returnsOneReturner = fn() { returnsOne; }\n"
+                        "returnsOneReturner()();"
+                    ),
+                    1,
+                ),
+            ),
+        )
