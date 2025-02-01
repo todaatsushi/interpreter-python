@@ -14,6 +14,7 @@ class MissingDefinition(SymbolError):
 
 class Scope(enum.StrEnum):
     GLOBAL = "GLOBAL"
+    LOCAL = "LOCAL"
 
 
 @dc.dataclass(frozen=True)
@@ -28,12 +29,22 @@ class SymbolTable:
     store: dict[str, Symbol]
     num_definitions: int
 
+    outer: SymbolTable | None = None
+
     @classmethod
     def new(cls) -> SymbolTable:
         return cls({}, 0)
 
+    @classmethod
+    def new_enclosed(cls, outer: SymbolTable) -> SymbolTable:
+        return cls({}, 0, outer=outer)
+
     def define(self, identifier: str) -> Symbol:
-        symbol = Symbol(identifier, Scope.GLOBAL, self.num_definitions)
+        symbol = Symbol(
+            identifier,
+            Scope.GLOBAL if self.outer is None else Scope.LOCAL,
+            self.num_definitions,
+        )
 
         self.store[identifier] = symbol
         self.num_definitions += 1
@@ -44,4 +55,6 @@ class SymbolTable:
         try:
             return self.store[identifier]
         except KeyError as exc:
-            raise MissingDefinition(identifier) from exc
+            if self.outer is None:
+                raise MissingDefinition(identifier) from exc
+            return self.outer.resolve(identifier)

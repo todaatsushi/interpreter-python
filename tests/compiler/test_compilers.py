@@ -1,6 +1,8 @@
 import unittest
 
-from monkey.compiler import code, compilers
+from collections.abc import Mapping, Sequence
+
+from monkey.compiler import code, compilers, symbol_table as st
 from monkey.interpreter import objects
 from tests import utils
 
@@ -319,6 +321,55 @@ class TestCompiler(unittest.TestCase):
             ),
         )
 
+    def test_resolve_local(self) -> None:
+        global_ = st.SymbolTable.new()
+        global_.define("a")
+        global_.define("b")
+
+        first_local = st.SymbolTable.new_enclosed(global_)
+        first_local.define("c")
+        first_local.define("d")
+
+        second_local = st.SymbolTable.new_enclosed(first_local)
+        second_local.define("e")
+        second_local.define("f")
+
+        tests: Sequence[tuple[str, st.SymbolTable, Sequence[st.Symbol]]] = (
+            (
+                "first_local",
+                first_local,
+                (
+                    st.Symbol("a", st.Scope.GLOBAL, 0),
+                    st.Symbol("b", st.Scope.GLOBAL, 1),
+                    st.Symbol("c", st.Scope.LOCAL, 0),
+                    st.Symbol("d", st.Scope.LOCAL, 1),
+                ),
+            ),
+            (
+                "second_local",
+                second_local,
+                (
+                    st.Symbol("a", st.Scope.GLOBAL, 0),
+                    st.Symbol("b", st.Scope.GLOBAL, 1),
+                    st.Symbol("e", st.Scope.LOCAL, 0),
+                    st.Symbol("f", st.Scope.LOCAL, 1),
+                ),
+            ),
+        )
+
+        for type_, symbol_table, symbols in tests:
+            with self.subTest(type_):
+                for symbol in symbols:
+                    try:
+                        result = symbol_table.resolve(symbol.name)
+                    except st.MissingDefinition:
+                        self.assertTrue(
+                            False, f"Missing definition for {symbol} in {symbol_table}"
+                        )
+                        assert False, "Unreachable"
+
+                    self.assertEqual(symbol, result)
+
     def test_string(self) -> None:
         run_compiler_tests(
             self,
@@ -622,3 +673,37 @@ class TestCompiler(unittest.TestCase):
                 ),
             ),
         )
+
+    def test_define_symbol_table(self) -> None:
+        expected: Mapping[str, st.Symbol] = {
+            "a": st.Symbol("a", st.Scope.GLOBAL, 0),
+            "b": st.Symbol("b", st.Scope.GLOBAL, 1),
+            "c": st.Symbol("c", st.Scope.LOCAL, 0),
+            "d": st.Symbol("d", st.Scope.LOCAL, 1),
+            "e": st.Symbol("e", st.Scope.LOCAL, 0),
+            "f": st.Symbol("f", st.Scope.LOCAL, 1),
+        }
+
+        global_ = st.SymbolTable.new()
+
+        a = global_.define("a")
+        self.assertEqual(a, expected["a"])
+
+        b = global_.define("b")
+        self.assertEqual(b, expected["b"])
+
+        first_local = st.SymbolTable.new_enclosed(global_)
+
+        c = first_local.define("c")
+        self.assertEqual(c, expected["c"])
+
+        d = first_local.define("d")
+        self.assertEqual(d, expected["d"])
+
+        second_local = st.SymbolTable.new_enclosed(first_local)
+
+        e = second_local.define("e")
+        self.assertEqual(e, expected["e"])
+
+        f = second_local.define("f")
+        self.assertEqual(f, expected["f"])
