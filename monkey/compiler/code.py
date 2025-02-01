@@ -184,7 +184,9 @@ def read_operands(
     for i, width in enumerate(definition.operand_widths):
         match width:
             case 2:
-                operands[i] = int.from_bytes(instructions[offset : offset + width])
+                operands[i] = read_int16(instructions, offset)
+            case 1:
+                operands[i] = read_int8(instructions, offset)
             case _:
                 raise NotImplementedError(width)
         offset += width

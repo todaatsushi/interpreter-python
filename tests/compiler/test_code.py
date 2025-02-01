@@ -44,6 +44,8 @@ class TestOpCodes(unittest.TestCase):
         test_cases: tuple[tuple[code.OpCodes, list[int], int], ...] = (
             (code.OpCodes.CONSTANT, [1], 2),
             (code.OpCodes.CONSTANT, [65535], 2),
+            (code.OpCodes.GET_LOCAL, [255], 1),
+            (code.OpCodes.SET_LOCAL, [255], 1),
         )
 
         for op, operands, bytes_read in test_cases:
