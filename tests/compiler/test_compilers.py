@@ -58,6 +58,12 @@ def test_constants(
             assert isinstance(func, objects.CompiledFunction)
 
             test_instructions(tc, [exp], func.instructions)
+        elif isinstance(exp, list):
+            func = actual[i]
+            tc.assertIsInstance(func, objects.CompiledFunction)
+            assert isinstance(func, objects.CompiledFunction)
+
+            test_instructions(tc, exp, func.instructions)
         else:
             tc.fail(f"{type(exp)} not supported")
 
@@ -321,6 +327,66 @@ class TestCompiler(unittest.TestCase):
             ),
         )
 
+    def test_local_let_statements(self) -> None:
+        run_compiler_tests(
+            self,
+            (
+                (
+                    "let num = 55;\n" "fn() { num }",
+                    [
+                        55,
+                        [
+                            code.make(code.OpCodes.GET_GLOBAL, 0),
+                            code.make(code.OpCodes.RETURN_VALUE),
+                        ],
+                    ],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.SET_GLOBAL, 0),
+                        code.make(code.OpCodes.CONSTANT, 1),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+                (
+                    "fn() { let num = 55; num }",
+                    [
+                        55,
+                        [
+                            code.make(code.OpCodes.CONSTANT, 0),
+                            code.make(code.OpCodes.SET_LOCAL, 0),
+                            code.make(code.OpCodes.GET_LOCAL, 0),
+                            code.make(code.OpCodes.RETURN_VALUE),
+                        ],
+                    ],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 1),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+                (
+                    "fn() { let a = 55; let b = 77; a + b }",
+                    [
+                        55,
+                        77,
+                        [
+                            code.make(code.OpCodes.CONSTANT, 0),
+                            code.make(code.OpCodes.SET_LOCAL, 0),
+                            code.make(code.OpCodes.CONSTANT, 1),
+                            code.make(code.OpCodes.SET_LOCAL, 1),
+                            code.make(code.OpCodes.GET_LOCAL, 0),
+                            code.make(code.OpCodes.GET_LOCAL, 1),
+                            code.make(code.OpCodes.ADD),
+                            code.make(code.OpCodes.RETURN_VALUE),
+                        ],
+                    ],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 2),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+            ),
+        )
+
     def test_resolve_local(self) -> None:
         global_ = st.SymbolTable.new()
         global_.define("a")
@@ -523,6 +589,8 @@ class TestCompiler(unittest.TestCase):
         compiler = compilers.Compiler.new()
         self.assertEqual(compiler.scope_index, 0)
 
+        global_symbol_table = compiler.symbol_table
+
         compiler.emit(code.OpCodes.MULTIPLY)
         self.assertEqual(len(compiler.scopes[compiler.scope_index].instructions), 1)
 
@@ -538,8 +606,13 @@ class TestCompiler(unittest.TestCase):
         assert latest_instruction is not None
         self.assertEqual(latest_instruction.op_code, code.OpCodes.SUBTRACT)
 
+        self.assertIs(compiler.symbol_table.outer, global_symbol_table)
+
         compiler.leave_scope()
         self.assertEqual(compiler.scope_index, 0)
+
+        self.assertIs(compiler.symbol_table, global_symbol_table)
+        self.assertIsNone(compiler.symbol_table.outer)
 
         compiler.emit(code.OpCodes.ADD)
         current_scope = compiler.scopes[compiler.scope_index]

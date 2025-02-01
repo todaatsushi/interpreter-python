@@ -59,11 +59,18 @@ class Compiler:
     # Scope
     def enter_scope(self) -> None:
         scope = CompilationScope()
+
+        enclosed_symbol_table = st.SymbolTable.new_enclosed(self.symbol_table)
+        self.symbol_table = enclosed_symbol_table
+
         self.scopes.append(scope)
         self.scope_index += 1
 
     def leave_scope(self) -> code.Instructions:
         instructions = self.current_scope.instructions
+
+        assert self.symbol_table.outer
+        self.symbol_table = self.symbol_table.outer
 
         self.scopes.pop()
         self.scope_index -= 1
@@ -232,12 +239,18 @@ class Compiler:
                     assert isinstance(node, ast.Let)
                     self.compile(node.value)
                     symbol = self.symbol_table.define(node.name.value)
-                    self.emit(code.OpCodes.SET_GLOBAL, symbol.index)
+                    if symbol.scope is st.Scope.GLOBAL:
+                        self.emit(code.OpCodes.SET_GLOBAL, symbol.index)
+                    else:
+                        self.emit(code.OpCodes.SET_LOCAL, symbol.index)
                 case ast.Identifier:
                     assert isinstance(node, ast.Identifier)
                     try:
                         symbol = self.symbol_table.resolve(node.value)
-                        self.emit(code.OpCodes.GET_GLOBAL, symbol.index)
+                        if symbol.scope is st.Scope.GLOBAL:
+                            self.emit(code.OpCodes.GET_GLOBAL, symbol.index)
+                        else:
+                            self.emit(code.OpCodes.GET_LOCAL, symbol.index)
                     except st.MissingDefinition:
                         # TODO - handle this
                         raise
