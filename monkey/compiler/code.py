@@ -191,6 +191,11 @@ def read_operands(
     return operands, offset
 
 
-def read_int16(bytes_: Instructions, left: int) -> int:
+def read_int16(bytes_: bytearray, left: int) -> int:
     right = left + 2
+    return int.from_bytes(bytes_[left:right])
+
+
+def read_int8(bytes_: bytearray, left: int) -> int:
+    right = left + 1
     return int.from_bytes(bytes_[left:right])
