@@ -90,6 +90,9 @@ class OpCodes(bytes, enum.Enum):
     RETURN = bytes([22])
     RETURN_VALUE = bytes([23])
 
+    GET_LOCAL = bytes([24])
+    SET_LOCAL = bytes([25])
+
     def as_int(self) -> int:
         return int.from_bytes(self)
 
@@ -127,6 +130,8 @@ DEFINITIONS: dict[OpCodes, Definition] = {
     OpCodes.RETURN_VALUE: Definition(
         name="OpReturnValue", operand_widths=[]
     ),  # Return stack
+    OpCodes.GET_LOCAL: Definition(name="OpGetLocal", operand_widths=[1]),
+    OpCodes.SET_LOCAL: Definition(name="OpSetLocal", operand_widths=[1]),
 }
 
 
