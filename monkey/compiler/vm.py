@@ -74,7 +74,7 @@ class VM:
         state: list[objects.Object | None] | None = None,
     ) -> VM:
         main_func = objects.CompiledFunction(instructions=bytecode.instructions)
-        main_frame = frames.Frame.new(main_func)
+        main_frame = frames.Frame.new(main_func, 0)
         frames_: list[frames.Frame | None] = [None] * MAX_FRAMES
         frames_[0] = main_frame
 
@@ -210,7 +210,7 @@ class VM:
                     func = self.stack[self.stack_pointer - 1]
                     assert isinstance(func, objects.CompiledFunction)
 
-                    frame = frames.Frame.new(func)
+                    frame = frames.Frame.new(func, self.stack_pointer)
                     self.push_frame(frame)
                 case code.OpCodes.RETURN_VALUE:
                     value = self.pop()
