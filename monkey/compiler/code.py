@@ -164,6 +164,8 @@ def make(op: OpCodes, *operands: int) -> Instructions:
                 pass
             case 2:
                 struct.pack_into(">H", result, offset, operand)
+            case 1:
+                result[offset] = operand
             case _:
                 raise NotImplementedError(width)
         offset += width
