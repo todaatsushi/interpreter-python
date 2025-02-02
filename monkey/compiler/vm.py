@@ -215,10 +215,8 @@ class VM:
                 case code.OpCodes.RETURN_VALUE:
                     value = self.pop()
 
-                    x = self.pop_frame()
-                    print(x, type(x))
-                    y = self.pop()
-                    print(y, type(y))
+                    self.pop_frame()
+                    self.pop()
 
                     self.push(value)
                 case code.OpCodes.RETURN:
