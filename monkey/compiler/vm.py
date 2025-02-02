@@ -73,7 +73,9 @@ class VM:
         bytecode: compilers.Bytecode,
         state: list[objects.Object | None] | None = None,
     ) -> VM:
-        main_func = objects.CompiledFunction(instructions=bytecode.instructions)
+        main_func = objects.CompiledFunction(
+            instructions=bytecode.instructions, num_locals=0
+        )
         main_frame = frames.Frame.new(main_func, 0)
         frames_: list[frames.Frame | None] = [None] * MAX_FRAMES
         frames_[0] = main_frame
@@ -212,18 +214,40 @@ class VM:
 
                     frame = frames.Frame.new(func, self.stack_pointer)
                     self.push_frame(frame)
+                    self.stack_pointer = frame.base_pointer + func.num_locals
                 case code.OpCodes.RETURN_VALUE:
                     value = self.pop()
 
-                    self.pop_frame()
+                    frame = self.pop_frame()
+                    self.stack_pointer = frame.base_pointer
                     self.pop()
 
                     self.push(value)
                 case code.OpCodes.RETURN:
-                    self.pop_frame()
+                    frame = self.pop_frame()
+                    self.stack_pointer = frame.base_pointer
+
                     self.pop()
 
                     self.push(NULL)
+                case code.OpCodes.SET_LOCAL:
+                    local_index = code.read_int8(
+                        instructions, self.current_frame().instruction_pointer + 1
+                    )
+                    self.current_frame().instruction_pointer += 1
+
+                    frame = self.current_frame()
+                    self.stack[frame.base_pointer + local_index] = self.pop()
+                case code.OpCodes.GET_LOCAL:
+                    local_index = code.read_int8(
+                        instructions, self.current_frame().instruction_pointer + 1
+                    )
+                    self.current_frame().instruction_pointer += 1
+
+                    frame = self.current_frame()
+                    obj = self.stack[frame.base_pointer + local_index]
+                    assert obj
+                    self.push(obj)
                 case _:
                     raise NotImplementedError(op_code)
 

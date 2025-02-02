@@ -303,6 +303,8 @@ class BuiltInFunction(Object):
 class CompiledFunction(Object):
     instructions: code.Instructions
 
+    num_locals: int
+
     type = ObjectType.COMPILED_FUNCTION
 
     def inspect(self) -> str:

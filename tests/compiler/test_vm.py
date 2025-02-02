@@ -257,7 +257,7 @@ class TestVM(unittest.TestCase):
         run_vm_tests(
             self,
             (
-                ("let fivePlusTen = fn() { 5 + 10; };\n" "fivePlusTen()", 15),
+                ("let fivePlusTen = fn() { 5 + 10; };\n fivePlusTen()", 15),
                 (
                     (
                         "let fivePlusTen = fn() { 5 + 10; };\n let thenTimesTwo = fn() { fivePlusTen() * 2 }"
@@ -292,6 +292,43 @@ class TestVM(unittest.TestCase):
                 ("let early = fn() { return 99; return 100; }" "early()", 99),
                 ("let early = fn() { return 99; 100; }" "early()", 99),
                 ("let regular = fn() { 99; return 100; }" "regular()", 100),
+            ),
+        )
+
+    def test_calling_functions_with_bindings(self) -> None:
+        run_vm_tests(
+            self,
+            (
+                ("let one = fn() { let one = 1; one }; one();", 1),
+                (
+                    "let oneAndTwo = fn() { let one = 1; let two = 2; one + two; }; oneAndTwo();",
+                    3,
+                ),
+                (
+                    (
+                        "let oneAndTwo = fn() { let one = 1; let two = 2; one + two };\n"
+                        "let threeAndFour = fn() { let three = 3; let four = 4; three + four; };\n"
+                        "oneAndTwo() + threeAndFour();"
+                    ),
+                    10,
+                ),
+                (
+                    (
+                        "let firstFoobar = fn() { let foobar = 50; foobar; };\n"
+                        "let secondFoobar = fn() { let foobar = 100; foobar; };\n"
+                        "firstFoobar() + secondFoobar();"
+                    ),
+                    150,
+                ),
+                (
+                    (
+                        "let globalSeed = 50;\n"
+                        "let minusOne = fn() { let num = 1; globalSeed - num; }\n"
+                        "let minusTwo = fn() { let num = 2; globalSeed - num; }\n"
+                        "minusOne() + minusTwo()"
+                    ),
+                    97,
+                ),
             ),
         )
 
