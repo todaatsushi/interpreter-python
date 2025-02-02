@@ -1,4 +1,4 @@
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 import unittest
 from monkey.compiler import compilers, vm
 
@@ -84,7 +84,7 @@ def test_expected_object(
 
 
 def run_vm_tests(
-    tc: unittest.TestCase, test_cases: tuple[tuple[str, object], ...]
+    tc: unittest.TestCase, test_cases: Sequence[tuple[str, object]]
 ) -> None:
     for input_, expected in test_cases:
         compiler = compilers.Compiler.new()
