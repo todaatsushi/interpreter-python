@@ -297,9 +297,12 @@ class Compiler:
                     if not self._last_instruction_is(code.OpCodes.RETURN_VALUE):
                         self.emit(code.OpCodes.RETURN)
 
+                    num_definitions = self.symbol_table.num_definitions
                     func_scope_instructions = self.leave_scope()
+
                     compiled_function = objects.CompiledFunction(
-                        instructions=func_scope_instructions
+                        instructions=func_scope_instructions,
+                        num_locals=num_definitions,
                     )
                     self.emit(
                         code.OpCodes.CONSTANT, self._add_constant(compiled_function)
