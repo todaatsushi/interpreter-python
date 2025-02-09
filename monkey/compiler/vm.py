@@ -209,6 +209,8 @@ class VM:
                     left = self.pop()
                     self.execute_index_operation(left, index)
                 case code.OpCodes.CALL:
+                    self.current_frame().instruction_pointer += 1
+
                     func = self.stack[self.stack_pointer - 1]
                     assert isinstance(func, objects.CompiledFunction)
 

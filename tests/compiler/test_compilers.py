@@ -721,7 +721,7 @@ class TestCompiler(unittest.TestCase):
                     ],
                     [
                         code.make(code.OpCodes.CONSTANT, 1),  # Actual function
-                        code.make(code.OpCodes.CALL),
+                        code.make(code.OpCodes.CALL, 0),
                         code.make(code.OpCodes.POP),
                     ],
                 ),
@@ -740,7 +740,7 @@ class TestCompiler(unittest.TestCase):
                         code.make(code.OpCodes.CONSTANT, 1),  # Actual function
                         code.make(code.OpCodes.SET_GLOBAL, 0),
                         code.make(code.OpCodes.GET_GLOBAL, 0),
-                        code.make(code.OpCodes.CALL),
+                        code.make(code.OpCodes.CALL, 0),
                         code.make(code.OpCodes.POP),
                     ],
                 ),

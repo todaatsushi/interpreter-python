@@ -125,7 +125,7 @@ DEFINITIONS: dict[OpCodes, Definition] = {
     OpCodes.ARRAY: Definition(name="OpArray", operand_widths=[2]),
     OpCodes.HASH: Definition(name="OpHash", operand_widths=[2]),
     OpCodes.INDEX: Definition(name="OpIndex", operand_widths=[]),
-    OpCodes.CALL: Definition(name="OpCall", operand_widths=[]),
+    OpCodes.CALL: Definition(name="OpCall", operand_widths=[1]),
     OpCodes.RETURN: Definition(name="OpReturn", operand_widths=[]),  # Return null
     OpCodes.RETURN_VALUE: Definition(
         name="OpReturnValue", operand_widths=[]
