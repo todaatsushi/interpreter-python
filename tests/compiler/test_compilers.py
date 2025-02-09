@@ -84,7 +84,7 @@ def test_instructions(
         tc.assertEqual(
             instruction,
             actual[i],
-            f"Expected '{instruction}' at position {i}, got '{actual[i]}'",
+            f"Expected '{instruction}' at position {i}, got '{actual[i]}'\n\nGot:\n\n{str(actual)}\n\nExpected:\n\n{str(all_instructions)}",
         )
 
 
