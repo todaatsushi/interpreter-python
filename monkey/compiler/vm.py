@@ -209,14 +209,12 @@ class VM:
                     left = self.pop()
                     self.execute_index_operation(left, index)
                 case code.OpCodes.CALL:
+                    num_args = code.read_int8(
+                        instructions, self.current_frame().instruction_pointer + 1
+                    )
                     self.current_frame().instruction_pointer += 1
 
-                    func = self.stack[self.stack_pointer - 1]
-                    assert isinstance(func, objects.CompiledFunction)
-
-                    frame = frames.Frame.new(func, self.stack_pointer)
-                    self.push_frame(frame)
-                    self.stack_pointer = frame.base_pointer + func.num_locals
+                    self.call_function(num_args)
                 case code.OpCodes.RETURN_VALUE:
                     value = self.pop()
 
@@ -302,6 +300,14 @@ class VM:
         return objects.Array(items=cast(list[objects.Object], elements))
 
     # Operations
+    def call_function(self, num_args: int) -> None:
+        func = self.stack[self.stack_pointer - 1 - num_args]
+        assert isinstance(func, objects.CompiledFunction)
+
+        frame = frames.Frame.new(func, self.stack_pointer - num_args)
+        self.push_frame(frame)
+        self.stack_pointer = frame.base_pointer + func.num_locals
+
     def execute_binary_operation(self, op: code.OpCodes) -> None:
         right = self.pop()
         left = self.pop()

@@ -285,6 +285,31 @@ class TestVM(unittest.TestCase):
             ),
         )
 
+    def test_calling_functions_with_arguments_and_bindings(self) -> None:
+        run_vm_tests(
+            self,
+            (
+                ("let identity = fn(a) { a; };\n identity(4);", 4),
+                ("let sum = fn(a, b) { a + b; };\n sum(1, 2);", 3),
+                ("let sum = fn(a, b) { let c = a + b; c; };\n sum(1, 2);", 3),
+                (
+                    "let sum = fn(a, b) { let c = a + b; c; };\n sum(1, 2) + sum(3, 4);",
+                    10,
+                ),
+                (
+                    "let sum = fn(a, b) { let c = a + b; c; };\n let outer = fn() { sum(1, 2) + sum(3, 4); }; \nouter();",
+                    10,
+                ),
+                (
+                    (
+                        "let globalNum = 10;\n\nlet sum = fn(a, b) { let c = a + b; c + globalNum; };\n\nlet outer = fn() {"
+                        "sum(1, 2) + sum(3, 4) + globalNum;};\n\nouter() + globalNum;"
+                    ),
+                    50,
+                ),
+            ),
+        )
+
     def test_calling_functions_with_return(self) -> None:
         run_vm_tests(
             self,
