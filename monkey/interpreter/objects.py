@@ -304,6 +304,7 @@ class CompiledFunction(Object):
     instructions: code.Instructions
 
     num_locals: int
+    num_params: int
 
     type = ObjectType.COMPILED_FUNCTION
 

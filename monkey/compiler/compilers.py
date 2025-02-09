@@ -307,6 +307,7 @@ class Compiler:
                     compiled_function = objects.CompiledFunction(
                         instructions=func_scope_instructions,
                         num_locals=num_definitions,
+                        num_params=len(node.parameters),
                     )
                     self.emit(
                         code.OpCodes.CONSTANT, self._add_constant(compiled_function)

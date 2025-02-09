@@ -310,6 +310,27 @@ class TestVM(unittest.TestCase):
             ),
         )
 
+    def test_calling_functions_with_wrong_number_of_arguments(self) -> None:
+        test_cases: Sequence[str] = (
+            "fn() { 1; }(1);",
+            "fn(a) { a; }();",
+            "fn(a, b) { a + b; }(2);",
+        )
+
+        for input_ in test_cases:
+            compiler = compilers.Compiler.new()
+
+            program = utils.parse(input_)
+            compiler.compile(program)
+
+            vm_ = vm.VM.from_bytecode(compiler.bytecode())
+            try:
+                vm_.run()
+            except vm.MismatchedNumberOfParams:
+                pass
+            else:
+                self.fail(f"Expected MismatchedNumberOfParams for {input_}")
+
     def test_calling_functions_with_return(self) -> None:
         run_vm_tests(
             self,

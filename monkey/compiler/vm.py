@@ -37,6 +37,10 @@ class StackError(VMError):
     pass
 
 
+class MismatchedNumberOfParams(VMError):
+    pass
+
+
 class Missing(StackError):
     pass
 
@@ -74,7 +78,9 @@ class VM:
         state: list[objects.Object | None] | None = None,
     ) -> VM:
         main_func = objects.CompiledFunction(
-            instructions=bytecode.instructions, num_locals=0
+            instructions=bytecode.instructions,
+            num_locals=0,
+            num_params=0,
         )
         main_frame = frames.Frame.new(main_func, 0)
         frames_: list[frames.Frame | None] = [None] * MAX_FRAMES
@@ -303,6 +309,11 @@ class VM:
     def call_function(self, num_args: int) -> None:
         func = self.stack[self.stack_pointer - 1 - num_args]
         assert isinstance(func, objects.CompiledFunction)
+
+        if func.num_params != num_args:
+            raise MismatchedNumberOfParams(
+                f"Expected {func.num_params}, got {num_args}"
+            )
 
         frame = frames.Frame.new(func, self.stack_pointer - num_args)
         self.push_frame(frame)
