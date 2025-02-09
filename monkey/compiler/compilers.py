@@ -314,7 +314,11 @@ class Compiler:
                 case ast.Call:
                     assert isinstance(node, ast.Call)
                     self.compile(node.function)
-                    self.emit(code.OpCodes.CALL)
+
+                    for arg in node.arguments:
+                        self.compile(arg)
+
+                    self.emit(code.OpCodes.CALL, len(node.arguments))
                 case _:
                     raise NotImplementedError(type(node))
         except Exception as exc:

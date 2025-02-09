@@ -744,6 +744,44 @@ class TestCompiler(unittest.TestCase):
                         code.make(code.OpCodes.POP),
                     ],
                 ),
+                (
+                    "let oneArg = fn(a) { }; \noneArg(24);",
+                    [
+                        code.Instructions.concat_bytes(
+                            [code.make(code.OpCodes.RETURN)]
+                        ),
+                        24,
+                    ],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.SET_GLOBAL, 0),
+                        code.make(code.OpCodes.GET_GLOBAL, 0),
+                        code.make(code.OpCodes.CONSTANT, 1),
+                        code.make(code.OpCodes.CALL, 1),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+                (
+                    "let manyArg = fn(a, b, c) {  };\n manyArg(24, 25, 26);",
+                    [
+                        code.Instructions.concat_bytes(
+                            [code.make(code.OpCodes.RETURN)]
+                        ),
+                        24,
+                        25,
+                        26,
+                    ],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.SET_GLOBAL, 0),
+                        code.make(code.OpCodes.GET_GLOBAL, 0),
+                        code.make(code.OpCodes.CONSTANT, 1),
+                        code.make(code.OpCodes.CONSTANT, 2),
+                        code.make(code.OpCodes.CONSTANT, 3),
+                        code.make(code.OpCodes.CALL, 3),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
             ),
         )
 
