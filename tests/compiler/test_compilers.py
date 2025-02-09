@@ -745,10 +745,13 @@ class TestCompiler(unittest.TestCase):
                     ],
                 ),
                 (
-                    "let oneArg = fn(a) { }; \noneArg(24);",
+                    "let oneArg = fn(a) { a }; \noneArg(24);",
                     [
                         code.Instructions.concat_bytes(
-                            [code.make(code.OpCodes.RETURN)]
+                            [
+                                code.make(code.OpCodes.GET_LOCAL, 0),
+                                code.make(code.OpCodes.RETURN_VALUE),
+                            ]
                         ),
                         24,
                     ],
@@ -762,10 +765,17 @@ class TestCompiler(unittest.TestCase):
                     ],
                 ),
                 (
-                    "let manyArg = fn(a, b, c) {  };\n manyArg(24, 25, 26);",
+                    "let manyArg = fn(a, b, c) { a; b; c; };\n manyArg(24, 25, 26);",
                     [
                         code.Instructions.concat_bytes(
-                            [code.make(code.OpCodes.RETURN)]
+                            [
+                                code.make(code.OpCodes.GET_LOCAL, 0),
+                                code.make(code.OpCodes.POP),
+                                code.make(code.OpCodes.GET_LOCAL, 1),
+                                code.make(code.OpCodes.POP),
+                                code.make(code.OpCodes.GET_LOCAL, 2),
+                                code.make(code.OpCodes.RETURN_VALUE),
+                            ]
                         ),
                         24,
                         25,

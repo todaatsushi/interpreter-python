@@ -285,6 +285,10 @@ class Compiler:
                     assert isinstance(node, ast.FunctionLiteral)
 
                     self.enter_scope()
+
+                    for param in node.parameters:
+                        self.symbol_table.define(param.value)
+
                     if node.body:
                         self.compile(node.body)
 
