@@ -50,6 +50,10 @@ class Compiler:
     def new(cls, symbol_table: st.SymbolTable | None = None) -> Compiler:
         main_scope = CompilationScope()
         _symbol_table = symbol_table or st.SymbolTable.new()
+
+        for i, name in enumerate(objects.BUILTIN_MAP):
+            _symbol_table.define_builtin(i, name)
+
         return cls(
             symbol_table=_symbol_table,
             scopes=[main_scope],
