@@ -81,6 +81,17 @@ class Compiler:
 
         return instructions
 
+    # Symbol table
+    def load_symbol(self, symbol: st.Symbol):
+        match symbol.scope:
+            case st.Scope.GLOBAL:
+                op_code = code.OpCodes.GET_GLOBAL
+            case st.Scope.LOCAL:
+                op_code = code.OpCodes.GET_LOCAL
+            case st.Scope.BUILTIN:
+                op_code = code.OpCodes.GET_BUILTIN
+        self.emit(op_code, symbol.index)
+
     @property
     def current_scope(self) -> CompilationScope:
         return self.scopes[self.scope_index]
@@ -251,13 +262,10 @@ class Compiler:
                     assert isinstance(node, ast.Identifier)
                     try:
                         symbol = self.symbol_table.resolve(node.value)
-                        if symbol.scope is st.Scope.GLOBAL:
-                            self.emit(code.OpCodes.GET_GLOBAL, symbol.index)
-                        else:
-                            self.emit(code.OpCodes.GET_LOCAL, symbol.index)
                     except st.MissingDefinition:
                         # TODO - handle this
                         raise
+                    self.load_symbol(symbol)
                 case ast.StringLiteral:
                     assert isinstance(node, ast.StringLiteral)
                     string = objects.String(value=node.value)

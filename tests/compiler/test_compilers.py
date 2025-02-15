@@ -828,3 +828,40 @@ class TestCompiler(unittest.TestCase):
 
         f = second_local.define("f")
         self.assertEqual(f, expected["f"])
+
+    def test_builtins(self) -> None:
+        run_compiler_tests(
+            self,
+            (
+                (
+                    ("len([]); push([], 1);"),
+                    [1],
+                    [
+                        code.make(code.OpCodes.GET_BUILTIN, 0),
+                        code.make(code.OpCodes.ARRAY, 0),
+                        code.make(code.OpCodes.CALL, 1),
+                        code.make(code.OpCodes.POP),
+                        code.make(code.OpCodes.GET_BUILTIN, 5),
+                        code.make(code.OpCodes.ARRAY, 0),
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.CALL, 2),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+                (
+                    ("fn() { len([]) };"),
+                    [
+                        [
+                            code.make(code.OpCodes.GET_BUILTIN, 0),
+                            code.make(code.OpCodes.ARRAY, 0),
+                            code.make(code.OpCodes.CALL, 1),
+                            code.make(code.OpCodes.RETURN_VALUE),
+                        ]
+                    ],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+            ),
+        )
