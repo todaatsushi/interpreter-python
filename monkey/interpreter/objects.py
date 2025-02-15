@@ -314,11 +314,11 @@ class CompiledFunction(Object):
 
 BUILTIN_MAP: dict[str, BuiltInFunction] = {
     "len": BuiltInFunction(function=GetLength()),
+    "puts": BuiltInFunction(function=Puts()),
     "first": BuiltInFunction(function=First()),
     "last": BuiltInFunction(function=Last()),
     "rest": BuiltInFunction(function=Rest()),
     "push": BuiltInFunction(function=Push()),
-    "puts": BuiltInFunction(function=Puts()),
 }
 
 
