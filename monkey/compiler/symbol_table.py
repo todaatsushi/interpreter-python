@@ -15,6 +15,7 @@ class MissingDefinition(SymbolError):
 class Scope(enum.StrEnum):
     GLOBAL = "GLOBAL"
     LOCAL = "LOCAL"
+    BUILTIN = "BUILTIN"
 
 
 @dc.dataclass(frozen=True)
