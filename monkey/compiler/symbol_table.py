@@ -52,6 +52,11 @@ class SymbolTable:
 
         return symbol
 
+    def define_builtin(self, index: int, name: str) -> Symbol:
+        symbol = Symbol(name, Scope.BUILTIN, index)
+        self.store[name] = symbol
+        return symbol
+
     def resolve(self, identifier: str) -> Symbol:
         try:
             return self.store[identifier]
