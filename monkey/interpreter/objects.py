@@ -320,3 +320,7 @@ BUILTIN_MAP: dict[str, BuiltInFunction] = {
     "push": BuiltInFunction(function=Push()),
     "puts": BuiltInFunction(function=Puts()),
 }
+
+
+def get_builtin_by_name(name: str) -> BuiltInFunction | None:
+    return BUILTIN_MAP.get(name)

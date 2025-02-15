@@ -335,7 +335,7 @@ def identifier(iden: ast.Identifier, env: environment.Environment) -> objects.Ob
     if value:
         return value
 
-    if f := objects.BUILTIN_MAP.get(iden.value):
+    if f := objects.get_builtin_by_name(iden.value):
         return f
 
     assert not ok
