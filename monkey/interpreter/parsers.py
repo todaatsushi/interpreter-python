@@ -151,9 +151,9 @@ class Parser:
     ) -> None:
         self.parse_functions["INFIX"][token_type] = func
 
-    ## Precendence
+    ## Precedence
 
-    def get_precendence(self, token: Literal["CURRENT", "PEEK"]) -> Precedences:
+    def get_precedence(self, token: Literal["CURRENT", "PEEK"]) -> Precedences:
         token_to_check = self.current_token if token == "CURRENT" else self.peek_token
         return Precedences.from_token_type(token_to_check.type)
 
@@ -499,10 +499,10 @@ class Parser:
         current = self.current_token
         assert current.value is not None
 
-        precendence = self.get_precendence("CURRENT")
+        precedence = self.get_precedence("CURRENT")
         self.next_token()
 
-        right = self.parse_expression(precendence)
+        right = self.parse_expression(precedence)
         return ast.Infix(
             token=current,
             operator=current.value.decode("ascii"),
@@ -510,7 +510,7 @@ class Parser:
             right=right,
         )
 
-    def parse_expression(self, precendence: Precedences) -> ast.Expression | None:
+    def parse_expression(self, precedence: Precedences) -> ast.Expression | None:
         prefix_func = self.parse_functions["PREFIX"].get(self.current_token.type)
         if prefix_func is None:
             msg = f"No prefix parse function for {self.current_token.type} found."
@@ -520,7 +520,7 @@ class Parser:
         left = prefix_func()
         while not self.expect_token_type(
             self.peek_token, tokens.TokenType.SEMICOLON, False
-        ) and precendence < self.get_precendence("PEEK"):
+        ) and precedence < self.get_precedence("PEEK"):
             infix_func = self.parse_functions["INFIX"].get(self.peek_token.type)
             if infix_func is None:
                 return left
