@@ -198,6 +198,8 @@ class GetLength(F):
         arg = args[0]
         if isinstance(arg, String):
             return Integer(value=len(arg.value))
+        elif isinstance(arg, Array):
+            return Integer(value=len(arg.items))
 
         return Error(message=f"{self.UNSUPPORTED_TYPE} {arg.type}")
 
@@ -320,6 +322,8 @@ BUILTIN_MAP: dict[str, BuiltInFunction] = {
     "rest": BuiltInFunction(function=Rest()),
     "push": BuiltInFunction(function=Push()),
 }
+
+BUILTINS = tuple(f for _, f in BUILTIN_MAP.items())
 
 
 def get_builtin_by_name(name: str) -> BuiltInFunction | None:

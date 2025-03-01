@@ -64,6 +64,15 @@ def test_array_object(
         test_expected_object(tc, ex, actual.items[i])
 
 
+def test_error_object(
+    tc: unittest.TestCase, expected: objects.Error, actual: objects.Object
+) -> None:
+    tc.assertIsInstance(actual, objects.Error)
+    assert isinstance(actual, objects.Error)
+
+    tc.assertEqual(expected.message, actual.message)
+
+
 def test_expected_object(
     tc: unittest.TestCase, expected: object, actual: objects.Object
 ) -> None:
@@ -79,6 +88,8 @@ def test_expected_object(
         return test_hash_map_object(tc, expected, actual)
     elif expected is None:
         return test_null_object(tc, actual)
+    elif isinstance(expected, objects.Error):
+        return test_error_object(tc, expected, actual)
     else:
         raise NotImplementedError(type(expected))
 
@@ -393,3 +404,76 @@ class TestVM(unittest.TestCase):
                 ),
             ),
         )
+
+    def test_builtins(self) -> None:
+        with self.subTest("len"):
+            run_vm_tests(
+                self,
+                (
+                    ('len("")', 0),
+                    ('len("four")', 4),
+                    ('len("hello world")', 11),
+                    (
+                        "len(1)",
+                        objects.Error("argument to 'len' not supported, got INTEGER"),
+                    ),
+                    (
+                        'len("one", "two")',
+                        objects.Error("wrong number of arguments, got 2, want 1"),
+                    ),
+                    ("len([1, 2, 3])", 3),
+                    ("len([])", 0),
+                ),
+            )
+
+        with self.subTest("puts"):
+            run_vm_tests(self, (('puts("hello", "world!")', None),))
+
+        with self.subTest("first"):
+            run_vm_tests(
+                self,
+                (
+                    ("first([1, 2, 3])", 1),
+                    ("first([])", None),
+                    (
+                        "first(1)",
+                        objects.Error("argument to 'first' not supported, got INTEGER"),
+                    ),
+                ),
+            )
+
+        with self.subTest("last"):
+            run_vm_tests(
+                self,
+                (
+                    ("last([1, 2, 3])", 3),
+                    ("last([])", None),
+                    (
+                        "last(1)",
+                        objects.Error("argument to 'last' not supported, got INTEGER"),
+                    ),
+                ),
+            )
+
+        with self.subTest("rest"):
+            run_vm_tests(
+                self,
+                (
+                    ("rest([1, 2, 3])", [2, 3]),
+                    ("rest([])", []),
+                ),
+            )
+
+        with self.subTest("push"):
+            run_vm_tests(
+                self,
+                (
+                    ("push([], 1)", [1]),
+                    (
+                        "push(1, 1)",
+                        objects.Error(
+                            "argument to 'rest' at position 1 not supported, got INTEGER"
+                        ),
+                    ),
+                ),
+            )

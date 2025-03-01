@@ -215,13 +215,20 @@ class VM:
                     index = self.pop()
                     left = self.pop()
                     self.execute_index_operation(left, index)
+                case code.OpCodes.GET_BUILTIN:
+                    builtin_index = code.read_int8(
+                        instructions, self.current_frame().instruction_pointer + 1
+                    )
+                    self.current_frame().instruction_pointer += 1
+
+                    definition = objects.BUILTINS[builtin_index]
+                    self.push(definition)
                 case code.OpCodes.CALL:
                     num_args = code.read_int8(
                         instructions, self.current_frame().instruction_pointer + 1
                     )
                     self.current_frame().instruction_pointer += 1
-
-                    self.call_function(num_args)
+                    self.execute_call(num_args)
                 case code.OpCodes.RETURN_VALUE:
                     value = self.pop()
 
@@ -307,10 +314,21 @@ class VM:
         return objects.Array(items=cast(list[objects.Object], elements))
 
     # Operations
-    def call_function(self, num_args: int) -> None:
+    def execute_call(self, num_args: int) -> None:
         func = self.stack[self.stack_pointer - 1 - num_args]
-        assert isinstance(func, objects.CompiledFunction)
+        match type(func):
+            case objects.CompiledFunction:
+                assert isinstance(func, objects.CompiledFunction)
+                return self.call_compiled_function(func, num_args)
+            case objects.BuiltInFunction:
+                assert isinstance(func, objects.BuiltInFunction)
+                return self.call_builtin_function(func, num_args)
+            case _:
+                raise Unhandled(f"Can't call function of type: '{type(func)}'")
 
+    def call_compiled_function(
+        self, func: objects.CompiledFunction, num_args: int
+    ) -> None:
         if func.num_params != num_args:
             raise MismatchedNumberOfParams(
                 f"Expected {func.num_params}, got {num_args}"
@@ -319,6 +337,20 @@ class VM:
         frame = frames.Frame.new(func, self.stack_pointer - num_args)
         self.push_frame(frame)
         self.stack_pointer = frame.base_pointer + func.num_locals
+
+    def call_builtin_function(
+        self, func: objects.BuiltInFunction, num_args: int
+    ) -> None:
+        args = self.stack[self.stack_pointer - num_args : self.stack_pointer]
+        assert all(args)
+
+        result = func.function(*[arg for arg in args if arg is not None])
+        self.stack_pointer = self.stack_pointer - num_args - 1
+
+        if result:
+            self.push(result)
+        else:
+            self.push(NULL)
 
     def execute_binary_operation(self, op: code.OpCodes) -> None:
         right = self.pop()
