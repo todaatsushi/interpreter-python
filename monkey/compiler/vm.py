@@ -200,6 +200,7 @@ class VM:
 
                     start = self.stack_pointer - num_elements
                     array = self.build_array(start, self.stack_pointer)
+                    self.stack_pointer -= num_elements
                     self.push(array)
                 case code.OpCodes.HASH:
                     num_elements = code.read_int16(
