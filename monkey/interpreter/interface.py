@@ -14,6 +14,8 @@ class Repl:
     def start(self, run_type: RunType) -> None:
         vm_globals: list[objects.Object | None] = [None] * vm.GLOBALS_SIZE
         compiler_symbol_table = symbol_table.SymbolTable.new()
+        for i, (name, _) in enumerate(objects.BUILTIN_MAP.items()):
+            compiler_symbol_table.define_builtin(i, name)
         while True:
             line = input(self.PROMPT)
             parsed = line.strip().split(self.PROMPT)[0].strip()
