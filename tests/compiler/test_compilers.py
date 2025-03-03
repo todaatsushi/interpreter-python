@@ -343,7 +343,7 @@ class TestCompiler(unittest.TestCase):
                     [
                         code.make(code.OpCodes.CONSTANT, 0),
                         code.make(code.OpCodes.SET_GLOBAL, 0),
-                        code.make(code.OpCodes.CONSTANT, 1),
+                        code.make(code.OpCodes.CLOSURE, 1, 0),
                         code.make(code.OpCodes.POP),
                     ],
                 ),
@@ -359,7 +359,7 @@ class TestCompiler(unittest.TestCase):
                         ],
                     ],
                     [
-                        code.make(code.OpCodes.CONSTANT, 1),
+                        code.make(code.OpCodes.CLOSURE, 1, 0),
                         code.make(code.OpCodes.POP),
                     ],
                 ),
@@ -380,7 +380,7 @@ class TestCompiler(unittest.TestCase):
                         ],
                     ],
                     [
-                        code.make(code.OpCodes.CONSTANT, 2),
+                        code.make(code.OpCodes.CLOSURE, 2, 0),
                         code.make(code.OpCodes.POP),
                     ],
                 ),
@@ -647,7 +647,7 @@ class TestCompiler(unittest.TestCase):
                         ),
                     ],
                     [
-                        code.make(code.OpCodes.CONSTANT, 2),
+                        code.make(code.OpCodes.CLOSURE, 2, 0),
                         code.make(code.OpCodes.POP),
                     ],
                 ),
@@ -666,7 +666,7 @@ class TestCompiler(unittest.TestCase):
                         ),
                     ],
                     [
-                        code.make(code.OpCodes.CONSTANT, 2),
+                        code.make(code.OpCodes.CLOSURE, 2, 0),
                         code.make(code.OpCodes.POP),
                     ],
                 ),
@@ -685,7 +685,7 @@ class TestCompiler(unittest.TestCase):
                         ),
                     ],
                     [
-                        code.make(code.OpCodes.CONSTANT, 2),
+                        code.make(code.OpCodes.CLOSURE, 2, 0),
                         code.make(code.OpCodes.POP),
                     ],
                 ),
@@ -697,7 +697,7 @@ class TestCompiler(unittest.TestCase):
                         ),
                     ],
                     [
-                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.CLOSURE, 0, 0),
                         code.make(code.OpCodes.POP),
                     ],
                 ),
@@ -720,7 +720,7 @@ class TestCompiler(unittest.TestCase):
                         ),
                     ],
                     [
-                        code.make(code.OpCodes.CONSTANT, 1),  # Actual function
+                        code.make(code.OpCodes.CLOSURE, 1, 0),
                         code.make(code.OpCodes.CALL, 0),
                         code.make(code.OpCodes.POP),
                     ],
@@ -737,7 +737,7 @@ class TestCompiler(unittest.TestCase):
                         ),
                     ],
                     [
-                        code.make(code.OpCodes.CONSTANT, 1),  # Actual function
+                        code.make(code.OpCodes.CLOSURE, 1, 0),
                         code.make(code.OpCodes.SET_GLOBAL, 0),
                         code.make(code.OpCodes.GET_GLOBAL, 0),
                         code.make(code.OpCodes.CALL, 0),
@@ -756,7 +756,7 @@ class TestCompiler(unittest.TestCase):
                         24,
                     ],
                     [
-                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.CLOSURE, 0, 0),
                         code.make(code.OpCodes.SET_GLOBAL, 0),
                         code.make(code.OpCodes.GET_GLOBAL, 0),
                         code.make(code.OpCodes.CONSTANT, 1),
@@ -782,7 +782,7 @@ class TestCompiler(unittest.TestCase):
                         26,
                     ],
                     [
-                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.CLOSURE, 0, 0),
                         code.make(code.OpCodes.SET_GLOBAL, 0),
                         code.make(code.OpCodes.GET_GLOBAL, 0),
                         code.make(code.OpCodes.CONSTANT, 1),
@@ -859,7 +859,7 @@ class TestCompiler(unittest.TestCase):
                         ]
                     ],
                     [
-                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.CLOSURE, 0, 0),
                         code.make(code.OpCodes.POP),
                     ],
                 ),

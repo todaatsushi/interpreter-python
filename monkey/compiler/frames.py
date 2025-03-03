@@ -6,14 +6,14 @@ from monkey.interpreter import objects
 
 @dc.dataclass
 class Frame:
-    func: objects.CompiledFunction
+    closure: objects.Closure
     instruction_pointer: int
     base_pointer: int
 
     @classmethod
-    def new(cls, func: objects.CompiledFunction, base_pointer: int):
+    def new(cls, func: objects.Closure, base_pointer: int):
         return cls(func, -1, base_pointer)
 
     @property
     def instructions(self) -> code.Instructions:
-        return self.func.instructions
+        return self.closure.function.instructions

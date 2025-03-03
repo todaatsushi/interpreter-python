@@ -322,7 +322,7 @@ class Compiler:
                         num_params=len(node.parameters),
                     )
                     self.emit(
-                        code.OpCodes.CONSTANT, self._add_constant(compiled_function)
+                        code.OpCodes.CLOSURE, self._add_constant(compiled_function)
                     )
                 case ast.Return:
                     assert isinstance(node, ast.Return)

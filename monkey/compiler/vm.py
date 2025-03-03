@@ -82,7 +82,10 @@ class VM:
             num_locals=0,
             num_params=0,
         )
-        main_frame = frames.Frame.new(main_func, 0)
+        main_frame = frames.Frame.new(
+            objects.Closure(function=main_func, free=[]),
+            0,
+        )
         frames_: list[frames.Frame | None] = [None] * MAX_FRAMES
         frames_[0] = main_frame
 
@@ -258,6 +261,16 @@ class VM:
                     obj = self.stack[frame.base_pointer + local_index]
                     assert obj
                     self.push(obj)
+                case code.OpCodes.CLOSURE:
+                    const_index = code.read_int16(
+                        instructions, self.current_frame().instruction_pointer + 1
+                    )
+                    _ = code.read_int8(
+                        instructions, self.current_frame().instruction_pointer + 3
+                    )
+                    self.current_frame().instruction_pointer += 3
+
+                    self.push_closure(const_index)
                 case _:
                     raise NotImplementedError(op_code)
 
@@ -277,6 +290,13 @@ class VM:
     def push_frame(self, frame: frames.Frame) -> None:
         self.frames[self.frames_index] = frame
         self.frames_index += 1
+
+    def push_closure(self, closure_index: int) -> None:
+        func = self.constants[closure_index]
+        assert isinstance(func, objects.CompiledFunction)
+
+        closure = objects.Closure(function=func, free=[])
+        return self.push(closure)
 
     def pop(self) -> objects.Object:
         if self.stack_pointer <= 0:
@@ -315,28 +335,28 @@ class VM:
 
     # Operations
     def execute_call(self, num_args: int) -> None:
-        func = self.stack[self.stack_pointer - 1 - num_args]
-        match type(func):
-            case objects.CompiledFunction:
-                assert isinstance(func, objects.CompiledFunction)
-                return self.call_compiled_function(func, num_args)
+        function_or_closure = self.stack[self.stack_pointer - 1 - num_args]
+        match type(function_or_closure):
+            case objects.Closure:
+                assert isinstance(function_or_closure, objects.Closure)
+                return self.call_compiled_function(function_or_closure, num_args)
             case objects.BuiltInFunction:
-                assert isinstance(func, objects.BuiltInFunction)
-                return self.call_builtin_function(func, num_args)
+                assert isinstance(function_or_closure, objects.BuiltInFunction)
+                return self.call_builtin_function(function_or_closure, num_args)
             case _:
-                raise Unhandled(f"Can't call function of type: '{type(func)}'")
+                raise Unhandled(
+                    f"Can't call function of type: '{type(function_or_closure)}'"
+                )
 
-    def call_compiled_function(
-        self, func: objects.CompiledFunction, num_args: int
-    ) -> None:
-        if func.num_params != num_args:
+    def call_compiled_function(self, closure: objects.Closure, num_args: int) -> None:
+        if closure.function.num_params != num_args:
             raise MismatchedNumberOfParams(
-                f"Expected {func.num_params}, got {num_args}"
+                f"Expected {closure.function.num_params}, got {num_args}"
             )
 
-        frame = frames.Frame.new(func, self.stack_pointer - num_args)
+        frame = frames.Frame.new(closure, self.stack_pointer - num_args)
         self.push_frame(frame)
-        self.stack_pointer = frame.base_pointer + func.num_locals
+        self.stack_pointer = frame.base_pointer + closure.function.num_locals
 
     def call_builtin_function(
         self, func: objects.BuiltInFunction, num_args: int
