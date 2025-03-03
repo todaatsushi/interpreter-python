@@ -24,6 +24,8 @@ class Instructions(bytearray):
                 return f"{definition.name}"
             case 1:
                 return f"{definition.name} {operands[0]}"
+            case 2:
+                return f"{definition.name} {operands[0]} {operands[1]}"
         return f"ERROR: unhandled num_operands for {definition.name}"
 
     def __str__(self) -> str:

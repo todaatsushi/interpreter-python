@@ -22,6 +22,11 @@ class TestOpCodes(unittest.TestCase):
                 [255],
                 bytes([code.OpCodes.SET_LOCAL.as_int(), 255]),
             ),
+            (
+                code.OpCodes.CLOSURE,
+                [65534, 255],
+                bytes([code.OpCodes.CLOSURE.as_int(), 255, 254, 255]),
+            ),
         )
 
         for op, operands, expected in test_cases:
@@ -32,10 +37,19 @@ class TestOpCodes(unittest.TestCase):
     def test_string(self) -> None:
         instructions = [
             code.make(code.OpCodes.ADD),
-            *[code.make(code.OpCodes.CONSTANT, i) for i in [2, 65535]],
+            code.make(code.OpCodes.GET_LOCAL, 1),
+            code.make(code.OpCodes.CONSTANT, 2),
+            code.make(code.OpCodes.CONSTANT, 65535),
+            code.make(code.OpCodes.CLOSURE, 65535, 255),
         ]
 
-        expected = "0000 OpAdd\n0001 OpConstant 2\n0004 OpConstant 65535"
+        expected = (
+            "0000 OpAdd\n"
+            "0001 OpGetLocal 1\n"
+            "0003 OpConstant 2\n"
+            "0006 OpConstant 65535\n"
+            "0009 OpClosure 65535 255"
+        )
 
         concatted = code.Instructions.concat_bytes(instructions)
         self.assertEqual(str(concatted), expected)
@@ -46,6 +60,7 @@ class TestOpCodes(unittest.TestCase):
             (code.OpCodes.CONSTANT, [65535], 2),
             (code.OpCodes.GET_LOCAL, [255], 1),
             (code.OpCodes.SET_LOCAL, [255], 1),
+            (code.OpCodes.CLOSURE, [65535, 255], 3),
         )
 
         for op, operands, bytes_read in test_cases:
