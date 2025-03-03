@@ -22,6 +22,7 @@ class ObjectType(enum.StrEnum):
     ARRAY = "ARRAY"
     HASH_KEY = "HASH_KEY"
     HASH = "HASH"
+    CLOSURE = "CLOSURE"
 
 
 class ErrorTypes(enum.StrEnum):
