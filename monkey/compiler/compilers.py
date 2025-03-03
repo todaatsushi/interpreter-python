@@ -90,6 +90,8 @@ class Compiler:
                 op_code = code.OpCodes.GET_LOCAL
             case st.Scope.BUILTIN:
                 op_code = code.OpCodes.GET_BUILTIN
+            case st.Scope.FREE:
+                raise CompilerError("UNHANDLED")
         self.emit(op_code, symbol.index)
 
     @property

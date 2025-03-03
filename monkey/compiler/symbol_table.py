@@ -16,6 +16,7 @@ class Scope(enum.StrEnum):
     GLOBAL = "GLOBAL"
     LOCAL = "LOCAL"
     BUILTIN = "BUILTIN"
+    FREE = "FREE"
 
 
 @dc.dataclass(frozen=True)
