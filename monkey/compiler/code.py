@@ -98,6 +98,7 @@ class OpCodes(bytes, enum.Enum):
     GET_BUILTIN = bytes([26])
 
     CLOSURE = bytes([27])
+    GET_FREE = bytes([28])
 
     def as_int(self) -> int:
         return int.from_bytes(self)
@@ -140,6 +141,7 @@ DEFINITIONS: dict[OpCodes, Definition] = {
     OpCodes.SET_LOCAL: Definition(name="OpSetLocal", operand_widths=[1]),
     OpCodes.GET_BUILTIN: Definition(name="OpGetBuiltin", operand_widths=[1]),
     OpCodes.CLOSURE: Definition(name="OpClosure", operand_widths=[2, 1]),
+    OpCodes.GET_FREE: Definition(name="OpGetFree", operand_widths=[1]),
 }
 
 
