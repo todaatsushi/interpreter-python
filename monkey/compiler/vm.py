@@ -104,10 +104,6 @@ class VM:
 
         raise Missing
 
-    def push_frame(self, frame: frames.Frame) -> None:
-        self.frames[self.frames_index] = frame
-        self.frames_index += 1
-
     def pop_frame(self) -> frames.Frame:
         if self.frames_index < 0:
             raise Missing
@@ -277,6 +273,10 @@ class VM:
 
         self.stack[self.stack_pointer] = o
         self.stack_pointer += 1
+
+    def push_frame(self, frame: frames.Frame) -> None:
+        self.frames[self.frames_index] = frame
+        self.frames_index += 1
 
     def pop(self) -> objects.Object:
         if self.stack_pointer <= 0:
