@@ -315,6 +315,17 @@ class CompiledFunction(Object):
         return str(self)
 
 
+@dc.dataclass(frozen=True)
+class Closure(Object):
+    function: CompiledFunction
+    free: list[Object]
+
+    type_: ObjectType = ObjectType.CLOSURE
+
+    def inspect(self) -> str:
+        return f"Closure: {self}"
+
+
 BUILTIN_MAP: dict[str, BuiltInFunction] = {
     "len": BuiltInFunction(function=GetLength()),
     "puts": BuiltInFunction(function=Puts()),
