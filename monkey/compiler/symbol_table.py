@@ -31,6 +31,8 @@ class SymbolTable:
     store: dict[str, Symbol]
     num_definitions: int
 
+    free_symbols: list[Symbol] = dc.field(default_factory=lambda: [])
+
     outer: SymbolTable | None = None
 
     @classmethod
@@ -53,6 +55,15 @@ class SymbolTable:
 
         return symbol
 
+    def define_free(self, original: Symbol) -> Symbol:
+        self.free_symbols.append(original)
+
+        symbol = Symbol(
+            name=original.name, scope=Scope.FREE, index=len(self.free_symbols) - 1
+        )
+        self.store[original.name] = symbol
+        return symbol
+
     def define_builtin(self, index: int, name: str) -> Symbol:
         symbol = Symbol(name, Scope.BUILTIN, index)
         self.store[name] = symbol
@@ -64,4 +75,13 @@ class SymbolTable:
         except KeyError as exc:
             if self.outer is None:
                 raise MissingDefinition(identifier) from exc
-            return self.outer.resolve(identifier)
+
+            try:
+                item = self.outer.resolve(identifier)
+            except KeyError as exc:
+                raise MissingDefinition(identifier) from exc
+
+        if item.scope == Scope.GLOBAL or item.scope == Scope.BUILTIN:
+            return item
+
+        return self.define_free(item)

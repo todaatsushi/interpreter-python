@@ -865,3 +865,101 @@ class TestCompiler(unittest.TestCase):
                 ),
             ),
         )
+
+    def test_closures(self) -> None:
+        run_compiler_tests(
+            self,
+            (
+                (
+                    "fn(a) { fn(b) { a + b } }",
+                    [
+                        [
+                            code.make(code.OpCodes.GET_FREE, 0),
+                            code.make(code.OpCodes.GET_LOCAL, 0),
+                            code.make(code.OpCodes.ADD),
+                            code.make(code.OpCodes.RETURN_VALUE),
+                        ],
+                        [
+                            code.make(code.OpCodes.GET_LOCAL, 0),
+                            code.make(code.OpCodes.CLOSURE, 0, 1),
+                            code.make(code.OpCodes.RETURN_VALUE),
+                        ],
+                    ],
+                    [
+                        code.make(code.OpCodes.CLOSURE, 1, 0),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+                (
+                    "fn(a) { fn(b) { fn(c) { a + b + c } } }",
+                    [
+                        [
+                            code.make(code.OpCodes.GET_FREE, 0),
+                            code.make(code.OpCodes.GET_FREE, 1),
+                            code.make(code.OpCodes.ADD),
+                            code.make(code.OpCodes.GET_LOCAL, 0),
+                            code.make(code.OpCodes.ADD),
+                            code.make(code.OpCodes.RETURN_VALUE),
+                        ],
+                        [
+                            code.make(code.OpCodes.GET_FREE, 0),
+                            code.make(code.OpCodes.GET_LOCAL, 0),
+                            code.make(code.OpCodes.CLOSURE, 0, 2),
+                            code.make(code.OpCodes.RETURN_VALUE),
+                        ],
+                        [
+                            code.make(code.OpCodes.GET_LOCAL, 0),
+                            code.make(code.OpCodes.CLOSURE, 1, 1),
+                            code.make(code.OpCodes.RETURN_VALUE),
+                        ],
+                    ],
+                    [
+                        code.make(code.OpCodes.CLOSURE, 2, 0),
+                        code.make(code.OpCodes.RETURN_VALUE),
+                    ],
+                ),
+                (
+                    "let global = 55; fn() { let a = 66; fn() { let b = 77; fn() let c = 88; global + a + b + c }}",
+                    [
+                        55,
+                        66,
+                        77,
+                        88,
+                        [
+                            code.make(code.OpCodes.CONSTANT, 3),
+                            code.make(code.OpCodes.SET_LOCAL, 0),
+                            code.make(code.OpCodes.GET_GLOBAL, 0),
+                            code.make(code.OpCodes.GET_FREE, 0),
+                            code.make(code.OpCodes.ADD),
+                            code.make(code.OpCodes.GET_FREE, 1),
+                            code.make(code.OpCodes.ADD),
+                            code.make(code.OpCodes.GET_LOCAL, 0),
+                            code.make(code.OpCodes.ADD),
+                            code.make(code.OpCodes.RETURN_VALUE),
+                        ],
+                        [
+                            code.make(code.OpCodes.CONSTANT, 2),
+                            code.make(code.OpCodes.SET_LOCAL, 0),
+                            code.make(code.OpCodes.GET_FREE, 0),
+                            code.make(code.OpCodes.GET_LOCAL, 0),
+                            code.make(code.OpCodes.GET_LOCAL, 0),
+                            code.make(code.OpCodes.CLOSURE, 4, 2),
+                            code.make(code.OpCodes.RETURN_VALUE),
+                        ],
+                        [
+                            code.make(code.OpCodes.CONSTANT, 1),
+                            code.make(code.OpCodes.SET_LOCAL, 0),
+                            code.make(code.OpCodes.GET_LOCAL, 0),
+                            code.make(code.OpCodes.CLOSURE, 5, 1),
+                            code.make(code.OpCodes.RETURN_VALUE),
+                        ],
+                    ],
+                    [
+                        code.make(code.OpCodes.CONSTANT, 0),
+                        code.make(code.OpCodes.SET_GLOBAL, 0),
+                        code.make(code.OpCodes.CLOSURE, 6, 0),
+                        code.make(code.OpCodes.POP),
+                    ],
+                ),
+            ),
+        )

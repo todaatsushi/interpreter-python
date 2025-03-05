@@ -59,3 +59,97 @@ class TestSymbolTable(TestCase):
                     self.fail(f"Missing definition for {expected}")
 
                 self.assertEqual(actual, expected)
+
+    def test_resolve_free(self) -> None:
+        global_scope = st.SymbolTable.new()
+        global_scope.define("a")
+        global_scope.define("b")
+
+        first_local = st.SymbolTable.new_enclosed(global_scope)
+        first_local.define("c")
+        first_local.define("d")
+
+        second_local = st.SymbolTable.new_enclosed(first_local)
+        second_local.define("e")
+        second_local.define("f")
+
+        tests: tuple[tuple[st.SymbolTable, list[st.Symbol], list[st.Symbol]], ...] = (
+            (
+                first_local,
+                [
+                    st.Symbol(name="a", scope=st.Scope.GLOBAL, index=0),
+                    st.Symbol(name="b", scope=st.Scope.GLOBAL, index=1),
+                    st.Symbol(name="c", scope=st.Scope.LOCAL, index=0),
+                    st.Symbol(name="d", scope=st.Scope.LOCAL, index=1),
+                ],
+                [],
+            ),
+            (
+                second_local,
+                [
+                    st.Symbol(name="a", scope=st.Scope.GLOBAL, index=0),
+                    st.Symbol(name="b", scope=st.Scope.GLOBAL, index=1),
+                    st.Symbol(name="c", scope=st.Scope.FREE, index=0),
+                    st.Symbol(name="d", scope=st.Scope.FREE, index=1),
+                    st.Symbol(name="e", scope=st.Scope.LOCAL, index=0),
+                    st.Symbol(name="f", scope=st.Scope.LOCAL, index=1),
+                ],
+                [
+                    st.Symbol(name="c", scope=st.Scope.LOCAL, index=0),
+                    st.Symbol(name="d", scope=st.Scope.LOCAL, index=1),
+                ],
+            ),
+        )
+
+        for i, (symbol_table, expected_symbols, expected_free_symbols) in enumerate(
+            tests
+        ):
+            with self.subTest(f"Free scope test: {i}"):
+                for expected_symbol in expected_symbols:
+                    try:
+                        actual_symbol = symbol_table.resolve(expected_symbol.name)
+                    except st.MissingDefinition:
+                        self.fail(
+                            f"Missing definition: {expected_symbol.name} in {symbol_table}"
+                        )
+
+                    self.assertEqual(actual_symbol, expected_symbol)
+
+                self.assertEqual(
+                    len(symbol_table.free_symbols), len(expected_free_symbols)
+                )
+
+                for i, expected_free_symbol in enumerate(expected_free_symbols):
+                    actual_free_symbol = symbol_table.free_symbols[i]
+                    self.assertEqual(actual_free_symbol, expected_free_symbol)
+
+    def test_resolve_unresolvable_free(self) -> None:
+        global_scope = st.SymbolTable.new()
+        global_scope.define("a")
+
+        first_local = st.SymbolTable.new_enclosed(global_scope)
+        first_local.define("c")
+
+        second_local = st.SymbolTable.new_enclosed(first_local)
+        second_local.define("e")
+        second_local.define("f")
+
+        expected: list[st.Symbol] = [
+            st.Symbol(name="a", scope=st.Scope.GLOBAL, index=0),
+            st.Symbol(name="c", scope=st.Scope.FREE, index=0),
+            st.Symbol(name="e", scope=st.Scope.LOCAL, index=0),
+            st.Symbol(name="f", scope=st.Scope.LOCAL, index=1),
+        ]
+
+        for expected_symbol in expected:
+            actual_symbol = second_local.resolve(expected_symbol.name)
+            self.assertEqual(actual_symbol, expected_symbol)
+
+        expected_unresolvable = ["b", "d"]
+        for name in expected_unresolvable:
+            try:
+                second_local.resolve(name)
+            except st.MissingDefinition:
+                pass
+            else:
+                self.fail(f"Didn't expect to resolve '{name}' in {second_local}")
