@@ -91,7 +91,7 @@ class Compiler:
             case st.Scope.BUILTIN:
                 op_code = code.OpCodes.GET_BUILTIN
             case st.Scope.FREE:
-                raise CompilerError("UNHANDLED")
+                op_code = code.OpCodes.GET_FREE
         self.emit(op_code, symbol.index)
 
     @property
@@ -315,16 +315,22 @@ class Compiler:
                     if not self._last_instruction_is(code.OpCodes.RETURN_VALUE):
                         self.emit(code.OpCodes.RETURN)
 
-                    num_definitions = self.symbol_table.num_definitions
+                    free_symbols = self.symbol_table.free_symbols
+                    num_locals = self.symbol_table.num_definitions
                     func_scope_instructions = self.leave_scope()
+
+                    for symbol in free_symbols:
+                        self.load_symbol(symbol)
 
                     compiled_function = objects.CompiledFunction(
                         instructions=func_scope_instructions,
-                        num_locals=num_definitions,
+                        num_locals=num_locals,
                         num_params=len(node.parameters),
                     )
                     self.emit(
-                        code.OpCodes.CLOSURE, self._add_constant(compiled_function)
+                        code.OpCodes.CLOSURE,
+                        self._add_constant(compiled_function),
+                        len(free_symbols),
                     )
                 case ast.Return:
                     assert isinstance(node, ast.Return)
